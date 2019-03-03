@@ -9,7 +9,18 @@
         monitorUploadTimer = null,  // 自动上传日志记录的定时器
         uploadMessageArray = null,  // 暂存本地用于保存日志信息的数组
         jsMonitorStarted = false,     // onerror错误监控启动状态
-        uploadRemoteServer = true;  // 上传日志的开关，如果为false，则不再上传
+        uploadRemoteServer = true,  // 上传日志的开关，如果为false，则不再上传
+        screenShotDescriptions = [],    // 保存图片对应的描述，同一个描述只保存一次
+        tempScreenShot = "",        // 屏幕截图字符串
+        defaultLocation = window.location.href.split('?')[0].replace('#', ''),  //获取当前url
+        timingObj = performance && performance.timing,  // 页面加载相关属性
+        resourcesObj = (function() {          // 页面加载具体属性
+            if(performance && typeof performance.getEntries === 'function') {
+                return performance.getEntries();
+            }
+            return null;
+        })();
+
     
     var MONITOR_ID = 'exmonitor',   // 所属项目ID，用于替换相应项目的UUID，生成监控代码的时候搜索替换
         HTTP_TYPE = window.location.href.indexOf('https') === -1 ? 'http://' : 'https://',  // 判断是http还是https
@@ -21,9 +32,11 @@
         PROJECT_INFO_URL = UPLOAD_URI + '/project/getProject',  // 获取当前项目的参数信息的接口
         UPLOAD_RECORD_URL = UPLOAD_URI + '',    // 上传埋点数据接口
         CUSTOMER_PV = 'CUSTOMER_PV',    //用户访问日志类型
+        LOAD_PAGE = 'LOAD_PAGE',    // 用户加载页面信息类型
         HTTP_LOG = 'HTTP_LOG',  // 接口日志类型
         HTTP_ERROR = 'HTTP_ERROR',   // 接口错误日志类型
         JS_ERROR = "JS_ERROR",  // JS报错日志类型
+        SCREEN_SHOT = 'SCREEN_SHOT', // 截屏类型
         BEHAVIOR_INFO = 'BEHAVIOR_INFO', // 用户行为类型
         BROWSER_INFO = window.navigator.userAgent,  // 浏览器信息
         utils = new MonitorUtils(), // 工具类实例化
@@ -41,8 +54,17 @@
                 case JS_ERROR:
                     localStorage[JS_ERROR] = tempString + JSON.parse(logInfo) + '$$$';
                     break;
+                case HTTP_LOG:
+                    localStorage[HTTP_LOG] = tempString + JSON.parse(logInfo) + '$$$';
+                    break;
+                case SCREEN_SHOT:
+                    localStorage[SCREEN_SHOT] = tempString + JSON.parse(logInfo) + '$$$';
+                    break;
                 case CUSTOMER_PV:
                     localStorage[CUSTOMER_PV] = tempString + JSON.parse(logInfo) + '$$$';
+                    break;
+                case LOAD_PAGE:
+                    localStorage[LOAD_PAGE] = tempString + JSON.parse(logInfo) + '$$$';
                     break;
                 default:
                     break;
@@ -55,27 +77,55 @@
         this.happenTime = new Date().getTime(); // 日志发生时间
         this.monitorId = MONITOR_ID;    //用于区分应用的唯一标识（一个项目对应一个）
         this.simpleUrl = window.location.href.split('?')[0].replace('#', '');   // 页面URL
+        this.completeUrl = encodeURIComponent(window.location.href),
         this.customerKey = utils.getCustomerKey();  // 用于区分用户，所对应唯一的标识，清理本地数据就失效
-        this.pageKey = utils.getPageKey();  // 用户区分页面，所对应的唯一标识，每个新页面对应一个值
-        this.deviceName = DEVICE_INFO.deviceName;
-        this.os = DEVICE_INFO.os + (DEVICE_INFO.osVersion ? '' + DEVICE_INFO.osVersion : '');
-        this.browserName = DEVICE_INFO.browserName;
-        this.browserVersion = DEVICE_INFO.browserVersion;
-        // 用户自定义信息，由开发者主动传入，便于对线上进行准确定位
-        this.userId = USER_INFO.userId;
-        this.firstUserParam = USER_INFO.firstUserParam;
-        this.secondUserParam = USER_INFO.secondUserParam;   
+        // this.pageKey = utils.getPageKey();  // 用户区分页面，所对应的唯一标识，每个新页面对应一个值
+        // this.deviceName = DEVICE_INFO.deviceName;
+        // this.os = DEVICE_INFO.os + (DEVICE_INFO.osVersion ? '' + DEVICE_INFO.osVersion : '');
+        // this.browserName = DEVICE_INFO.browserName;
+        // this.browserVersion = DEVICE_INFO.browserVersion;
+        // // 用户自定义信息，由开发者主动传入，便于对线上进行准确定位
+        // this.userId = USER_INFO.userId;
+        // this.firstUserParam = USER_INFO.firstUserParam;
+        // this.secondUserParam = USER_INFO.secondUserParam;   
     }
 
     // 用户PV访问行为日志
     function CustomerPV(uploadType, loadType, loadTime){
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
+        this.pageKey = utils.getPageKey();  // 用于区分页面，所对应唯一的标识，每个新页面对应一个值
+        this.deviceName = DEVICE_INFO.deviceName;
+        this.os = DEVICE_INFO.os + (DEVICE_INFO.osVersion ? " " + DEVICE_INFO.osVersion : "");
+        this.browserName = DEVICE_INFO.browserName;
+        this.browserVersion = DEVICE_INFO.browserVersion;
+        this.monitorIp = "";  // 用户的IP地址
+        this.country = "china";  // 用户所在国家
+        this.province = "";  // 用户所在省份
+        this.city = "";  // 用户所在城市
         this.loadType = loadType;   // 用于区分首次加载
         this.loadTime = loadTime;   // 加载时间
     }
     // 原型链继承
     CustomerPV.prototype = new MonitorBaseInfo();
+    
+    // 用户加载页面的信息日志
+    function LoadPageInfo(uploadType, loadType, oladPage, domReady, redirect, lookupDomain, ttfb, request, loadEvent, appcache, uploadEvent, connect) {
+        setCommonProperty.apply(this);
+        this.uploadType = uploadType;
+        this.loadType = loadType;
+        this.loadPage = loadPage;
+        this.domReady = domReady;
+        this.redirect = redirect;
+        this.lookupDomain = lookupDomain;
+        this.ttfb = ttfb;
+        this.request = request;
+        this,loadEvent = loadEvent;
+        this.appcache = appcache;
+        this.unloadEvent = unloadEvent;
+        this.connect = connect;
+    }
+    LoadPageInfo.prototype = new MonitorBaseInfo();
     
     // 用户行为日志，继承于日志基类MonitorBaseInfo
     function BehaviorInfo(uploadType, behaviorType, className, placeholder, inputValue, tagName, innerText){
@@ -95,10 +145,32 @@
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
         this.errorMsg = encodeURIComponent(errorMsg);
-        this.errorStack = errorStack;
+        this.errorStack = encodeURIComponent(errorStack);
         this.browserInfo = BROWSER_INFO;
     }
     JSErrorInfo.prototype = new MonitorBaseInfo();
+
+    // 接口请求日志， 继承于日志基类MonitorBaseInfo()
+    function HttpLogInfo(uploadType, url, status, statusText, statusResult, currentTime, loadTime) {
+        setCommonProperty.apply(this);
+        this.uploadType = uploadType;
+        this.httpUrl = encodeURIComponent(url),
+        this.status = status;
+        this.statusText = statusText;
+        this.statusResult = statusResult;
+        this.happenTime = currentTime;
+        this.loadTime = loadTime;
+    }
+    HttpLogInfo.prototype = new MonitorBaseInfo();
+
+    // JS错误截图， 继承于日志基类MonitorBaseInfo
+    function ScreenShotInfo(uploadType, des, screenInfo){
+        setCommonProperty.apply(this);
+        this.uploadType = uploadType;
+        this.description = encodeURIComponent(des);
+        this.screenInfo = screenInfo;
+    }
+    ScreenShotInfo.prototype = new MonitorBaseInfo();
 
     /*
         监控初始化配置，以及启动的方法
@@ -153,6 +225,72 @@
         var customerPV = new CustomerPV(CUSTOMER_PV, "none", 0);
         customerPV.handleLogInfo(CUSTOMER_PV, customerPV);
     }
+
+    /**
+     * 用户加载页面信息监控
+     * @param project 项目详情
+     */
+    function recordLoadPage() {
+        utils.addLoadEvent(function () {
+            setTimeout(function() {
+                if(resourcesObj) {
+                    var loadType = "load";
+                    if(resourcesObj[0] && resourcesObj[0].type === 'navigate') {
+                        loadType = "load";
+                    } else {
+                        loadType = "reload";
+                    }
+                }
+                var t = timingObj;
+                var loadPageInfo = new LoadPageInfo(LOAD_PAGE);
+                // 页面加载类型，区分第一次load还是reload
+                loadPageInfo.loadType = loadType;
+
+                //【重要】页面加载完成的时间
+                //【原因】这几乎代表了用户等待页面可用的时间
+                loadPageInfo.loadPage = t.loadEventEnd - t.navigationStart;
+
+                //【重要】解析 DOM 树结构的时间
+                //【原因】反省下你的 DOM 树嵌套是不是太多了！
+                loadPageInfo.domReady = t.domComplete - t.responseEnd;
+
+                //【重要】重定向的时间
+                //【原因】拒绝重定向！比如，http://example.com/ 就不该写成 http://example.com
+                loadPageInfo.redirect = t.redirectEnd - t.redirectStart;
+
+                //【重要】DNS 查询时间
+                //【原因】DNS 预加载做了么？页面内是不是使用了太多不同的域名导致域名查询的时间太长？
+                // 可使用 HTML5 Prefetch 预查询 DNS ，见：[HTML5 prefetch](http://segmentfault.com/a/1190000000633364)
+                loadPageInfo.lookupDomain = t.domainLookupEnd - t.domainLookupStart;
+
+                //【重要】读取页面第一个字节的时间
+                //【原因】这可以理解为用户拿到你的资源占用的时间，加异地机房了么，加CDN 处理了么？加带宽了么？加 CPU 运算速度了么？
+                // TTFB 即 Time To First Byte 的意思
+                // 维基百科：https://en.wikipedia.org/wiki/Time_To_First_Byte
+                loadPageInfo.ttfb = t.responseStart - t.navigationStart;
+
+                //【重要】内容加载完成的时间
+                //【原因】页面内容经过 gzip 压缩了么，静态资源 css/js 等压缩了么？
+                loadPageInfo.request = t.responseEnd - t.requestStart;
+
+                //【重要】执行 onload 回调函数的时间
+                //【原因】是否太多不必要的操作都放到 onload 回调函数里执行了，考虑过延迟加载、按需加载的策略么？
+                loadPageInfo.loadEvent = t.loadEventEnd - t.loadEventStart;
+
+                // DNS 缓存时间
+                loadPageInfo.appcache = t.domainLookupStart - t.fetchStart;
+
+                // 卸载页面的时间
+                loadPageInfo.unloadEvent = t.unloadEventEnd - t.unloadEventStart;
+
+                // TCP 建立连接完成握手的时间
+                loadPageInfo.connect = t.connectEnd - t.connectStart;
+
+                loadPageInfo.handleLogInfo(LOAD_PAGE, loadPageInfo);
+            }, 1000);
+        })
+    }
+
     /**
      * JS错误监控
      */
@@ -252,6 +390,21 @@
          */
         this.setPageKey = function(){
             localStorage.monitorPageKey = this.getPageKey();
+        }
+
+        /**
+         * 重写页面的onload事件
+         */
+        this.addLoadEvent = function(func){
+            var oldonload = window.onload;
+            if(typeof window.onload != 'function'){
+                window.onload = func;
+            } else {
+                window.onload = function() {
+                    oldonload();
+                    func();
+                }
+            }
         }
 
         /**
