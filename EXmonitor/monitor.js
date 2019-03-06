@@ -177,7 +177,10 @@
     */
     function init(){
         recordPV();
+        recordLoadPage();
+        recordBehavior({record: 1});
         recordJSError();
+        recordHttpLog();
 
         /**
          * 添加一个定时器进行数据的上传
@@ -215,6 +218,19 @@
             }
             timeCount ++;
         }, 2000);
+    }
+
+    /**
+     * 检查url是否变化
+     */
+    function checkUrlChange() {
+        // 如果是单页应用， 只更改url
+        var webLocation = window.location.href.split('?')[0].replace('#', '');
+        // 如果url变化了， 就把更新的url记录为 defaultLocation, 重新设置pageKey
+        if (defaultLocation != webLocation) {
+            recordPV();
+            defaultLocation = webLocation;
+        }
     }
 
     /**
@@ -326,8 +342,23 @@
             }
             var jsErrorInfo = new JSErrorInfo(JS_ERROR, errorType + ": " + errorMsg, errorObj);
             jsErrorInfo.handleLogInfo(JS_ERROR, jsErrorInfo);
+            setTimeout(function(){
+                // 保存该错误相关的截图信息，并存入历史
+                if (screenShotDescriptions.indexOf(errorMsg) != -1)
+                    return;
+                screenShotDescriptions.push(errorMsg);
+                utils.screenShot(document.body, errorMsg);
+            }, 500);
         };
     };
+
+    /**
+     * 
+     * 页面请求接口监控
+     */
+    function recordHttpLog(){
+        
+    }
 
     /**
      * 用户行为记录监控
@@ -335,6 +366,8 @@
      */
     function recordBehavior(project){
         if(project && project.record && project.record == 1){
+            // 记录行为前，检查一下url记录是否变化
+            checkUrlChange();
             // 记录用户的点击行为
             document.onclick = function(e){
                 var tagName = e.target.tagName;
