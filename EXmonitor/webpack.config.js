@@ -4,7 +4,7 @@ var UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 var ROOT_PATH = path.resolve(__dirname);
 
 module.exports = {
-    entry: [ROOT_PATH + "/monitor.js", ROOT_PATH + "/fetchCode.js"],
+    entry: [ROOT_PATH + "/html2canvas.js", ROOT_PATH + "/monitor.js", ROOT_PATH + "/fetchCode.js"],
     output: {
         path: ROOT_PATH,
         filename: 'monitor.fetch.min.js'

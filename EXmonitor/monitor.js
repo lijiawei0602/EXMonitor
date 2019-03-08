@@ -28,6 +28,7 @@
         LOCAL_IP = 'localhost',
         MONITOR_IP = 'lijiawei.com.cn', // 监控平台地址
         UPLOAD_URI = LOCACTION.indexOf(LOCAL_IP) === -1 ? HTTP_TYPE + MONITOR_IP : HTTP_TYPE + LOCAL_IP + ':8010',
+        UPLOAD_LOG_API = '/api/uploadLog',  //上传数据的接口API
         UPLOAD_LOG_URL = UPLOAD_URI + '/api/uploadLog', // 上传数据的接口
         PROJECT_INFO_URL = UPLOAD_URI + '/project/getProject',  // 获取当前项目的参数信息的接口
         UPLOAD_RECORD_URL = UPLOAD_URI + '',    // 上传埋点数据接口
@@ -184,40 +185,32 @@
 
         /**
          * 添加一个定时器进行数据的上传
-         * 2s进行一次URL是否变化的检测
-         * 10s进行一次数据的检查并上传
+         * .2s进行一次URL是否变化的检测
+         * 5s进行一次数据的检查并上传
          */
-        var defaultLocation = window.location.href.split('?')[0].replace('#','');
         var timeCount = 0;
         setInterval(function(){
-            var nowLocation = window.location.href.split('?')[0].replace('#', '');
-            // 如果url变化，就更新default，重新设置pageKey
-            if(defaultLocation != nowLocation){
-                recordPV();
-                defaultLocation = nowLocation;
-            }
-            if(timeCount >= 5){
+            checkUrlChange();
+            if(timeCount >= 25){
                 var logInfo = (localStorage[BEHAVIOR_INFO] || '') +
                  (localStorage[JS_ERROR] || '') + 
-                 (localStorage[CUSTOMER_PV] || '');
+                 (localStorage[HTTP_LOG] || '') +
+                 (localStorage[SCREEN_SHOT] || '') +
+                 (localStorage[CUSTOMER_PV] || '')+
+                 (localStorage[LOAD_PAGE] || '');
                 if(logInfo){
-                    utils.ajax("POST", UPLOAD_LOG_URL, {logInfo: logInfo}, function(res){
-                        // 上传完成后，清空本地记录
-                        if(res.code === 200){
-                            localStorage[BEHAVIOR_INFO] = '';
-                            localStorage[JS_ERROR] = '';
-                            localStorage[CUSTOMER_PV] = '';
-                        }
-                    }, function(){
-                        localStorage[BEHAVIOR_INFO] = '';
-                        localStorage[JS_ERROR] = '';
-                        localStorage[CUSTOMER_PV] = '';
-                    })
+                    localStorage[BEHAVIOR_INFO] = '';
+                    localStorage[JS_ERROR] = '';
+                    localStorage[HTTP_LOG] = '';
+                    localStorage[SCREEN_SHOT] = '';
+                    localStorage[CUSTOMER_PV] = '';
+                    localStorage[LOAD_PAGE] = '';
+                    utils.ajax("POST", UPLOAD_LOG_URL, {logInfo: logInfo}, function(res) {}, function() {});
                 }
                 timeCount = 0;
             }
             timeCount ++;
-        }, 2000);
+        }, 200);
     }
 
     /**
@@ -357,7 +350,53 @@
      * 页面请求接口监控
      */
     function recordHttpLog(){
-        
+        function ajaxEventTrigger(event) {
+            var ajaxEvent = new CustomEvent(event, {
+                detail: this,
+            });
+            window.dispatchEvent(ajaxEvent);
+        }
+        var oldXHR = window.XMLHttpRequest;
+        function newXHR() {
+            var realXHR = new oldXHR();
+            realXHR.addEventListener('abort', function() { ajaxEventTrigger.call(this, 'ajaxAbort'); }, false);
+            realXHR.addEventListener('error', function() { ajaxEventTrigger.call(this, 'ajaxError'); }, false);
+            realXHR.addEventListener('load', function() { ajaxEventTrigger.call(this, 'ajaxLoad'); }, false);
+            realXHR.addEventListener('loadStart', function() { ajaxEventTrigger.call(this, 'ajaxLoadStart'); }, false);
+            realXHR.addEventListener('progress', function() { ajaxEventTrigger.call(this, 'ajaxProgress'); }, false);
+            realXHR.addEventListener('timeout', function() { ajaxEventTrigger.call(this, 'ajaxTimeout'); }, false);
+            realXHR.addEventListener('loadend', function() { ajaxEventTrigger.call(this, 'ajaxLoadEnd'); }, false);
+            realXHR.addEventListener('readystatechange', function() { ajaxEventTrigger.call(this, 'ajaxReadyStateChange'); }, false);
+            return realXHR;
+        }
+
+        var timeRecordArray = [];
+        window.XMLHttpRequest = newXHR;
+        window.addEventListener('ajaxLoadStart', function(e) {
+            var tempObj = {
+                timeStamp: new Date().getTime(),
+                event: e,
+                flag: false,
+            };
+            timeRecordArray.push(tempObj);
+        });
+
+        window.addEventListener('ajaxLoadEnd', function(e) {
+            for(var i = 0; i< timeRecordArray.length; i++) {
+                if(!timeRecordArray[i].flag) {
+                    var currentTime = new Date().getTime();
+                    var url = timeRecordArray[i].event.detail.responseURL;
+                    var status = timeRecordArray[i].event.detail.status;
+                    var statusText = timeRecordArray[i].event.detail.statusText;
+                    var loadTime = currentTime - timeRecordArray[i].timeStamp;
+                    if(!url || url.indexOf(UPLOAD_LOG_API) != -1) return;
+                    var httpLogInfoStart = new HttpLogInfo(HTTP_LOG, url, status, statusText, "发起请求", timeRecordArray[i].timeStamp, 0);
+                    httpLogInfoStart.handleLogInfo(HTTP_LOG, httpLogInfoStart);
+                    var httpLogInfoEnd = new HttpLogInfo(HTTP_LOG, url, status, statusText, "请求返回", currentTime, loadTime);
+                    httpLogInfoEnd.handleLogInfo(HTTP_LOG, httpLogInfoEnd);
+                }
+            }
+        });
     }
 
     /**
@@ -422,7 +461,7 @@
          * 设置页面的唯一标识
          */
         this.setPageKey = function(){
-            localStorage.monitorPageKey = this.getPageKey();
+            localStorage.monitorPageKey = this.getUuid();
         }
 
         /**
@@ -460,6 +499,35 @@
                 }
             }
             xhr.send("data=" + JSON.stringify(param));
+        }
+
+        /**
+         * 处理屏幕截图
+         */
+        this.screenShot = function(ele, description) {
+            var shotDom = ele;  // 截图时包裹的DOM对象
+            var width = shotDom.offsetWidth;    // 获取dom宽度
+            var height = shotDom.offsetHeight;  //获取dom高度
+            var canvas = document.createElement('canvas');
+            var scale = 0.3;    // 定义任意放大倍数
+            canvas.width = width * scale;
+            canvas.height = height * scale;
+            var context = canvas.getContext("2d");
+            context.scale(scale, scale);
+
+            var opt = {
+                scale: scale,
+                canvas: canvas,
+                logging: false, // 日志开关，便于查看html2canvas的内部执行流程
+                width: width,
+                height: height,
+                useCORS: true,  // 开启跨域配置
+            };
+            window.html2canvas && window.html2canvas(ele, opt).then(function(canvas) {
+                var dataUrl = canvas.toDataURL("image/webp");
+                var screenShotInfo = new ScreenShotInfo(SCREEN_SHOT, description, dataUrl);
+                screenShotInfo.handleLogInfo(SCREEN_SHOT, screenShotInfo);
+            })
         }
 
         /**
@@ -628,6 +696,10 @@
                 firstUserParam: firstUserParam,
                 secondUserParam: secondUserParam
             });
-        }
+        },
+        /**
+         * @param description 截屏描述
+         */
+        
     }
 })(window)
