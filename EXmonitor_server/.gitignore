@@ -2,4 +2,4 @@ npm-debug.log
 package-lock.json
 node_modules
 .vscode/
-./config/index.js
+config/index.js
