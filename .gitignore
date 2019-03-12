@@ -2,4 +2,4 @@ npm-debug.log
 package-lock.json
 node_modules
 .vscode/
-EXmonitor_server/config/index.js
+/EXmonitor_server/config/index.js
