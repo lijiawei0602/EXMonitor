@@ -4,10 +4,7 @@ const config = {
         base: '/api',
     },
     database: {
-        host: 'http://lijiawei.com.cn',
-        dbname: 'monitor',
-        username: 'lijiawei',
-        password: '13903584060.ljw',
+        
 
     }
 }
