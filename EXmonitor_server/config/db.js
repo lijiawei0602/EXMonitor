@@ -1,10 +1,11 @@
 import Sequelize from 'sequelize';
 import config from './index.js';
 
-const { host, dbname, username, password } = config;
+const { host, dbname, username, password } = config.database;
 
 const sequelize = new Sequelize(dbname, username, password, {
     host: host,
+    dialect: 'mysql',
     pool: {
         max: 30,
         min: 0,

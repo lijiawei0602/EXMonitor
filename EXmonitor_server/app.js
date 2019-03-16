@@ -1,4 +1,5 @@
 import Koa from 'koa';
+// const Koa = require('koa');
 import cors from 'koa2-cors';
 import json from 'koa-json';
 import bodyparser from 'koa-bodyparser';
@@ -8,6 +9,7 @@ import jwt from 'koa-jwt';
 
 import router from './routes';
 import config from './config'
+import sequelize from './config/db.js';
 
 const app = new Koa();
 
@@ -24,6 +26,15 @@ app.use(bodyparser());
 
 app.use(router.routes());
 app.use(router.allowedMethods());
+
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err);
+  });
 
 app.listen(config.app.port, () => {
     console.log('The server is listen to http://localhost:' + config.app.port);
