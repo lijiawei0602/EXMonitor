@@ -2,6 +2,7 @@ import Router from 'koa-router';
 
 import config from '../config';
 import userController from '../controller/user.js';
+import projectController from '../controller/project.js';
 
 const router = new Router({
     prefix: config.app.base,
@@ -20,6 +21,17 @@ router.get('/user', userController.getUserInfo);
 router.get('/user/list', userController.getUserList);
 // 删除用户
 router.delete('/user/:id', userController.deleteUser);
+
+/**
+ * 项目相关 
+ */
+// 添加项目
+router.post('/project', projectController.create);
+// 根据id获取项目信息
+router.get('/project/:id', projectController.getProjectById);
+// 获取项目列表
+router.get('/project/list', projectController.getProjectList);
+
 
 
 export default router;

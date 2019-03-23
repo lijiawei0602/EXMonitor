@@ -27,14 +27,14 @@ app.use(bodyparser());
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Connection has been established successfully.');
-  })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
-  });
+// sequelize
+//   .authenticate()
+//   .then(() => {
+//     console.log('Connection has been established successfully.');
+//   })
+//   .catch(err => {
+//     console.error('Unable to connect to the database:', err);
+//   });
 
 app.listen(config.app.port, () => {
     console.log('The server is listen to http://localhost:' + config.app.port);

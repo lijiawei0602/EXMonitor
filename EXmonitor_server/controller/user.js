@@ -3,22 +3,22 @@ import bcrypt from 'bcrypt';
 import util from 'util';
 
 import userModel from '../modules/user.js';
-import { jwtConfig } from '../config/index.js';
+import config from '../config/index.js';
 
 const verify = util.promisify(jwt.verify);
-const secret = jwtConfig.secret;
+const { secret } = config.jwtConfig;
 
 /**
  * 创建用户
  * @param ctx 
  * @returns {Promise<void>}
  */
-async function create(ctx) {
+const create = async (ctx) => {
     const user = ctx.request.body;
     const { username, password } = user;
     if (username && password) {
         // 判断是否已存在该用户名
-        const exitUser = userModel.findUserByName(username);
+        const exitUser = await userModel.findUserByName(username);
         if (exitUser) {
             ctx.response.status = 403;
             ctx.body = {
@@ -44,7 +44,9 @@ async function create(ctx) {
             ctx.body =  {
                 code: 200,
                 msg: "创建用户成功",
-                token,
+                data: {
+                    token,
+                },
             };
         }
     } else {
@@ -60,11 +62,11 @@ async function create(ctx) {
  * 用户登录
  * @param ctx 
  */
-async function login(ctx) {
+const login = async (ctx) => {
     const params = ctx.request.body;
-    const user = await userModel.findUserByName(user.username);
+    const user = await userModel.findUserByName(params.username);
     if (user) {
-        if (bcrypt.compareSync(user.password, params.password)) {
+        if (user.password === params.password) {
             const payload = {
                 id: user.id,
                 username: user.username,
@@ -74,9 +76,11 @@ async function login(ctx) {
             ctx.body = {
                 code: 200,
                 msg: "登录成功",
-                id: user.id,
-                username: user.username,
-                token,
+                data: {
+                    id: user.id,
+                    username: user.username,
+                    token,
+                }
             };
         } else {
             ctx.response.status = 400;
@@ -98,7 +102,7 @@ async function login(ctx) {
  * 查询用户信息
  * @param ctx 
  */
-async function getUserInfo(ctx) {
+const getUserInfo = async (ctx) => {
     const token = ctx.header.authorization;
     if (token) {
         let payload;
@@ -112,7 +116,9 @@ async function getUserInfo(ctx) {
             ctx.body = {
                 code: 200,
                 msg: '查询成功',
-                user,
+                data: {
+                    user,
+                },
             };
         } catch (error) {
             ctx.response.status = 401;
@@ -134,7 +140,7 @@ async function getUserInfo(ctx) {
  * 删除用户
  * @param ctx
  */
-async function deleteUser(ctx) {
+const deleteUser = async (ctx) => {
     const { id } = ctx.params;
     if (id && !isNaN(id)) {
         await userModel.deleteUserById(id);
@@ -156,13 +162,15 @@ async function deleteUser(ctx) {
  * 获取用户列表
  * @param ctx 
  */
-async function getUserList(ctx) {
-    const userList = await userModel.getUserList();
+const getUserList = async (ctx) => {
+    const userList = await userModel.findAllUserList();
     ctx.response.status = 200;
     ctx.body = {
         code: 200,
         msg: "获取用户列表成功",
-        userList,
+        data: {
+            userList,
+        },
     };
 }
 

@@ -37,7 +37,7 @@ async function deleteUserById(id) {
  */
 async function findAllUserList() {
     return await User.findAll({
-        attributes: ['id', 'username'],
+        attributes: ['id', 'username', 'createdAt', 'updatedAt'],
     });
 }
 
