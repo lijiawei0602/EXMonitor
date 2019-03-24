@@ -33,8 +33,8 @@ const updateProject = async (id, data) => {
  * 获取项目列表
  * @return {Promise.<Model>}
  */
-const getProjectList = () => {
-    return Project.findAndCountAll();
+const getProjectList = async () => {
+    return await Project.findAndCountAll();
 }
 
 /**

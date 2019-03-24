@@ -11,7 +11,7 @@ const project = (sequelize, DataTypes) => {
         // 监控id
         monitorId: {
             type: DataTypes.STRING(36),
-            allowNull: false,
+            allowNull: true,
             field: 'monitorId',
         },
         // 项目名称
@@ -53,13 +53,15 @@ const project = (sequelize, DataTypes) => {
         createdAt: {
             type: DataTypes.DATE,
             get() {
-                return moment(this.getDateValue('createdAt')).format('YYYY-MM-DD HH:mm:ss');
+                const createAt = this.getDataValue('createdAt');
+                return moment(createAt).format('YYYY-MM-DD HH:mm:ss');
             }
         },
         updatedAt: {
             type: DataTypes.DATE,
             get() {
-                return moment(this.getDateValue('updatedAt')).format('YYYY-MM-DD HH:mm:ss');
+                const updateAt = this.getDataValue('updatedAt');
+                return moment(updateAt).format('YYYY-MM-DD HH:mm:ss');
             }
         }
     }, {

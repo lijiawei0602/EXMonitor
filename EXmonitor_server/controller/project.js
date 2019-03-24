@@ -52,8 +52,9 @@ const getProjectList = async (ctx) => {
  * @param {*} ctx 
  */
 const getProjectById = async (ctx) => {
-    const { id } = ctx.params;
+    let { id } = ctx.params;
     if (id) {
+        id = parseInt(id);
         const data = await projectModel.getProjectById(id);
         ctx.response.status = 200;
         ctx.response.body = {

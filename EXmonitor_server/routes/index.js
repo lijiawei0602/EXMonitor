@@ -3,6 +3,7 @@ import Router from 'koa-router';
 import config from '../config';
 import userController from '../controller/user.js';
 import projectController from '../controller/project.js';
+import behaviorInfoController from '../controller/behaviorInfo.js';
 
 const router = new Router({
     prefix: config.app.base,
@@ -27,11 +28,15 @@ router.delete('/user/:id', userController.deleteUser);
  */
 // 添加项目
 router.post('/project', projectController.create);
-// 根据id获取项目信息
-router.get('/project/:id', projectController.getProjectById);
 // 获取项目列表
 router.get('/project/list', projectController.getProjectList);
+// 根据id获取项目信息
+router.get('/project/:id', projectController.getProjectById);
 
+/**
+ * 行为信息
+ */
+router.post('/behaviorInfo', )
 
 
 export default router;
