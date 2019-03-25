@@ -13,6 +13,7 @@ const create = async (ctx) => {
         ctx.response.body = {
             code: 200,
             message: "项目创建成功",
+            data,
         };
     } else {
         ctx.response.status = 400;
@@ -34,9 +35,7 @@ const getProjectList = async (ctx) => {
         ctx.response.body = {
             code: 200,
             message: "查询项目信息成功",
-            data: {
-                data,
-            },
+            data,
         };
     } else {
         ctx.response.status = 412;
@@ -60,9 +59,7 @@ const getProjectById = async (ctx) => {
         ctx.response.body = {
             code: 200,
             message: "查询项目信息成功",
-            data: {
-                data,
-            },
+            data,
         };
     } else {
         ctx.response.status = 400;
