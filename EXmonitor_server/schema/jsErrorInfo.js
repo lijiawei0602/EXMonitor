@@ -123,3 +123,5 @@ const jsErrorInfo = (sequelize, DataTypes) => {
           ]
     })
 }
+
+export default jsErrorInfo;

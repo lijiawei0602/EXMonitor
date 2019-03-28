@@ -26,6 +26,7 @@
     "moment": "^2.24.0",
     "mysql": "^2.16.0",
     "mysql2": "^1.6.5",
+    "node-fetch": "^2.3.0",
     "nodemon": "^1.18.10",
     "sequelize": "^4.43.0",
     "transform-runtime": "0.0.0",

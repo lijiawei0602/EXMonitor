@@ -5,6 +5,7 @@ import userController from '../controller/user.js';
 import projectController from '../controller/project.js';
 import behaviorInfoController from '../controller/behaviorInfo.js';
 import customerPVController from '../controller/customerPV.js';
+import jsErrorInfoController from '../controller/jsErrorInfo.js';
 
 const router = new Router({
     prefix: config.app.base,

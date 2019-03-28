@@ -1,6 +1,6 @@
+import * as fetch from 'node-fetch';
 import utils from '../util/index.js';
 import sequelize from '../config/db.js';
-import utils from '../util/index.js';
 const JsErrorInfo = sequelize.import('../schema/jsErrorInfo.js');
 JsErrorInfo.sync({force: false});
 
@@ -115,6 +115,10 @@ const getJsErrorInfoAffectCount = async (errorMsg, data) => {
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
+/**
+ * 查询当前页面url所对应的错误
+ * @param {*} data 
+ */
 const getJsErrorInfoByPage = async (data) => {
     const { timeType } = data;
     let querySql = "";
@@ -125,5 +129,74 @@ const getJsErrorInfoByPage = async (data) => {
         startTime = utils.addDays(0);
     }
     querySql = " where monitorId='" + data.monitorId + "' and createdAt > '" + startTime + "'";
-    return await sequelize.query("select simple")
+    return await sequelize.query("select simpleUrl, count(simpleUrl) as count from jsErrorInfos " + querySql + " group by simpleUrl order by count desc", { type: sequelize.QueryTypes.query});
+}
+
+/**
+ * 寻找报错位置附近代码
+ * @param {*} data 
+ */
+const getJsErrorInfoStackCode = async (data) => {
+    const arr = [];
+    data.forEach(item => {
+        const { jsPathStr, jsPath, locationX, locationY } = item;
+        fetch(jsPath)
+            .then((result) => {
+                return result.text();
+            })
+            .then(res => {
+                const startIndex = parseInt(locationY) - 50;
+                const endIndex = parseInt(locationY) + 50;
+                const start = encodeURIComponent(res.substring(startIndex, locationY - 1));
+                const end = encodeURIComponent(res.substring(locationY - 1, end));
+                const obj = {
+                    jsPath,
+                    jsPathStr,
+                    locationX,
+                    locationY,
+                    code: `${start} 【错误位置：】 ${end}`,
+                };
+                arr.push(obj);
+            }).catch((err) => {
+                console.log('寻找错误区代码：', err);
+            });
+    });
+    return arr;
+}
+
+/**
+ *  获取pc错误总数
+ * @param {*} data 
+ */
+const getJsErrorInfoPcCount = async (data) => {
+    const sql = `select count(distinct pageKey) as count from jsErrorInfos where monitorId='${data.monitorId}' and createdAt > '${data.day}' and os like 'web%'`;
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+/**
+ *  获取ios错误总数
+ * @param {*} data 
+ */
+const getJsErrorInfoIosCount = async (data) => {
+    const sql = `select count(distinct pageKey) as count from jsErrorInfos where monitorId='${data.monitorId}' and createdAt > '${data.day}' and os like 'ios%'`;
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+/**
+ * 获取Android错误总数
+ * @param {*} data 
+ */
+const getJsErrorInfOAndroidCount = async (data) => {
+    const sql = `select count(distinct pageKey) as count from jsErrorInfos where monitorId='${data.monitorId}' and createdAt > '${data.day}' and os like 'android%'`;
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+/**
+ * 查询当前用户发生的jsErrorInfo信息
+ * @param {*} data 
+ * @param {*} customerKeySql 
+ */
+const getJsErrorInfoByUser = async (data, customerKeySql) => {
+    const sql = `select * from jsErrorInfos where ${customerKeySql} and monitorId='${data.monitorId}'`;
+    return await sequelize.query(sql, { type:  sequelize.QueryTypes.SELECT});
 }
