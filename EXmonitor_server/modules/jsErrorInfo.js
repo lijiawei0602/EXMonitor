@@ -1,5 +1,6 @@
 import utils from '../util/index.js';
 import sequelize from '../config/db.js';
+import utils from '../util/index.js';
 const JsErrorInfo = sequelize.import('../schema/jsErrorInfo.js');
 JsErrorInfo.sync({force: false});
 
@@ -114,3 +115,15 @@ const getJsErrorInfoAffectCount = async (errorMsg, data) => {
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
+const getJsErrorInfoByPage = async (data) => {
+    const { timeType } = data;
+    let querySql = "";
+    let startTime;
+    if (timeType === "month") {
+        startTime = utils.addDays(-30);
+    } else {
+        startTime = utils.addDays(0);
+    }
+    querySql = " where monitorId='" + data.monitorId + "' and createdAt > '" + startTime + "'";
+    return await sequelize.query("select simple")
+}
