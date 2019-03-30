@@ -1,6 +1,7 @@
 import * as fetch from 'node-fetch';
 import utils from '../util/index.js';
 import sequelize from '../config/db.js';
+import util from '../util/index.js';
 const JsErrorInfo = sequelize.import('../schema/jsErrorInfo.js');
 JsErrorInfo.sync({force: false});
 
@@ -74,11 +75,11 @@ const updateJsErrorInfo = async (id, data) => {
 };
 
 /**
- * 获取指定天数内的jsErrorInfo信息(根据日期分组)
+ * 获取指定天数内的jsErrorInfo数量(根据日期分组)
  * @param {*} data 
  */
 const getJsErrorInfoCountDaysAgo = async (data) => {
-    const sql = "select DATE_FORMAT(created, '%Y-%m-%d') as day, errorMessage, count(errorMessage) as count from jsErrorInfos where monitorId='" + data.monitorId + "' and DATE_SUB(CURDATE(),INTERVAL " + data.days + " DAY) <= createdAt GROUP BY day";
+    const sql = "select DATE_FORMAT(created, '%Y-%m-%d') as day, count(errorMessage) as count from jsErrorInfos where monitorId='" + data.monitorId + "' and DATE_SUB(CURDATE(),INTERVAL " + data.days + " DAY) <= createdAt GROUP BY day";
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
@@ -90,6 +91,26 @@ const getJsErrorInfoCountDaysAgo = async (data) => {
  */
 const getJsErrorInfoCountTimesAgo = async (data, startTime, endTime) => {
     const sql = "select count(*) as count from jsErrorInfos where monitorId='" + data.monitorId + "' and createdAt > '" + startTime + "' and createdAt < '" + endTime + "'";
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+/**
+ *  查询当月/周/日排名前15的错误信息
+ * @param {*} data 
+ */
+const getJsErrorInfoSort = async (data) => {
+    const { simpleUrl, timeType, monitorId } = data;
+    const urlSql = simpleUrl ? " and simpleUrl='" + simpleUrl + "'" : " ";
+    let start;
+    if (timeType === 'month') {
+        start = utils.addDays(-30);
+    } else if (timeType === 'week') {
+        start = utils.addDays(-7);
+    } else {
+        start = util.addDays(0);
+    }
+    const timeSql = " and createdAt > '" + start + "'";
+    const sql = `select errorMessage, count(errorMessage) as count, createdAt, happenTime from jsErrorInfos where monitorId='${monitorId}' ${urlSql} ${timeSql} group by errorMessage order by count desc limit 0,15`;
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
@@ -199,4 +220,24 @@ const getJsErrorInfOAndroidCount = async (data) => {
 const getJsErrorInfoByUser = async (data, customerKeySql) => {
     const sql = `select * from jsErrorInfos where ${customerKeySql} and monitorId='${data.monitorId}'`;
     return await sequelize.query(sql, { type:  sequelize.QueryTypes.SELECT});
+}
+
+export default {
+    create,
+    getJsErrorInfoList,
+    getJsErrorInfoDetail,
+    deleteJsErrorInfo,
+    deleteJsErrorInfoDaysAgo,
+    updateJsErrorInfo,
+    getJsErrorInfoCountDaysAgo,
+    getJsErrorInfoCountTimesAgo,
+    getJsErrorInfoSort,
+    getJsErrorInfoByMsg,
+    getJsErrorInfoAffectCount,
+    getJsErrorInfoByPage,
+    getJsErrorInfoStackCode,
+    getJsErrorInfoPcCount,
+    getJsErrorInfoIosCount,
+    getJsErrorInfOAndroidCount,
+    getJsErrorInfoByUser,
 }
