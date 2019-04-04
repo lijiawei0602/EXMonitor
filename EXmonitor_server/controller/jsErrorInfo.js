@@ -1,5 +1,7 @@
 import moment from 'moment';
 import jsErrorInfoModel from '../modules/jsErrorInfo.js';
+import customerPVModal from '../modules/customerPV.js';
+import util from '../util/index.js';
 
 /**
  *  创建jsErrorInfo信息
@@ -115,7 +117,168 @@ const getJsErrorInfoSort = async (ctx) => {
     };
 }
 
+/**
+ * 查找对应平台js错误的数量
+ * @param {*} ctx 
+ */
+const getJsErrorInfoByOs = async (ctx) => {
+    const param = ctx.request.query;
+    let result = {};
+    param.day = util.addDays(0 - param.day) + "00:00:00";
+    result.pcCount = await jsErrorInfoModel.getJsErrorInfoPcCount(param);
+    result.iosCount = await jsErrorInfoModel.getJsErrorInfoIosCount(param);
+    result.androidCount = await jsErrorInfoModel.getJsErrorInfOAndroidCount(param);
 
+    result.pcPv = await customerPVModal.getCustomerPcPvCount(param);
+    result.iosCount = await customerPVModal.getCustomerIosPvCount(param);
+    result.androidCount = await customerPVModal.getCustomerAndroidCount(param);
+
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询成功",
+        data: {
+            result,
+        }
+    };
+}
+
+/**
+ * 根据errorMsg查询js错误列表
+ * @param {*} ctx 
+ */
+const getJsErrorInfoByMsg = async (ctx) => {
+    const param = ctx.request.body;
+    const data = await jsErrorInfoModel.getJsErrorInfoByMsg(decodeURIComponent(param.errorMsg), param);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询成功",
+        data: {
+            data,
+        }
+    };
+}
+
+/**
+ *  根绝errorMsg查询受影响的用户
+ * @param {*} ctx 
+ */
+const getJsErrorInfoAffectCount = async (ctx) => {
+    const param = ctx.request.body;
+    const data = await jsErrorInfoModel.getJsErrorInfoAffectCount(decodeURIComponent(param.errorMsg), param);
+
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询成功",
+        data: {
+            data,
+        }
+    };
+}
+
+/**
+ * 根据页面信息查询js错误信息
+ * @param {*} ctx 
+ */
+const getJsErrorInfoByPage = async (ctx) => {
+    const param = ctx.request.query;
+    const data = await jsErrorInfoModel.getJsErrorInfoByPage(param);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询成功",
+        data: {
+            data,
+        }
+    };
+}
+
+/**
+ *  查询jsError附近的js代码
+ * @param {*} ctx 
+ */
+const getJsErrorInfoStackCode = async (ctx) => {
+    const param = ctx.request.body;
+    const data = await jsErrorInfoModel.getJsErrorInfoStackCode(data.stackList);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询成功",
+        data: {
+            data,
+        }
+    };
+}
+
+/**
+ * 根据id查询jsErrorInfo
+ * @param {*} ctx 
+ */
+const getErrorInfoDetailById = async (ctx) => {
+    const id = ctx.params.id;
+    if (id) {
+        const data = await jsErrorInfoModel.getJsErrorInfoDetail(id);
+        ctx.response.status = 200;
+        ctx.response.body = {
+            code: 200,
+            message: "查询成功",
+            data: {
+                data,
+            }
+        };
+    } else {
+        ctx.response.status = 400;
+        ctx.response.body = {
+            code: 400,
+            message: "查询失败，请求参数有误",
+        };
+    }
+}
+
+/**
+ * 根据id删除jsErrorInfo
+ * @param {*} ctx 
+ */
+const deleteJsErrorInfoById = async (ctx) => {
+    const id = ctx.params.id;
+    if (id) {
+        await jsErrorInfoModel.deleteJsErrorInfo(id);
+        ctx.response.status = 200;
+        ctx.response.body = {
+            code: 200,
+            message: "删除成功",
+        };
+    } else {
+        ctx.response.status = 400;
+        ctx.response.body = {
+            code: 400,
+            message: "删除失败，请求参数有误",
+        };
+    }
+}
+
+const updateJsErrorInfoById = async (ctx) => {
+    const id = ctx.params.id;
+    const param = ctx.request.bodyl;
+    if (id) {
+        await jsErrorInfoModel.updateJsErrorInfo(id, param);
+        const data = jsErrorInfoModel.getJsErrorInfoDetail(id);
+
+        ctx.response.status = 200;
+        ctx.response.body = {
+            code: 200,
+            message: "删除成功",
+        };
+    } else {
+        ctx.response.status = 400;
+        ctx.response.body = {
+            code: 400,
+            message: "更新失败，请求参数有误",
+        };
+    }
+}
 
 export default {
     create,
@@ -123,5 +286,12 @@ export default {
     getJsErrorInfoCountByDay,
     getJsErrorInfoCountByTime,
     getJsErrorInfoSort,
-
+    getJsErrorInfoByOs,
+    getJsErrorInfoByMsg,
+    getJsErrorInfoAffectCount,
+    getJsErrorInfoByPage,
+    getJsErrorInfoStackCode,
+    getErrorInfoDetailById,
+    deleteJsErrorInfoById,
+    updateJsErrorInfoById,
 }

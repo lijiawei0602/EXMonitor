@@ -60,6 +60,21 @@ const deleteCustomerPV = async (id) => {
     });
 }
 
+/**
+ * 获取pc的pv
+ * @param {*} param 
+ */
+const getCustomerPcPvCount = async (param) => {
+    return await sequelize.query("select count(distinct pageKey) as count from CustomerPVs where monitorId='" + param.monitorId + "' and createdAt > '" + param.day + "' and os like web%", { type: sequelize.QueryTypes.SELECT });
+}
+
+const getCustomerIosPvCount = async (param) => {
+    return await sequelize.query("select count(distinct pageKey) as count from CustomerPVs where monitorId='" + param.monitorId + "' and createdAt > '" + param.day + "' and os like ios%", { type: sequelize.QueryTypes.SELECT });
+}
+
+const getCustomerAndroidCount = async (param) => {
+    return await sequelize.query("select count(distinct pageKey) as count from CustomerPVs where monitorId='" + param.monitorId + "' and createdAt > '" + param.day + "' and os like android%", { type: sequelize.QueryTypes.query });
+}
 
 export default {
     createCustomerPV,
@@ -67,4 +82,7 @@ export default {
     getCustomerPVList,
     getCustomerPVDetail,
     deleteCustomerPV,
+    getCustomerPcPvCount,
+    getCustomerIosPvCount,
+    getCustomerAndroidCount,
 }

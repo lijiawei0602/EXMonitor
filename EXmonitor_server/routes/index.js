@@ -74,7 +74,32 @@ router.put('/customerPV', customerPVController.update);
 /**
 * js错误信息
 */
-
+// 创建jsErrorInfo
+router.post('/jsErrorInfo', jsErrorInfoController.create);
+// 获取js错误列表
+router.get('/jsErrorInfoList', jsErrorInfoController.getJsErrorInfoList);
+// 获取js错误详情
+router.get('/jsErrorInfo/:id', jsErrorInfoController.getErrorInfoDetailById);
+// 删除
+router.delete('/jsErrorInfo/:id', jsErrorInfoController.deleteJsErrorInfoById);
+// 更新
+router.put('/jsErrorInfo/:id', jsErrorInfoController.updateJsErrorInfoById);
+// 获取指定天数内的jsErrorInfo数量
+router.get('/getJsErrorInfoDaysAgo', jsErrorInfoController.getJsErrorInfoCountByDay);
+// 获取指定时间段内的jsErrorInfo信息数量
+router.get('/getJsErrorInfoTimesAgo', jsErrorInfoController.getJsErrorInfoCountByTime);
+// 根据js错误数量进行分类排序
+router.get('/getJsErrorInfoSort', jsErrorInfoController.getJsErrorInfoSort);
+// 获取各种平台js错误信息
+router.get('/getJsErrorInfoCountByOs', jsErrorInfoController.getJsErrorInfoByOs);
+// 根据errorMsg获取jsErrorInfo列表
+router.get('/getJsErrorInfoListByMsg', jsErrorInfoController.getJsErrorInfoByMsg);
+// 根据errorMsg获取受影响的用户数量
+router.get('/getJsErrorInfoListAffect', jsErrorInfoController.getJsErrorInfoAffectCount);
+// 根据页面信息获取jsErrorInfo列表
+router.get('/getJsErrorInfoListByPage', jsErrorInfoController.getJsErrorInfoByPage);
+// 定位js错误代码
+router.get('/getJsErrorInfoStackCode', jsErrorInfoController.getJsErrorInfoStackCode);
 
 /**
 * js错误信息截屏
