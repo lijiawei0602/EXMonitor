@@ -113,6 +113,23 @@ const update = async (ctx) => {
     }
 }
 
+/**
+ * 根据时间获取日活量
+ * @param {*} ctx 
+ */
+const getCustomerCountByTime = async (ctx) => {
+    const param = ctx.request.body;
+    const data = customerPVModel.getCustomerCountByTime(param);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询成功",
+        data: {
+            data,
+        }
+    };
+}
+
 
 export default {
     create,

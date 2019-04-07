@@ -1,4 +1,5 @@
 import sequelize from '../config/db.js';
+import util from '../util/index.js';
 const CustomerPV = sequelize.import('../schema/customerPV.js');
 CustomerPV.sync({force: false});
 
@@ -60,6 +61,10 @@ const deleteCustomerPV = async (id) => {
     });
 }
 
+const getCustomerCountByTime = async (param) => {
+    return 
+}
+
 /**
  * 获取pc的pv
  * @param {*} param 
@@ -76,6 +81,16 @@ const getCustomerAndroidCount = async (param) => {
     return await sequelize.query("select count(distinct pageKey) as count from CustomerPVs where monitorId='" + param.monitorId + "' and createdAt > '" + param.day + "' and os like android%", { type: sequelize.QueryTypes.query });
 }
 
+/**
+ * 获取日活量
+ * @param {*} param 
+ */
+const getCustomerCountByTime = async (param) => {
+    const endDate = util.addDays(0 - param.timeScope);
+    const sql = "select date_format(createdAt, 'Y%-m%-d%') as day, count(distinct(customerKey)) as count from loadPageInfos where createdAt>'" + endDate + "' and monitorId='" + param.monitorId + "' group by day";
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
 export default {
     createCustomerPV,
     updateCustomerPV,
@@ -85,4 +100,5 @@ export default {
     getCustomerPcPvCount,
     getCustomerIosPvCount,
     getCustomerAndroidCount,
+    getCustomerCountByTime,
 }

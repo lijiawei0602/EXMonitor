@@ -5,6 +5,7 @@ import userController from '../controller/user.js';
 import projectController from '../controller/project.js';
 import behaviorInfoController from '../controller/behaviorInfo.js';
 import customerPVController from '../controller/customerPV.js';
+import loadPageInfoController from '../controller/loadPageInfo.js';
 import jsErrorInfoController from '../controller/jsErrorInfo.js';
 
 const router = new Router({
@@ -63,12 +64,17 @@ router.delete('/customerPV', customerPVController.deleteCustomerPV);
 // 更新pv
 router.put('/customerPV', customerPVController.update);
 // 获取日活量
-
+router.get('/getCustomerCountByTime', customerPVController.getJsErrorInfoCountByTime);
 
 /**
 * 用户加载页面信息
 */
-
+router.post('/loadPageInfo', loadPageInfoController.create);
+router.get('/loadPageInfo/:id', loadPageInfoController.getLoadPageInfoList);
+router.delete('/loadPageInfo/:id', loadPageInfoController.deleteLoadPageInfo);
+router.put('/loadPageInfo/:id', loadPageInfoController.updateLoadPageInfo);
+//获取当日页面加载的平均时间
+router.post('/getLoadPageInfoTimeByDate', loadPageInfoController.getLoadPageInfoTimeByDate);
 
 
 /**
@@ -104,6 +110,7 @@ router.get('/getJsErrorInfoStackCode', jsErrorInfoController.getJsErrorInfoStack
 /**
 * js错误信息截屏
 */
+
 
 
 /**
