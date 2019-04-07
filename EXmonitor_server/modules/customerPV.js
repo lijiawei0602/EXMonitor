@@ -61,10 +61,6 @@ const deleteCustomerPV = async (id) => {
     });
 }
 
-const getCustomerCountByTime = async (param) => {
-    return 
-}
-
 /**
  * 获取pc的pv
  * @param {*} param 

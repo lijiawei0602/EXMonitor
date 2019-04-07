@@ -137,4 +137,5 @@ export default {
     getCustomerPVDetail,
     deleteCustomerPV,
     update,
+    getCustomerCountByTime,
 }

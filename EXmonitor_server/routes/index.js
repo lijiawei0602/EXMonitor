@@ -7,6 +7,8 @@ import behaviorInfoController from '../controller/behaviorInfo.js';
 import customerPVController from '../controller/customerPV.js';
 import loadPageInfoController from '../controller/loadPageInfo.js';
 import jsErrorInfoController from '../controller/jsErrorInfo.js';
+import screenShotInfoController from '../controller/screenShotInfo.js';
+
 
 const router = new Router({
     prefix: config.app.base,
@@ -64,7 +66,7 @@ router.delete('/customerPV', customerPVController.deleteCustomerPV);
 // 更新pv
 router.put('/customerPV', customerPVController.update);
 // 获取日活量
-router.get('/getCustomerCountByTime', customerPVController.getJsErrorInfoCountByTime);
+router.get('/getCustomerCountByTime', customerPVController.getCustomerCountByTime);
 
 /**
 * 用户加载页面信息
@@ -110,10 +112,14 @@ router.get('/getJsErrorInfoStackCode', jsErrorInfoController.getJsErrorInfoStack
 /**
 * js错误信息截屏
 */
-
-
+router.post('/screenShotInfo', screenShotInfoController.create);
+router.get('/getScreenShotInfoList', screenShotInfoController.getScreenShotInfoList);
+router.get('/screenShotInfo/:id', screenShotInfoController.getScreenShotInfoDetail);
+router.delete('/screenShotInfo/:id', screenShotInfoController.deleteScreenShotInfo);
 
 /**
 * 忽略js错误信息
 */
+
+
 export default router;

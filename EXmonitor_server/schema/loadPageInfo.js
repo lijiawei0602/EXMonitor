@@ -1,7 +1,7 @@
 import baseInfo from './baseInfo.js';
 
 const loadPageInfo = (sequelize, DataTypes) => {
-    return sequelize.define('loadPageInfo', {
+  return sequelize.define('loadPageInfo', {
         ...baseInfo(DataTypes),
         id: {
             type: DataTypes.INTEGER,
@@ -96,3 +96,5 @@ const loadPageInfo = (sequelize, DataTypes) => {
         ],
     });
 }
+
+export default loadPageInfo;

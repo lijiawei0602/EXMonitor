@@ -1,5 +1,4 @@
 import sequelize from '../config/db.js';
-import utils from '../util/index.js';
 import util from '../util/index.js';
 const LoadPageInfo = sequelize.import('../schema/loadPageInfo.js');
 LoadPageInfo.sync({force: false});

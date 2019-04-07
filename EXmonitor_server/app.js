@@ -1,10 +1,10 @@
 import Koa from 'koa';
-// const Koa = require('koa');
 import cors from 'koa2-cors';
 import json from 'koa-json';
 import bodyparser from 'koa-bodyparser';
 import logger from 'koa-logger';
 import onerror from 'koa-onerror';
+const static1 = require('koa-static');
 import jwt from 'koa-jwt';
 
 import router from './routes';
@@ -19,6 +19,7 @@ onerror(app);
 app.use(cors());
 // 更好的形式将json数据输出
 app.use(json());
+app.use(static1(__dirname + '/publicFile'));
 // 打印日志
 app.use(logger());
 // 解析body
