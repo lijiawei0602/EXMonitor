@@ -88,6 +88,42 @@ const getCustomerCountByTime = async (param) => {
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
+/**
+ * 根据customerKey获取用户详情
+ * @param {*} monitorIdSql 
+ * @param {*} customerKeySql 
+ * @param {*} happenTimeSql 
+ */
+const getCustomerDetailByCustomerKey = async (monitorIdSql, customerKeySql, happenTimeSql) => {
+    const sql = "select * from customerPVs where " + monitorIdSql + " and " + customerKeySql + " and " + happenTimeSql;
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+/**
+ * 根据customerKey获取用户访问每个页面的次数
+ * @param {*} monitorIdSql 
+ * @param {*} customerKeySql 
+ * @param {*} happenTimeSql 
+ */
+const getCustomerPVByCustomerKey = async (monitorIdSql, customerKeySql, happenTimeSql) => {
+    const sql = "select cast(simpleUrl as char) as simpleUrl, count(simpleUrl) where " + monitorIdSql + " and " + customerKeySql + " and " + happenTimeSql + " group by simpleUrl";
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+/**
+ * 根据userid获取所有的customerKey
+ * @param {*} param 
+ */
+const getCustomerKeyByUserId = async (param) => {
+    const createdAtTime = util.addDays(0 - param.timeScope) + "00:00:00";
+    const sql = "select distinct(customerKey) from customerPVs where createdAt> '" + createdAtTime + "' and userId='" + param.searchValue + "'"
+                + " union " +
+                "select distinct(customerKey) from behaviorInfos where createdAt> '" + createdAtTime + "' and userId='" + param.searchValue + "'"
+                + " union " +
+                "select distinct(customerKey) from httpLogInfos where createdAt> '" + createdAtTime + "' and userId='" + param.searchValue + "'";
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
 export default {
     createCustomerPV,
     updateCustomerPV,
@@ -98,4 +134,7 @@ export default {
     getCustomerIosPvCount,
     getCustomerAndroidCount,
     getCustomerCountByTime,
+    getCustomerDetailByCustomerKey,
+    getCustomerPVByCustomerKey,
+    getCustomerKeyByUserId,
 }
