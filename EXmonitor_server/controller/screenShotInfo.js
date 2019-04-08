@@ -70,14 +70,23 @@ const getScreenShotInfoDetail = async (ctx) => {
     const id = ctx.params.id;
     if (id) {
         const data = await screenShotInfoModel.getScreenShotInfoDetail(id);
-        ctx.response.status = 200;
-        ctx.response.body = {
-            code: 200,
-            message: "查询成功",
-            data: {
-                data,
-            }
-        };
+        if (data) {
+            ctx.response.status = 200;
+            ctx.response.body = {
+                code: 200,
+                message: "查询成功",
+                data: {
+                    data,
+                }
+            };
+        } else {
+            ctx.response.status = 200;
+            ctx.response.body = {
+                code: 200,
+                message: "查询结果为空",
+            };
+        }
+        
     } else {
         ctx.response.status = 400;
         ctx.response.body = {

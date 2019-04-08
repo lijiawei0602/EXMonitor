@@ -34,7 +34,7 @@ const update = async (id, data) => {
 }
 
 const deleteLoadPageInfo = async (id) => {
-    return LoadPageInfo.destroy({
+    await LoadPageInfo.destroy({
         where: {
             id,
         }

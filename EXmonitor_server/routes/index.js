@@ -8,7 +8,7 @@ import customerPVController from '../controller/customerPV.js';
 import loadPageInfoController from '../controller/loadPageInfo.js';
 import jsErrorInfoController from '../controller/jsErrorInfo.js';
 import screenShotInfoController from '../controller/screenShotInfo.js';
-
+import ignoreErrorController from '../modules/ignoreError.js';
 
 const router = new Router({
     prefix: config.app.base,
@@ -120,6 +120,11 @@ router.delete('/screenShotInfo/:id', screenShotInfoController.deleteScreenShotIn
 /**
 * 忽略js错误信息
 */
-
+router.post('/ignoreError', ignoreErrorController.create);
+router.get('/getIgnoreErrorList', ignoreErrorController.getIgnoreErrorList);
+router.get('/ignoreError/:id', ignoreErrorController.getIgnoreErrorDetail);
+router.put('/ignoreError/:id', ignoreErrorController.update);
+router.delete('/ignoreError/:id', ignoreErrorController.deleteIgnoreError);
+router.get('/getIgnoreErrorByApplication', ignoreErrorController.getIgnoreErrorByApplication);
 
 export default router;

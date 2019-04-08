@@ -54,11 +54,12 @@ const getCustomerPVDetail = async (id) => {
  * @param {*} id 用户pv信息id
  */
 const deleteCustomerPV = async (id) => {
-    return await CustomerPV.destroy({
+    await CustomerPV.destroy({
         where: {
             id,
         }
     });
+    return true;
 }
 
 /**

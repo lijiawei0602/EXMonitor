@@ -269,7 +269,7 @@ const updateJsErrorInfoById = async (ctx) => {
         ctx.response.status = 200;
         ctx.response.body = {
             code: 200,
-            message: "删除成功",
+            message: "更新成功",
         };
     } else {
         ctx.response.status = 400;

@@ -10,7 +10,7 @@ const create = async (data) => {
 };
 
 const update = async (id, data) => {
-    return await ScreenShotInfo.update({
+    await ScreenShotInfo.update({
         ...data
     }, {
         where: {
@@ -18,6 +18,7 @@ const update = async (id, data) => {
         },
         fields: Object.keys(data),
     });
+    return true;
 };
 
 const getScreenShotInfoList = async () => {
@@ -34,11 +35,12 @@ const getScreenShotInfoDetail = async (id) => {
 
 
 const deleteScreenShotInfo = async (id) => {
-    return await ScreenShotInfo.destroy({
+    await ScreenShotInfo.destroy({
         where: {
             id,
         },
     });
+    return true;
 }
 
 const getScreenShotInfoByUser = async (monitorSql, happenTimeSql, userIdSql) => {
