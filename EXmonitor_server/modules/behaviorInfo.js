@@ -61,12 +61,23 @@ const deleteBehaviorInfo = async (id) => {
     return true;
 };
 
+/**
+ * 获取当前用户的所有行为记录信息
+ * @param {*} monitorIdSql 
+ * @param {*} customerKeySql 
+ * @param {*} happenTimeSql 
+ */
+const getBehaviorInfoByUser = async (monitorIdSql, customerKeySql, happenTimeSql) => {
+    const sql = "select * from behaviorInfos where " + monitorIdSql + " and " + customerKeySql + " and " + happenTimeSql;
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
 
 export default {
     createBehaviorInfo,
     updateBehaviorInfo,
     getBehaviorInfoList,
     getBehaviorInfoDetail,
-    deleteBehaviorInfo
+    deleteBehaviorInfo,
+    getBehaviorInfoByUser,
 }
 

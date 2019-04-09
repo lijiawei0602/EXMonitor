@@ -37,6 +37,10 @@ app.use(router.allowedMethods());
 //     console.error('Unable to connect to the database:', err);
 //   });
 
-app.listen(config.app.port, () => {
+/**
+ * listen默认是ipv6，为了获取到客户端请求的ip，故指定0.0.0.0强制指定为ipv4
+ * [文档介绍]:https://iojs.org/api/net.html#net_server_listen_port_hostname_backlog_callback
+ *  */
+app.listen(config.app.port, '0.0.0.0', () => {
     console.log('The server is listen to http://localhost:' + config.app.port);
 });

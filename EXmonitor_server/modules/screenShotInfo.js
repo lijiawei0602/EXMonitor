@@ -43,7 +43,7 @@ const deleteScreenShotInfo = async (id) => {
     return true;
 }
 
-const getScreenShotInfoByUser = async (monitorSql, happenTimeSql, userIdSql) => {
+const getScreenShotInfoByUser = async (monitorSql, userIdSql, happenTimeSql) => {
     const sql = "select * from screenShotInfos where " + monitorSql + " and " + happenTimeSql + " and " + userIdSql + "'";
     return await Sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }

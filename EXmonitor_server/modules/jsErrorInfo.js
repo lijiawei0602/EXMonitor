@@ -222,6 +222,17 @@ const getJsErrorInfoByUser = async (data, customerKeySql) => {
     return await sequelize.query(sql, { type:  sequelize.QueryTypes.SELECT});
 }
 
+/**
+ * 获取当前用户所有的行为记录信息
+ * @param {*} monitorIdSql 
+ * @param {*} customerKeySql 
+ * @param {*} happenTimeSql 
+ */
+const getBehaviorInfoByUser = async (monitorIdSql,  customerKeySql, happenTimeSql) => {
+    const sql = "select * from jsErrorInfos where " + monitorIdSql + " and " + customerKeySql + " and" + happenTimeSql;
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
 export default {
     create,
     getJsErrorInfoList,
@@ -240,4 +251,5 @@ export default {
     getJsErrorInfoIosCount,
     getJsErrorInfOAndroidCount,
     getJsErrorInfoByUser,
+    getBehaviorInfoByUser,
 }

@@ -124,6 +124,17 @@ const getCustomerKeyByUserId = async (param) => {
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
+/**
+ * 查询当前用户所有的行为记录信息
+ * @param {*} monitorIdSql 
+ * @param {*} customerKeySql 
+ * @param {*} happenTimeSql 
+ */
+const getBehaviorInfoByUser = async (monitorIdSql, customerKeySql, happenTimeSql) => {
+    const sql = "select * from customerPVs where " + monitorIdSql + " and " + customerKeySql + " and " + happenTimeSql;
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
 export default {
     createCustomerPV,
     updateCustomerPV,
@@ -137,4 +148,5 @@ export default {
     getCustomerDetailByCustomerKey,
     getCustomerPVByCustomerKey,
     getCustomerKeyByUserId,
+    getBehaviorInfoByUser,
 }

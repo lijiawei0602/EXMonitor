@@ -8,11 +8,26 @@ import customerPVController from '../controller/customerPV.js';
 import loadPageInfoController from '../controller/loadPageInfo.js';
 import jsErrorInfoController from '../controller/jsErrorInfo.js';
 import screenShotInfoController from '../controller/screenShotInfo.js';
-import ignoreErrorController from '../modules/ignoreError.js';
+import ignoreErrorController from '../controller/ignoreError.js';
+import commonController from '../controller/common.js';
 
 const router = new Router({
     prefix: config.app.base,
 });
+
+
+/**
+ * 日志相关处理
+ */
+router.post('/uploadLog', commonController.uploadLog);
+
+/**
+ * 查询用户相关信息
+ */
+// 根据用户查询所有的行为记录
+router.post('/searchBehaviorRecord', commonController.searchBehaviorRecord);
+// 根据用户查询用户详细信息
+router.post('/searchCustomerInfo', commonController.searchCustomerInfo);
 
 /**
  * 用户相关
@@ -125,6 +140,6 @@ router.get('/getIgnoreErrorList', ignoreErrorController.getIgnoreErrorList);
 router.get('/ignoreError/:id', ignoreErrorController.getIgnoreErrorDetail);
 router.put('/ignoreError/:id', ignoreErrorController.update);
 router.delete('/ignoreError/:id', ignoreErrorController.deleteIgnoreError);
-router.get('/getIgnoreErrorByApplication', ignoreErrorController.getIgnoreErrorByApplication);
+router.get('/getIgnoreErrorByApplication', ignoreErrorController.getIgnoreErrorInfoByApplication);
 
 export default router;
