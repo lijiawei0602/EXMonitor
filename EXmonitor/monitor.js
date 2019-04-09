@@ -27,11 +27,11 @@
         LOCACTION = window.location.href,
         LOCAL_IP = 'localhost',
         MONITOR_IP = 'lijiawei.com.cn', // 监控平台地址
-        UPLOAD_URI = LOCACTION.indexOf(LOCAL_IP) === -1 ? HTTP_TYPE + MONITOR_IP : HTTP_TYPE + LOCAL_IP + ':8010',
+        UPLOAD_URI = (LOCACTION.indexOf(LOCAL_IP) === -1 ? HTTP_TYPE + MONITOR_IP : HTTP_TYPE + LOCAL_IP) + ':8086',
         UPLOAD_LOG_API = '/api/uploadLog',  //上传数据的接口API
         UPLOAD_LOG_URL = UPLOAD_URI + '/api/uploadLog', // 上传数据的接口
         PROJECT_INFO_URL = UPLOAD_URI + '/project/getProject',  // 获取当前项目的参数信息的接口
-        UPLOAD_RECORD_URL = UPLOAD_URI + '',    // 上传埋点数据接口
+        UPLOAD_RECORD_URL = UPLOAD_URI + '/api/',    // 上传埋点数据接口,后端暂未支持
         CUSTOMER_PV = 'CUSTOMER_PV',    //用户访问日志类型
         LOAD_PAGE = 'LOAD_PAGE',    // 用户加载页面信息类型
         HTTP_LOG = 'HTTP_LOG',  // 接口日志类型
@@ -80,15 +80,15 @@
         this.simpleUrl = window.location.href.split('?')[0].replace('#', '');   // 页面URL
         this.completeUrl = encodeURIComponent(window.location.href),
         this.customerKey = utils.getCustomerKey();  // 用于区分用户，所对应唯一的标识，清理本地数据就失效
-        // this.pageKey = utils.getPageKey();  // 用户区分页面，所对应的唯一标识，每个新页面对应一个值
-        // this.deviceName = DEVICE_INFO.deviceName;
-        // this.os = DEVICE_INFO.os + (DEVICE_INFO.osVersion ? '' + DEVICE_INFO.osVersion : '');
-        // this.browserName = DEVICE_INFO.browserName;
-        // this.browserVersion = DEVICE_INFO.browserVersion;
-        // // 用户自定义信息，由开发者主动传入，便于对线上进行准确定位
-        // this.userId = USER_INFO.userId;
-        // this.firstUserParam = USER_INFO.firstUserParam;
-        // this.secondUserParam = USER_INFO.secondUserParam;   
+        this.pageKey = utils.getPageKey();  // 用户区分页面，所对应的唯一标识，每个新页面对应一个值
+        this.deviceName = DEVICE_INFO.deviceName;
+        this.os = DEVICE_INFO.os + (DEVICE_INFO.osVersion ? '' + DEVICE_INFO.osVersion : '');
+        this.browserName = DEVICE_INFO.browserName;
+        this.browserVersion = DEVICE_INFO.browserVersion;
+        // 用户自定义信息，由开发者主动传入，便于对线上进行准确定位
+        this.userId = USER_INFO.userId;
+        this.firstUserParam = USER_INFO.firstUserParam;
+        this.secondUserParam = USER_INFO.secondUserParam;   
     }
 
     // 用户PV访问行为日志
@@ -100,8 +100,9 @@
         this.os = DEVICE_INFO.os + (DEVICE_INFO.osVersion ? " " + DEVICE_INFO.osVersion : "");
         this.browserName = DEVICE_INFO.browserName;
         this.browserVersion = DEVICE_INFO.browserVersion;
+        // ip对应的信息服务端去处理获取了
         this.monitorIp = "";  // 用户的IP地址
-        this.country = "china";  // 用户所在国家
+        this.country = "";  // 用户所在国家
         this.province = "";  // 用户所在省份
         this.city = "";  // 用户所在城市
         this.loadType = loadType;   // 用于区分首次加载
@@ -121,7 +122,7 @@
         this.lookupDomain = lookupDomain;
         this.ttfb = ttfb;
         this.request = request;
-        this,loadEvent = loadEvent;
+        this.loadEvent = loadEvent;
         this.appcache = appcache;
         this.unloadEvent = unloadEvent;
         this.connect = connect;
