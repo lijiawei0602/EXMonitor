@@ -53,19 +53,19 @@
                     localStorage[BEHAVIOR_INFO] = tempString + JSON.stringify(logInfo) + '$$$';
                     break;
                 case JS_ERROR:
-                    localStorage[JS_ERROR] = tempString + JSON.parse(logInfo) + '$$$';
+                    localStorage[JS_ERROR] = tempString + JSON.stringify(logInfo) + '$$$';
                     break;
                 case HTTP_LOG:
-                    localStorage[HTTP_LOG] = tempString + JSON.parse(logInfo) + '$$$';
+                    localStorage[HTTP_LOG] = tempString + JSON.stringify(logInfo) + '$$$';
                     break;
                 case SCREEN_SHOT:
-                    localStorage[SCREEN_SHOT] = tempString + JSON.parse(logInfo) + '$$$';
+                    localStorage[SCREEN_SHOT] = tempString + JSON.stringify(logInfo) + '$$$';
                     break;
                 case CUSTOMER_PV:
-                    localStorage[CUSTOMER_PV] = tempString + JSON.parse(logInfo) + '$$$';
+                    localStorage[CUSTOMER_PV] = tempString + JSON.stringify(logInfo) + '$$$';
                     break;
                 case LOAD_PAGE:
-                    localStorage[LOAD_PAGE] = tempString + JSON.parse(logInfo) + '$$$';
+                    localStorage[LOAD_PAGE] = tempString + JSON.stringify(logInfo) + '$$$';
                     break;
                 default:
                     break;
