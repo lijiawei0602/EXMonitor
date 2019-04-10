@@ -1,10 +1,12 @@
 import * as fetch from 'node-fetch';
+import nodemailer from 'nodemailer';
 const SourceMapConsumer = require('source-map').SourceMapConsumer;
 const promisify = require('util').promisify;
 import path from 'path';
 import fs from 'fs';
 import utils from '../util/index.js';
 import sequelize from '../config/db.js';
+import config from '../config/index.js';
 import util from '../util/index.js';
 const JsErrorInfo = sequelize.import('../schema/jsErrorInfo.js');
 JsErrorInfo.sync({force: false});
@@ -157,6 +159,37 @@ const getJsErrorInfoByPage = async (data) => {
     }
     querySql = " where monitorId='" + data.monitorId + "' and createdAt > '" + startTime + "'";
     return await sequelize.query("select simpleUrl, count(simpleUrl) as count from jsErrorInfos " + querySql + " group by simpleUrl order by count desc", { type: sequelize.QueryTypes.query});
+}
+
+/**
+ * 当日同一个页面url下的jsError数量达到一定峰值的时候触发报警
+ * @param {*} data 
+ */
+const sendMailToUser = async (data) => {
+    // 获取当前用户的邮箱账号
+    const mail;
+
+    const mailTransport = nodemailer.createTransport({
+        host: 'smtp.163.com',
+        auth: {
+            user: config.mail.user,
+            pass: config.mail.pass,
+        }
+    });
+    const html = "123",
+    const mailInfo = {
+        from: config.mail.user,
+        to: mail,
+        subject: '异常监控系统报警提醒',
+        html,
+    };
+    mailTransport.sendMail(mailInfo, function (err, msg) {
+        if (err) {
+            console.log('mail sned error:', err);
+        } else {
+            console.log('报警邮件发送成功...');
+        }
+    });
 }
 
 /**
