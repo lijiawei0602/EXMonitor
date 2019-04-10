@@ -1,9 +1,15 @@
 import * as fetch from 'node-fetch';
+const SourceMapConsumer = require('source-map').SourceMapConsumer;
+const promisify = require('util').promisify;
+import path from 'path';
+import fs from 'fs';
 import utils from '../util/index.js';
 import sequelize from '../config/db.js';
 import util from '../util/index.js';
 const JsErrorInfo = sequelize.import('../schema/jsErrorInfo.js');
 JsErrorInfo.sync({force: false});
+
+const readFile = promisify(fs.readFile);
 
 /**
  * 创建jsErrorInfo
@@ -158,31 +164,47 @@ const getJsErrorInfoByPage = async (data) => {
  * @param {*} data 
  */
 const getJsErrorInfoStackCode = async (data) => {
-    const arr = [];
-    data.forEach(item => {
-        const { jsPathStr, jsPath, locationX, locationY } = item;
-        fetch(jsPath)
-            .then((result) => {
-                return result.text();
-            })
-            .then(res => {
-                const startIndex = parseInt(locationY) - 50;
-                const endIndex = parseInt(locationY) + 50;
-                const start = encodeURIComponent(res.substring(startIndex, locationY - 1));
-                const end = encodeURIComponent(res.substring(locationY - 1, end));
-                const obj = {
-                    jsPath,
-                    jsPathStr,
-                    locationX,
-                    locationY,
-                    code: `${start} 【错误位置：】 ${end}`,
-                };
-                arr.push(obj);
-            }).catch((err) => {
-                console.log('寻找错误区代码：', err);
-            });
+    const { row, col, url, errorMessage } = data;
+    // 根据url获取js文件名，从而获取对应的sourceMap文件
+    const fileName = path.basename(url, '.js');
+    let sourceMapFileName = "";
+    fs.readdirSync('../publicFile', (err, files) => {
+        files.forEach(item => {
+            if (item.includes(fileName)) {
+                sourceMapFileName = item;
+            }
+        });
     });
-    return arr;
+    // 根据对应的sourceMap文件获取源文件内容以及行列数
+    const data = await readFile('../pubclicFile/' + sourceMapFileName);
+    let sourceMapPath = {};
+    const sourceMapContent = data.toString();
+    const sourceMapJson = JSON.parse(sourceMapContent);
+    const sources = sourceMapJson.sources;
+    sources.forEach(item => {
+        sourceMapPath[filterPath(item)] = item;
+    });
+
+    const consumer = new SourceMapConsumer(sourceMapFileName);
+    const result = consumer.originalPositionFor({
+        line: parseInt(row),
+        column: parseInt(col),
+    });
+    const originSource = sourceMapPath[result.source];
+    const originContent = sourceMapJson.sourcesContent[sources.indexOf(originSource)];
+
+    return {
+        row: result.line,
+        col: result.column,
+        source: result.source,
+        msg: errorMessage,
+        file: originContent,
+    }
+
+}
+
+const filterPath = (path) => {
+    return path.replace(/\.[\.\/]+/g, "");
 }
 
 /**

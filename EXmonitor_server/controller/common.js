@@ -8,7 +8,6 @@ import screenShotInfoModel from '../modules/screenShotInfo.js';
 import customerPVModel from '../modules/customerPV.js';
 import loadPageInfoModel from '../modules/loadPageInfo.js';
 import util from '../util/index.js';
-import { start } from 'repl';
 
 const ipQuery = "http://ip.taobao.com/service/getIpInfo.php?ip=";
 

@@ -75,6 +75,21 @@ const jsErrorInfo = (sequelize, DataTypes) => {
             allowNull: true,
             field: 'errorStack',
         },
+        url: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+          field: 'url',
+        },
+        row: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          field: 'row',
+        },
+        col: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          field: 'col',
+        },
         // 浏览器信息
         browserInfo: {
             type: DataTypes.TEXT,
