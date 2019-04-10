@@ -17,12 +17,12 @@ const screenShotInfo = (sequelize, DataTypes) => {
         },
         // 截屏图片地址
         screenInfo: {
-            type: DataTypes.STRING,
+            type: 'mediumblob',
             allowNull: true,
             field: 'screenInfo',
         },
         imgType: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(10),
             allowNull: true,
             field: 'imgType',
         },

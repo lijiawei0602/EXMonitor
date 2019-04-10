@@ -9,49 +9,60 @@ const { screenShotConfig } = config;
 const rename = promisify(fs.rename);
 
 const create = async (ctx) => {
-    return new Promise((resolve, reject) => {
-        // 处理上传照片
-        const form = new multiparty.Form({ uploadDir: screenShotConfig.uploadDir });
-        form.parse(ctx.req, async(err, fields, files) => {
-            if (err) {
-                console.log("Parse err", err);
-                ctx.response.status = 500;
-                ctx.response.body = {
-                    code: 500,
-                    message: err.message,
-                }
-            } else {
-                if (!files.file) {
-                    ctx.response.status = 400;
-                    ctx.response.body = {
-                        code: 400,
-                        message: "创建失败，请求参数中未带文件",
-                    }
-                    resolve();
-                }
-                const screenInfo = await handleFile(ctx.req, ctx.res, files);
-                if (screenInfo) {
-                    let otherParams = {};
-                    Object.entries(fields).forEach(item => {
-                        otherParams[item[0]] = item[1][0];
-                    });
-                    const imgType = files.file[0].originalFilename.split('.')[1];
-                    const params = { ...otherParams, screenInfo, imgType, };
-                    const res = await screenShotInfoModel.create(params);
-                    const data = await screenShotInfoModel.getScreenShotInfoDetail(res.id);
-                    ctx.response.status = 200;
-                    ctx.response.body = {
-                        code: 200,
-                        message: "创建成功",
-                        data: {
-                            data,
-                        },
-                    };
-                }
-                resolve();
-            }
-        });
-    });
+    // return new Promise((resolve, reject) => {
+    //     // 处理上传照片
+    //     const form = new multiparty.Form({ uploadDir: screenShotConfig.uploadDir });
+    //     form.parse(ctx.req, async(err, fields, files) => {
+    //         if (err) {
+    //             console.log("Parse err", err);
+    //             ctx.response.status = 500;
+    //             ctx.response.body = {
+    //                 code: 500,
+    //                 message: err.message,
+    //             }
+    //         } else {
+    //             if (!files.file) {
+    //                 ctx.response.status = 400;
+    //                 ctx.response.body = {
+    //                     code: 400,
+    //                     message: "创建失败，请求参数中未带文件",
+    //                 }
+    //                 resolve();
+    //             }
+    //             const screenInfo = await handleFile(ctx.req, ctx.res, files);
+    //             if (screenInfo) {
+    //                 let otherParams = {};
+    //                 Object.entries(fields).forEach(item => {
+    //                     otherParams[item[0]] = item[1][0];
+    //                 });
+    //                 const imgType = files.file[0].originalFilename.split('.')[1];
+    //                 const params = { ...otherParams, screenInfo, imgType, };
+    //                 const res = await screenShotInfoModel.create(params);
+    //                 const data = await screenShotInfoModel.getScreenShotInfoDetail(res.id);
+    //                 ctx.response.status = 200;
+    //                 ctx.response.body = {
+    //                     code: 200,
+    //                     message: "创建成功",
+    //                     data: {
+    //                         data,
+    //                     },
+    //                 };
+    //             }
+    //             resolve();
+    //         }
+    //     });
+    // });
+    const params = ctx.request.body;
+    const res = await screenShotInfoModel.create(params);
+    const data = await screenShotInfoModel.getScreenShotInfoDetail(res.id);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "创建成功",
+        data: {
+            data,
+        },
+    };
 }
 
 const getScreenShotInfoList = async (ctx) => {
