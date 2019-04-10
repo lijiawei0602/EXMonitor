@@ -22,7 +22,7 @@
         })();
 
     
-    var MONITOR_ID = 'exmonitor',   // 所属项目ID，用于替换相应项目的UUID，生成监控代码的时候搜索替换
+    var MONITOR_ID = '',   // 所属项目ID，用于替换相应项目的UUID，引入监控代码时初始化initMonitor配置
         HTTP_TYPE = window.location.href.indexOf('https') === -1 ? 'http://' : 'https://',  // 判断是http还是https
         LOCACTION = window.location.href,
         LOCAL_IP = 'localhost',
@@ -31,7 +31,7 @@
         UPLOAD_LOG_API = '/api/uploadLog',  //上传数据的接口API
         UPLOAD_LOG_URL = UPLOAD_URI + '/api/uploadLog', // 上传数据的接口
         PROJECT_INFO_URL = UPLOAD_URI + '/project/getProject',  // 获取当前项目的参数信息的接口
-        UPLOAD_RECORD_URL = UPLOAD_URI + '/api/',    // 上传埋点数据接口,后端暂未支持
+        UPLOAD_RECORD_URL = UPLOAD_URI + '/api/',    // 上传埋点数据接口,后端暂未支持埋点功能
         CUSTOMER_PV = 'CUSTOMER_PV',    //用户访问日志类型
         LOAD_PAGE = 'LOAD_PAGE',    // 用户加载页面信息类型
         HTTP_LOG = 'HTTP_LOG',  // 接口日志类型
@@ -143,12 +143,15 @@
     BehaviorInfo.prototype = new MonitorBaseInfo();
 
     // JS错误日志，继承于日志基类MonitorBaseInfo
-    function JSErrorInfo(uploadType, errorMsg, errorStack){
+    function JSErrorInfo(uploadType, errorMsg, errorStack, url, lineNumber, columnNumber){
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
         this.errorMsg = encodeURIComponent(errorMsg);
         this.errorStack = encodeURIComponent(errorStack);
         this.browserInfo = BROWSER_INFO;
+        this.url = url;
+        this.row = lineNumber;
+        this.col = columnNumber;
     }
     JSErrorInfo.prototype = new MonitorBaseInfo();
 
@@ -179,6 +182,7 @@
         监控初始化配置，以及启动的方法
     */
     function init(){
+
         recordPV();
         recordLoadPage();
         recordBehavior({record: 1});
@@ -335,7 +339,7 @@
                 var errorStackStr = JSON.stringify(errorObj);
                 errorType = errorStackStr.split(": ")[0].replace('"',"");
             }
-            var jsErrorInfo = new JSErrorInfo(JS_ERROR, errorType + ": " + errorMsg, errorObj);
+            var jsErrorInfo = new JSErrorInfo(JS_ERROR, errorMsg, errorObj, origin_url, origin_lineNumber, origin_columnNumber);
             jsErrorInfo.handleLogInfo(JS_ERROR, jsErrorInfo);
             setTimeout(function(){
                 // 保存该错误相关的截图信息，并存入历史
@@ -648,12 +652,13 @@
             return node;
         }
     }
-    /**
-     * 执行初始化函数
-     */
-    init();
 
     window.webMonitor = {
+        initMonitor: function (config) {
+            MONITOR_ID = config.monitorId;
+             // 执行初始化函数
+            init();
+        },
         /**
          * 埋点上传数据
          * @param url 当前页面的URL
