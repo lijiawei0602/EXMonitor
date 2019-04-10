@@ -171,6 +171,7 @@
         this.uploadType = uploadType;
         this.description = encodeURIComponent(des);
         this.screenInfo = screenInfo;
+        this.imgType = 'webp';
     }
     ScreenShotInfo.prototype = new MonitorBaseInfo();
 
