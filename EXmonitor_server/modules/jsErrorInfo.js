@@ -167,7 +167,7 @@ const getJsErrorInfoByPage = async (data) => {
  */
 const sendMailToUser = async (data) => {
     // 获取当前用户的邮箱账号
-    const mail;
+    let mail;
 
     const mailTransport = nodemailer.createTransport({
         host: 'smtp.163.com',
@@ -176,7 +176,7 @@ const sendMailToUser = async (data) => {
             pass: config.mail.pass,
         }
     });
-    const html = "123",
+    const html = "123";
     const mailInfo = {
         from: config.mail.user,
         to: mail,
@@ -209,9 +209,9 @@ const getJsErrorInfoStackCode = async (data) => {
         });
     });
     // 根据对应的sourceMap文件获取源文件内容以及行列数
-    const data = await readFile('../pubclicFile/' + sourceMapFileName);
+    const SourceMapData = await readFile('../pubclicFile/' + sourceMapFileName);
     let sourceMapPath = {};
-    const sourceMapContent = data.toString();
+    const sourceMapContent = SourceMapData.toString();
     const sourceMapJson = JSON.parse(sourceMapContent);
     const sources = sourceMapJson.sources;
     sources.forEach(item => {
