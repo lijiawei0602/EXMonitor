@@ -18,18 +18,21 @@ const ipQuery = "http://ip.taobao.com/service/getIpInfo.php?ip=";
 const uploadLog = async (ctx) => {
     let param;
     if (typeof ctx.request.body !== 'object') {
-        param = JSON.parse(ctx.request.body);
+        param = JSON.parse(ctx.request.body).data;
     } else {
-        param = ctx.request.body;
+        param = ctx.request.body.data;
     }
-
+    param = JSON.parse(param);
+    
     const req = ctx.req;
     const clientIp = req.headers['x-forwarded-for'] ||
         req.connection.remoteAddress ||
         req.socket.remoteAddress ||
         req.connection.socket.remoteAddress;
-    const ipQueryStr = ipQuery + clientIp;
-    const ipInfo = await fetch(ipQueryStr);
+    // const ipQueryStr = ipQuery + clientIp;
+    const ipQueryStr = ipQuery + '117.136.0.226';
+    const ipInfoPro = await fetch(ipQueryStr)
+    const ipInfo = await ipInfoPro.json();
     const { country, region, city } = ipInfo.data;
 
     const logInfoArray = param.logInfo.split("$$$");
@@ -66,7 +69,7 @@ const uploadLog = async (ctx) => {
                 await loadPageInfoModel.create(logInfo);
                 break;
             default:
-                console.log('上传类型未处理：', logInfo.uploadType);
+                console.log('暂不支持,上传类型未处理：', logInfo.uploadType);
                 break;
         };
         
