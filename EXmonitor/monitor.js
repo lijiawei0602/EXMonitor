@@ -424,7 +424,7 @@
                     innerText = innerText.substring(0,100) + "... ..." + innerText.substring(innerText.length - 99, innerText.length - 1);
                 }
                 var behaviorInfo = new BehaviorInfo(BEHAVIOR_INFO, "click", className, placeholder, inputValue, tagName, innerText);
-                behaviorInfo.handleLogInfo(BEHAVIOR_INFO, BehaviorInfo);
+                behaviorInfo.handleLogInfo(BEHAVIOR_INFO, behaviorInfo);
             };
         }
     }
@@ -503,7 +503,7 @@
                     typeof failCallback == 'function' && failCallback();
                 }
             }
-            xhr.send("data=" + JSON.stringify(param));
+            xhr.send(JSON.stringify(param));
         }
 
         /**
