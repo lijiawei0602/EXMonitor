@@ -42,7 +42,7 @@
         BROWSER_INFO = window.navigator.userAgent,  // 浏览器信息
         utils = new MonitorUtils(), // 工具类实例化
         DEVICE_INFO = utils.getDevice(),    // 设备信息
-        USER_INFO = localStorage.userDefineInfo ? JSON.parse(localStorage.userDefineInfo) : {}; //获取用户自定义信息
+        USER_INFO = localStorage.wmUserInfo ? JSON.parse(localStorage.wmUserInfo) : {}; //获取用户自定义信息
 
     // 日志基类，用于其他日志的继承
     function MonitorBaseInfo() {
@@ -182,7 +182,6 @@
         监控初始化配置，以及启动的方法
     */
     function init(){
-
         recordPV();
         recordLoadPage();
         recordBehavior({record: 1});
@@ -654,11 +653,6 @@
     }
 
     window.webMonitor = {
-        initMonitor: function (config) {
-            MONITOR_ID = config.monitorId;
-             // 执行初始化函数
-            init();
-        },
         /**
          * 埋点上传数据
          * @param url 当前页面的URL
@@ -686,27 +680,30 @@
         },
         /**
          * 使用者传入的自定义信息
-         * @param userId
-         * @param userName
-         * @param userType
+         * @param config
          */
-        wm_initUser: function(userId, firstUserParam, secondUserParam){
+        wm_init: function(config){
+            var monitorId = config.monitorId;
+            var userId = config.userId;
+            var secondUserParam = config.secondUserParam;
             if(!userId)
                 console.warn("userId 初始值为0 或 未初始化");
-            if(!firstUserParam){
-                console.warn("firstUserParam 初始值为0 或 未初始化");
-            }
             if(!secondUserParam)
                 console.warn("secondUserParam 初始值为0 或 未初始化");
             localStorage.wmUserInfo = JSON.stringify({
                 userId: userId,
-                firstUserParam: firstUserParam,
                 secondUserParam: secondUserParam
             });
+            MONITOR_ID = monitorId;
+            init();
         },
-        /**
+        /** 使用者使用自定义截屏模式
          * @param description 截屏描述
          */
-        
+        wm_screenSHot: function (description) {
+            setTimeout(function() {
+                utils.screenShot(document.body, description);
+            }, 500);
+        },
     }
 })(window)
