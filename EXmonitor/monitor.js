@@ -112,7 +112,7 @@
     CustomerPV.prototype = new MonitorBaseInfo();
     
     // 用户加载页面的信息日志
-    function LoadPageInfo(uploadType, loadType, loadPage, domReady, redirect, lookupDomain, ttfb, request, loadEvent, appcache, uploadEvent, connect) {
+    function LoadPageInfo(uploadType, loadType, loadPage, domReady, redirect, lookupDomain, ttfb, request, loadEvent, appcache, unloadEvent, connect) {
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
         this.loadType = loadType;
