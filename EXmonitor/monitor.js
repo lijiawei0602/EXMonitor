@@ -112,7 +112,7 @@
     CustomerPV.prototype = new MonitorBaseInfo();
     
     // 用户加载页面的信息日志
-    function LoadPageInfo(uploadType, loadType, oladPage, domReady, redirect, lookupDomain, ttfb, request, loadEvent, appcache, uploadEvent, connect) {
+    function LoadPageInfo(uploadType, loadType, loadPage, domReady, redirect, lookupDomain, ttfb, request, loadEvent, appcache, uploadEvent, connect) {
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
         this.loadType = loadType;
@@ -654,7 +654,7 @@
 
     window.webMonitor = {
         /**
-         * 埋点上传数据
+         * 埋点上传数据 后端暂未支持
          * @param url 当前页面的URL
          * @param type 埋点类型
          * @param index 埋点顺序
