@@ -10,6 +10,7 @@ import jsErrorInfoController from '../controller/jsErrorInfo.js';
 import screenShotInfoController from '../controller/screenShotInfo.js';
 import ignoreErrorController from '../controller/ignoreError.js';
 import commonController from '../controller/common.js';
+import sourceMapController from '../controller/sourceMap.js';
 
 const router = new Router({
     prefix: config.app.base,
@@ -141,5 +142,11 @@ router.get('/ignoreError/:id', ignoreErrorController.getIgnoreErrorDetail);
 router.put('/ignoreError/:id', ignoreErrorController.update);
 router.delete('/ignoreError/:id', ignoreErrorController.deleteIgnoreError);
 router.get('/getIgnoreErrorByApplication', ignoreErrorController.getIgnoreErrorInfoByApplication);
+
+/**
+ * 处理上传sourceMap文件上传
+ */
+// http://localhost:8086/view/sourcemap/build/index.html 上传sourcemap文件页面
+router.post('/sourceMap', sourceMapController.uploadFile);
 
 export default router;

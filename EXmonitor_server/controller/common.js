@@ -23,14 +23,14 @@ const uploadLog = async (ctx) => {
         param = ctx.request.body.data;
     }
     param = JSON.parse(param);
-    
+
     const req = ctx.req;
     const clientIp = req.headers['x-forwarded-for'] ||
         req.connection.remoteAddress ||
         req.socket.remoteAddress ||
         req.connection.socket.remoteAddress;
-    // const ipQueryStr = ipQuery + clientIp;
-    const ipQueryStr = ipQuery + '117.136.0.226';
+    const ipQueryStr = ipQuery + clientIp;
+    // const ipQueryStr = ipQuery + '117.136.0.226';
     const ipInfoPro = await fetch(ipQueryStr)
     const ipInfo = await ipInfoPro.json();
     const { country, region, city } = ipInfo.data;

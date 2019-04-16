@@ -6,6 +6,7 @@ import logger from 'koa-logger';
 import onerror from 'koa-onerror';
 const static1 = require('koa-static');
 import jwt from 'koa-jwt';
+import KoaBody from 'koa-body';
 
 import router from './routes';
 import config from './config'
@@ -19,23 +20,21 @@ onerror(app);
 app.use(cors());
 // 更好的形式将json数据输出
 app.use(json());
-app.use(static1(__dirname + '/publicFile'));
+app.use(static1(__dirname));
 // 打印日志
 app.use(logger());
+// 处理文件上传 ctx.request.files.
+app.use(KoaBody({
+    multipart: true,
+    formidable: {
+        maxFieldsSize: 20 * 1024 * 1024,
+    },
+}));
 // 解析body
 app.use(bodyparser());
 
 app.use(router.routes());
 app.use(router.allowedMethods());
-
-// sequelize
-//   .authenticate()
-//   .then(() => {
-//     console.log('Connection has been established successfully.');
-//   })
-//   .catch(err => {
-//     console.error('Unable to connect to the database:', err);
-//   });
 
 /**
  * listen默认是ipv6，为了获取到客户端请求的ip，故指定0.0.0.0强制指定为ipv4

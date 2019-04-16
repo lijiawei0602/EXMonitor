@@ -1,0 +1,1321 @@
+<template>
+    <div>
+        <Form :label-width="30" style="width: 700px;">
+            <h3 class="eventSelect-header">事件选择</h3>
+            <FormItem :error="datePickerInfo.error" class="datePicker" label="开始/结束日期" :label-width="100">
+                <Row>
+                    <Col span="8">
+                        <!-- <DatePicker style="width: 100%;" @on-change="handleDateChange" type="daterange" placement="bottom" placeholder="选择日期"></DatePicker> -->
+                        <el-date-picker :style="datePickerInfo['show-message'] ? 'border: 1px solid #ed4014' : ''" size="mini" popper-class="datePickerOption" v-model="date" v-on:change="handleDateChange" type="datetimerange" placeholder="选择日期时间"></el-date-picker>
+                    </Col>
+                </Row>
+            </FormItem>
+            <FormItem class="eventName" :label="numConvertToLetter(index)" v-for="(item, index) in eventSelect" :key="item.serviceName + '-' + index">
+                <Row style="margin-bottom: 10px;">
+                    <Col span="8" style="margin-right: 10px;">
+                        <FormItem :error="item.serviceNameInfo.error">
+                            <Select filterable v-model="item.serviceName" placeholder="请选择serviceName" @on-change="((value) => {handleServiceChange(value, index)})">
+                                <Option v-for="item in serviceNameOpt" :key="item" :value="item">{{item}}</Option>
+                            </Select>
+                        </FormItem>
+                    </Col>
+                    <Col span="8">
+                        <FormItem :error="item.eventNameInfo.error">
+                            <Select filterable v-model="item.eventName" placeholder="请选择eventName" @on-change="((value) => handleEventNameChange(value, eventSelect[index].serviceName, index))">
+                                <Option v-for="item in formDataOpt[index].eventNameOpt" :key="item" :value="item">{{item}}</Option>
+                            </Select>
+                       </FormItem>
+                    </Col>
+                    <Col span="6" style="margin-left: 10px">
+                        <Icon v-if="eventSelect.length > 1" type="ios-close" style="cursor:pointer" size="20" v-on:click="removeEventSelect(index)" />
+                    </Col>
+                </Row>
+                <Row>
+                    <div style="position: relative; padding-left: 30px;">
+                        <div class="filterConf-relation" v-if="eventSelect[index].filterConf.length > 1">
+                            <div class="filterConf-relation-top"></div>
+                            <div class="filterConf-relation-bottom"></div>
+                            <div class="filterConf-relation-vertical"></div>
+                            <div class="filterConf-relation-label" v-on:click="handleLogicalChange(index)">
+                                <Tooltip :content="eventSelect[index].logicalOpt === 'and' ? '点击切换逻辑关系为或' : '点击切换逻辑关系为且'" transfer>
+                                    <span style="font-size: 12px;">{{eventSelect[index].logicalOpt === 'and' ? '且' : '或'}}</span>
+                                    <Icon type="ios-repeat" style="transform: rotate(90deg); cursor:pointer; color:black;" size="8" />
+                                </Tooltip>
+                            </div>
+                        </div>
+                        <Row v-for="(filterConfItem, i) in eventSelect[index].filterConf" :key="filterConfItem.attrName + '-' + i">
+                            <Col span="7" style="margin: 0 10px 20px 0;">
+                                <FormItem :error="filterConfItem.attrNameInfo.error">
+                                    <!-- <Select filterable placeholder="请选择param_name" v-model="filterConfItem.attrName" @on-change="((value) => handleAttrNameChange(value, index, i))">
+                                        <OptionGroup label="用户自定义参数">
+                                            <Option v-for="(p, i) in formDataOpt[index].attrNameOpt['user_params']" :key="i" :value="'user-' + p.param_name">{{p.param_name}}</Option>
+                                        </OptionGroup>
+                                        <OptionGroup label="公共参数">
+                                            <Option v-for="(p, i) in formDataOpt[index].attrNameOpt['public_params']" :key="i" :value="'public-' + p.param_name">{{p.param_name}}</Option>
+                                        </OptionGroup>
+                                    </Select> -->
+                                    <el-select class="attrName-select" popper-class="attrName-select-option" filterable allow-create placeholder="请选择param_name" v-model="filterConfItem.attrName" v-on:change="((value) => handleAttrNameChange(value, index, i))">
+                                        <el-option-group label="用户自定义参数">
+                                            <el-option v-for="(p, i) in formDataOpt[index].attrNameOpt['user_params']" :key="i + '-' + p.param_name" :value="'user-' + p.param_name">{{p.param_name}}</el-option>
+                                        </el-option-group>
+                                        <el-option-group label="公共参数">
+                                            <el-option v-for="(p, i) in formDataOpt[index].attrNameOpt['public_params']" :key="i + '-' + p.param_name" :value="'public-' + p.param_name">{{p.param_name}}</el-option>
+                                        </el-option-group>
+                                    </el-select>
+                                </FormItem>
+                            </Col>
+                            <Col span="3" v-if="formDataOpt[index].confArr[i].isUserDefine" style="margin: 0 10px 20px 0;">
+                                <Select v-model="filterConfItem.attrNameType" placeholder="请选择attrName对应值的类型" @on-change="((value) => handleAttrNameTypeChange(value, index, i))">
+                                    <Option :value="0">string</Option>
+                                    <Option :value="1">int</Option>
+                                    <Option :value="2">long</Option>
+                                    <Option :value="3">float</Option>
+                                    <Option :value="4">double</Option>
+                                </Select>
+                            </Col>
+                            <Col span="3" style="margin: 0 10px 20px 0;" v-if="filterConfItem.attrName && filterConfItem.attrNameType !== ''">
+                                <Select class="operation-select" v-model="filterConfItem.attrOperation" :placeholder="filterConfItem.attrOperation" @on-change="((value) => handleAttrOperatorChange(value, index, i))">
+                                    <Option v-for="(attrOperatorOptItem, attrOperatorOptIndex) in formDataOpt[index].confArr[i].attrOperatorOpt" :key="attrOperatorOptIndex" :value="attrOperatorOptItem">
+                                        <Tooltip class="tooltip" :transfer="true" placement="right" :content="attrOperatorOptItem">
+                                            {{ attrOperatorOptItem }}
+                                        </Tooltip>
+                                    </Option>
+                                </Select>
+                            </Col>
+                            <Col span="7" style="margin: 0 10px 20px 0;" v-if="filterConfItem.attrName && filterConfItem.attrNameType !== '' && formDataOpt[index].confArr[i].haveAttrValue">
+                                <FormItem :error="filterConfItem.attrValueInfo.error">
+                                    <div v-if="formDataOpt[index].confArr[i].isBetween" :style="filterConfItem.attrValueInfo['show-message'] ? 'border: 1px solid #ed4014;' : ''" class="attrvalueWrapper" @click="handleInputFocus(index, i)">
+                                        <Tag v-for="(attrValueItem, attrValueIndex) in filterConfItem.attrValue" :key="attrValueIndex" closable @on-close="handleAttrValueClose(attrValueItem, index, i)" style="float:left;">{{ attrValueItem }}</Tag>
+                                        <input v-if="!eventSelect[index].filterConf[i].attrNameType" :ref="index + '-' + i" v-on:input="((value) => handleAttrValueEditChange(value, index, i))" placeholder="请输入属性值" class="attrValueInput" @keypress.enter="handleAttrValueAdd(index, i)" v-on:blur="handleAttrValueAdd(index, i)" />
+                                        <input v-else type="number" :ref="index + '-' + i"  v-on:keyup="((value) => handleInputKeyup(value, index, i))" v-on:input="((value) => handleAttrValueEditChange(value, index, i))" placeholder="请输入数值类型" class="attrValueInput" @keypress.enter="handleAttrValueAdd(index, i)" v-on:blur="handleAttrValueAdd(index, i)" />
+                                    </div>
+                                    <div v-if="!formDataOpt[index].confArr[i].isBetween">
+                                        <Input v-if="!eventSelect[index].filterConf[i].attrNameType" :ref="index + '-' + i"  v-on:input="((value) => handleInputValueChange(value, index, i))" v-model="eventSelect[index].filterConf[i].inputValue" placeholder="请输入属性值" class="attrValueInput" />
+                                        <Input v-else type="number" :ref="index + '-' + i" @on-keyup="((value) => handleInputKeyup(value, index, i))" v-on:input="((value) => handleInputValueChange(value, index, i))" v-model="eventSelect[index].filterConf[i].inputValue" placeholder="请输入数值类型" class="attrValueInput" />
+                                    </div>
+                                </FormItem>
+                            </Col>
+                            <Col span="2" style="margin: 0 10px 20px 0;" v-if="eventSelect[index].filterConf.length > 0">
+                                <Icon type="ios-close" style="cursor:pointer;" size="20" v-on:click="removeFilterConf(index, i)" />
+                            </Col>
+                        </Row>
+                    </div>
+                </Row>
+                <Row>
+                    <span v-on:click="addfilterConf(index)" style="color: #2d8cf0; fontSize: 12px; cursor: pointer; margin-left: 10px;">+过滤条件</span>
+                </Row>
+            </FormItem>
+            <Button v-on:click="addEventSelect" type="primary" style="margin-bottom: 20px;">
+                <Icon type="ios-add" color="white" size="15" />
+                增加指标
+            </Button>
+            <FormItem label="查询粒度" :label-width="70" class="granularity">
+                <Row>
+                    <Col span="8">
+                        <Select v-model="granularity">
+                            <Option :value="300">5分钟级</Option>
+                            <Option :value="600">10分钟级</Option>
+                            <Option :value="3600">小时级</Option>
+                            <Option :value="86400">天级</Option>
+                        </Select>
+                    </Col>
+                </Row>
+            </FormItem>
+            <FormItem label="GroupBy" :label-width="70" class="groupBy">
+                <Row  v-for="(item, index) in groupBy" :key="index" style="margin-bottom: 10px;">
+                    <Col span="8">
+                        <FormItem :error="item.attrNameInfo.error">
+                            <el-select v-model="item.attrName" class="attrName-select" popper-class="attrName-select-option" filterable allow-create v-on:change="handleGroupByChange(index)">
+                                <el-option v-for="(groupOptItem, groupOptIndex) in groupByOpt" :key="groupOptIndex" :value="groupOptItem.param_name">{{ groupOptItem.param_name }}</el-option>
+                            </el-select>
+                        </FormItem>
+                    </Col>
+                    <Col v-if="groupBy.length > 1" span="2">
+                        <Icon type="ios-close" style="cursor:pointer;" size="20" v-on:click="removeGroupBy(index)" />
+                    </Col>
+                </Row>
+                <Row>
+                    <span @click="addGroupBy" style="color: #2d8cf0; fontSize: 12px; cursor: pointer; margin-left: 10px;">+增加groupBy条件</span>
+                </Row>
+            </FormItem>
+            <FormItem label="Aggregator" :label-width="70" class="aggregation">
+                <Row v-for="(item, index) in aggregation" :key="index" style="margin-bottom: 10px;">
+                    <Col span="5" style="margin-right: 10px;">
+                        <FormItem :error="item.typeInfo.error">
+                            <Select v-model="item.type" @on-change="handleAggregationTypeChange(index)">
+                                <Option value="count">count</Option>
+                                <Option value="max">max</Option>
+                                <Option value="min">min</Option>
+                                <Option value="sum">sum</Option>
+                                <Option value="avg">avg</Option>
+                                <Option value="quantile">quantile</Option>
+                            </Select>
+                        </FormItem>
+                    </Col>
+                    <Col span="4" style="margin-right: 10px;" v-if="item.type === 'quantile'">
+                        <FormItem :error="item.numberInfo.error">
+                            <Input type="number" style="width: 100%;" v-model="item.number" placeholder="0.01-0.99的两位小数" @on-change="handleAggretorNumberChange(index)" @on-blur="handleAggretorNumberBlur(index)" />
+                        </FormItem>
+                    </Col>
+                    <Col span="8" v-if="item.type !== 'count'">
+                        <FormItem :error="item.attrNameInfo.error">
+                            <el-select class="attrName-select" popper-class="attrName-select-option" filterable allow-create v-model="item.attrName" v-on:change="handleAggregationAttrNameChange(index)">
+                                <el-option v-for="(aggregationOptItem, aggregationOptIndex) in aggregationOpt" :key="aggregationOptIndex" :value="aggregationOptItem.param_name">{{ aggregationOptItem.param_name }}</el-option>
+                            </el-select>
+                        </FormItem>
+                    </Col>
+                    <Col v-if="aggregation.length > 1" span="2">
+                        <Icon type="ios-close" style="cursor:pointer;" size="20" v-on:click="removeAggregation(index)" />
+                    </Col>
+                </Row>
+                <Row>
+                    <span @click="addAggregation" style="color: #2d8cf0; fontSize: 12px; cursor: pointer; margin-left: 10px;">+增加aggregation条件</span>
+                </Row>
+            </FormItem>
+            <Button v-on:click="handleSubmit" type="primary" style="margin-left: 10px;">
+                查询
+            </Button>
+        </Form>
+        <div style="overflow: hidden;">
+            <Table v-if="showTable" stripe style="margin-top: 30px;" :columns="columns" :data="pageData" ref="table"></Table>
+            <Page v-if="showTable" class="tablePagination" :current="curPage" :total="tableData.length" show-total show-elevator :page-size="pageSize" @on-change="handlePageChange" style="margin: 20px 0;" />
+            <Button v-if="showTable" type="primary" class="tabelExportBtn" @click="exportData(1)">
+                <Icon type="ios-download-outline"></Icon>
+                导出表格数据
+            </Button>
+        </div>
+        <Form style="width: 700px;" v-if="showTable">
+            <FormItem label="筛选条件" :label-width="60">
+                <Row>
+                    <Col span="10">
+                        <Select v-model="metricsFilter" @on-change="handleMetricChange">
+                            <Option v-for="(item, index) in metrics" :key="index" :value="item">{{ item }}</Option>
+                        </Select>
+                    </Col>
+                </Row>
+            </FormItem>
+        </Form>
+        <div ref='lineEchart' style="width: 100%; height: 10px;"></div>
+        <Spin fix class="table-spin" v-if="loading">
+            <Icon type="ios-loading" size=18 class="table-spin-icon-load"></Icon>
+            <div v-html="spinContent"></div>
+        </Spin>
+    </div>
+</template>
+<script>
+    import echarts from 'echarts';
+    import moment from 'moment';
+    import DataTraceClient from '@/api/DataTraceClient';
+    export default {
+        data () {
+            return {
+                date: '',
+                startDate: 0,
+                endDate: 0,
+                datePickerInfo: {
+                    'show-message': false,
+                    error: '',
+                },
+                serviceNameOpt: [],
+                granularity: 300,
+                granularityInfo: {
+                    'show-message': false,
+                    error: '',
+                },
+                groupByOpt: [],
+                aggregationOpt: [],
+                formDataOpt: [
+                    {
+                        eventNameOpt: [],
+                        attrNameOpt: {
+                            user_params: [],
+                            public_params: [],
+                        },
+                        confArr: [],
+                    },
+                ],
+                eventSelect: [
+                    {
+                        serviceName: '',
+                        serviceNameInfo: {
+                            'show-message': false,
+                            error: '',
+                        },
+                        eventName: '',
+                        eventNameInfo: {
+                            'show-message': false,
+                            error: '',
+                        },
+                        filterConf: [],
+                        logicalOpt: 'and',
+                    },
+                ],
+                groupBy: [
+                    {
+                        attrName: '',
+                        attrNameInfo: {
+                            'show-message': false,
+                            error: '',
+                        },
+                    },
+                ],
+                aggregation: [
+                    {
+                        number: null,
+                        numberInfo: {
+                            'show-message': false,
+                            error: '',
+                        },
+                        type: '',
+                        typeInfo: {
+                            'show-message': false,
+                            error: '',
+                        },
+                        attrName: null,
+                        attrNameInfo: {
+                            'show-message': false,
+                            error: '',
+                        },
+                    },
+                ],
+                metrics: [],
+                metricsFilter: '',
+                dimensions: [],
+                lastData: [],
+                sortedArr: [],
+                filterArr: [],
+                moreInfoJson: [],
+                showTable: false,
+                showMoreInfoModal: false,
+                loading: false,
+                timeOut: 0,
+                timeOutFlag: false,
+                spinContent: '加载中',
+                param_type: {
+                    0: 'string',
+                    1: 'int',
+                    2: 'long',
+                    3: 'float',
+                    4: 'double',
+                },
+                paramTypeToOperator: {
+                    string: ['=', '!=', 'in', 'not in', 'null', 'not null'],
+                    number: ['>', '<', '>=', '<=', '=', '!=', 'in', 'not in', 'null', 'not null'],
+                },
+                curPage: 1,
+                pageSize: 10,
+                pageData: [],
+                columns: [],
+                tableData: [],
+            };
+        },
+        created () {
+            DataTraceClient.getServiceName().then(res => {
+                this.serviceNameOpt = res.data;
+            });
+            DataTraceClient.getTimeOut().then(res => {
+                this.timeOut = res.data;
+            });
+        },
+        mounted () {
+            window.onresize = function () {
+                this.$refs.lineEchart.style.width = '100%';
+                const newWidth = this.$refs.lineEchart.clientWidth;
+                this.$refs.lineEchart.style.width = newWidth + 'px';
+                if (this.lineEchart) {
+                    this.lineEchart.resize();
+                }
+            }.bind(this);
+        },
+        methods: {
+            addEventSelect () {
+                this.eventSelect.push({
+                    serviceName: '',
+                    serviceNameInfo: {
+                        'show-message': false,
+                        error: '',
+                    },
+                    eventName: '',
+                    eventNameInfo: {
+                        'show-message': false,
+                        error: '',
+                    },
+                    filterConf: [],
+                    logicalOpt: 'and',
+                });
+                this.formDataOpt.push({
+                    eventNameOpt: [],
+                    attrNameOpt: {
+                        user_params: [],
+                        public_params: [],
+                    },
+                    confArr: [],
+                });
+            },
+            removeEventSelect (index) {
+                this.eventSelect.splice(index, 1);
+                this.formDataOpt.splice(index, 1);
+            },
+            addfilterConf (index) {
+                // 添加前判断service和event是否选中值
+                if (!this.eventSelect[index].serviceName) {
+                    this.eventSelect[index].serviceNameInfo = {
+                        'show-message': true,
+                        error: '不可为空',
+                    };
+                }
+                if (!this.eventSelect[index].eventName) {
+                    this.eventSelect[index].eventNameInfo = {
+                        'show-message': true,
+                        error: '不可为空',
+                    };
+                }
+                if (this.eventSelect[index].serviceNameInfo['show-message'] || this.eventSelect[index].eventNameInfo['show-message']) {
+                    return;
+                }
+
+                this.eventSelect[index].filterConf.push({
+                    attrNameType: '',
+                    attrNameInfo: {},
+                    attrName: '',
+                    attrOperation: '=',
+                    attrValue: [],
+                    inputValue: '',
+                    attrValueInfo: {},
+                });
+                this.formDataOpt[index].confArr.push({
+                    attrOperatorOpt: [],
+                    isUserDefine: false,
+                    haveAttrValue: true,
+                    isBetween: false,
+                    attrValueEdit: '',
+                });
+            },
+            removeFilterConf (index, i) {
+                this.eventSelect[index].filterConf.splice(i, 1);
+                this.formDataOpt[index].confArr.splice(i, 1);
+            },
+            addGroupBy () {
+                this.groupBy.push({
+                    attrName: '',
+                    attrNameInfo: {
+                        'show-message': false,
+                        error: '',
+                    },
+                });
+            },
+            removeGroupBy (index) {
+                this.groupBy.splice(index, 1);
+            },
+            addAggregation () {
+                this.aggregation.push(
+                    {
+                        number: null,
+                        numberInfo: {
+                            'show-message': false,
+                            error: '',
+                        },
+                        type: '',
+                        typeInfo: {
+                            'show-message': false,
+                            error: '',
+                        },
+                        attrName: null,
+                        attrNameInfo: {
+                            'show-message': false,
+                            error: '',
+                        },
+                    },
+                );
+            },
+            removeAggregation (index) {
+                this.aggregation.splice(index, 1);
+            },
+            numConvertToLetter (num) {
+                return String.fromCodePoint(num + 97).toUpperCase();
+            },
+            handleDateChange (value) {
+                this.datePickerInfo = {
+                    'show-message': false,
+                    error: '',
+                };
+                this.startDate = new Date(value[0]).getTime() / 1000;
+                this.endDate = new Date(value[1]).getTime() / 1000;
+            },
+            handleServiceChange (value, index) {
+                // 清除已选数据
+                this.eventSelect[index].eventName = '';
+                this.eventSelect[index].filterConf = [];
+                this.eventSelect[index].serviceNameInfo = {
+                    'show-message': false,
+                    error: '',
+                };
+                this.handleGetEventName(value, index);
+            },
+            handleEventNameChange (eventName, serviceName, index) {
+                // 清楚已选数据
+                this.eventSelect[index].filterConf.forEach(item => {
+                    item.attrName = '';
+                    item.attrOperation = '=';
+                    item.attrValue = [];
+                    item.inputValue = '';
+                });
+                this.eventSelect[index].eventNameInfo = {
+                    'show-message': false,
+                    error: '',
+                };
+                this.handelGetFilterConf(serviceName, eventName, index);
+            },
+            handleGetEventName (serviceName, index) {
+                DataTraceClient.getEventName(serviceName)
+                .then((res) => {
+                    this.formDataOpt[index].eventNameOpt = res.data;
+                });
+            },
+            handelGetFilterConf (serviceName, eventName, index) {
+                DataTraceClient.getFilterConf(serviceName, eventName).then(res => {
+                    this.formDataOpt[index].attrNameOpt = res.data;
+
+                    // 处理groupByOpt和aggretorOpt
+                    this.getGroupAndAggregationOption();
+                });
+            },
+            handleAttrNameChange (value, index, i) {
+                if (value === undefined) {
+                    return;
+                }
+                // 清楚已选数据
+                this.eventSelect[index].filterConf[i].attrOperation = '=';
+                this.eventSelect[index].filterConf[i].attrValue = [];
+                this.eventSelect[index].filterConf[i].inputValue = '';
+
+                this.eventSelect[index].filterConf[i].attrNameInfo = {
+                    'show-message': false,
+                    error: '',
+                };
+                const { user_params, public_params } = this.formDataOpt[index].attrNameOpt;
+                let paramItem;
+                if (/^user/.test(value)) {
+                    user_params.filter((item) => {
+                        if (item.param_name === value.substr(5)) {
+                            paramItem = item;
+                        }
+                    });
+                } else if (/^public/.test(value)) {
+                    public_params.filter((item) => {
+                        if (item.param_name === value.substr(7)) {
+                            paramItem = item;
+                        }
+                    });
+                } else {
+                    // 用户自定义创建的attrName
+                    const attrName = `user-${value}`;
+                    this.eventSelect[index].filterConf[i].attrName = attrName;
+                    this.formDataOpt[index].confArr[i].isUserDefine = true;
+                    paramItem = {
+                        param_type: '',
+                    };
+                }
+                if (paramItem) {
+                    if (paramItem.param_type !== '') {
+                        const type = this.param_type[paramItem.param_type];
+                        this.eventSelect[index].filterConf[i].attrNameType = paramItem.param_type;
+                        this.formDataOpt[index].confArr[i].attrOperatorOpt = type === 'string' ? this.paramTypeToOperator[type] : this.paramTypeToOperator['number'];
+                    }
+                }
+            },
+            handleAttrNameTypeChange (value, index, i) {
+                // 清楚已选数据
+                this.eventSelect[index].filterConf[i].attrOperation = '=';
+                this.eventSelect[index].filterConf[i].attrValue = [];
+                this.eventSelect[index].filterConf[i].inputValue = '';
+
+
+                const type = this.param_type[value];
+                this.formDataOpt[index].confArr[i].attrOperatorOpt = type === 'string' ? this.paramTypeToOperator[type] : this.paramTypeToOperator['number'];
+
+                // 处理groupByOpt和aggretorOpt
+                this.getGroupAndAggregationOption();
+            },
+            handleAttrOperatorChange (value, index, i) {
+                this.eventSelect[index].filterConf[i].attrValue = [];
+                this.eventSelect[index].filterConf[i].inputValue = '';
+
+                if (value === 'null' || value === 'not null') {
+                    this.formDataOpt[index].confArr[i].haveAttrValue = false;
+                } else {
+                    this.formDataOpt[index].confArr[i].haveAttrValue = true;
+                }
+                if (value === 'in' || value === 'not in') {
+                    this.formDataOpt[index].confArr[i].isBetween = true;
+                } else {
+                    this.formDataOpt[index].confArr[i].isBetween = false;
+                }
+            },
+            handleLogicalChange (index) {
+                const logical = this.eventSelect[index].logicalOpt;
+                this.eventSelect[index].logicalOpt = logical === 'and' ? 'or' : 'and';
+            },
+            handleInputKeyup (value, index, i) {
+                if (value.keyCode === 13 || value.keyCode === 69) {
+                    return;
+                }
+                value = value.key;
+                if (!(/(\d)|(\.)/g.test(value))) {
+                    this.eventSelect[index].filterConf[i].attrValueInfo = {
+                        'show-message': true,
+                        error: '请输入数字类型',
+                    };
+                    const timer = setTimeout(function () {
+                        clearTimeout(timer);
+                        this.eventSelect[index].filterConf[i].attrValueInfo = {
+                            'show-message': false,
+                            error: '',
+                        };
+                    }.bind(this), 2000);
+                    return false;
+                }
+                return true;
+            },
+            handleAttrValueAdd (eventSelectIndex, filterConfIndex) {
+                const ref = eventSelectIndex + '-' + filterConfIndex;
+                if (this.$refs[ref][0].value === '') {
+                    return;
+                }
+                this.$refs[ref][0].value = '';
+                this.$refs[ref][0].style.width = '12px';
+                this.eventSelect[eventSelectIndex].filterConf[filterConfIndex].attrValueInfo = {
+                    'show-message': false,
+                    error: '',
+                };
+
+                const attrValueEdit = this.formDataOpt[eventSelectIndex].confArr[filterConfIndex].attrValueEdit;
+                const attrNameType = this.eventSelect[eventSelectIndex].filterConf[filterConfIndex].attrNameType;
+                const type = this.param_type[attrNameType];
+                if (type === 'string') {
+                    this.eventSelect[eventSelectIndex].filterConf[filterConfIndex].attrValue.push(attrValueEdit);
+                } else {
+                    const NaNFlag = isNaN(Number(attrValueEdit));
+                    NaNFlag ? this.eventSelect[eventSelectIndex].filterConf[filterConfIndex].attrValue.push(attrValueEdit)
+                        : this.eventSelect[eventSelectIndex].filterConf[filterConfIndex].attrValue.push(Number(attrValueEdit));
+                }
+                this.formDataOpt[eventSelectIndex].confArr[filterConfIndex].attrValueEdit = '';
+            },
+            handleAttrValueClose (name, eventSelectIndex, filterConfIndex) {
+                const index = this.eventSelect[eventSelectIndex].filterConf[filterConfIndex].attrValue.indexOf(name);
+                this.eventSelect[eventSelectIndex].filterConf[filterConfIndex].attrValue.splice(index, 1);
+            },
+            handleAttrValueEditChange (val, index, i) {
+                const ref = index + '-' + i;
+                const value = this.$refs[ref][0].value;
+                this.formDataOpt[index].confArr[i].attrValueEdit = value;
+                const width = value.length * 10;
+                this.$refs[ref][0].style.width = `${width + 12}px`;
+            },
+            handleInputFocus (index, i) {
+                const ref = index + '-' + i;
+                this.$refs[ref][0].focus();
+            },
+            handleInputValueChange (value, index, i) {
+                this.eventSelect[index].filterConf[i].attrValueInfo = {
+                    'show-message': false,
+                    error: '',
+                };
+            },
+            handleAggretorNumberBlur (index) {
+                const value = this.aggregation[index].number;
+                if (value < 0.01 || value > 0.99) {
+                    this.aggregation[index].numberInfo = {
+                        'show-message': true,
+                        error: '输入数字范围为0.01-0.99',
+                    };
+                } else if (value.toString().split('.')[1].length !== 2) {
+                    this.aggregation[index].numberInfo = {
+                        'show-message': true,
+                        error: '小数点后面需要保留两位',
+                    };
+                } else {
+                    this.aggregation[index].numberInfo = {
+                        'show-message': false,
+                        error: '',
+                    };
+                }
+            },
+            handleGroupByChange (index) {
+                this.groupBy[index].attrNameInfo = {
+                    'show-message': false,
+                    error: '',
+                };
+            },
+            handleAggretorNumberChange (index) {
+                if (this.aggregation[index].numberInfo['show-message']) {
+                    this.aggregation[index].numberInfo = {
+                        'show-message': false,
+                        error: '',
+                    };
+                }
+            },
+            handleAggregationTypeChange (index) {
+                this.aggregation[index].typeInfo = {
+                    'show-message': false,
+                    error: '',
+                };
+            },
+            handleAggregationAttrNameChange (index) {
+                this.aggregation[index].attrNameInfo = {
+                    'show-message': false,
+                    error: '',
+                };
+            },
+            getGroupAndAggregationOption () {
+                this.groupByOpt = [];
+                this.aggregationOpt = [];
+                this.formDataOpt.forEach(item => {
+                    item.attrNameOpt.user_params.forEach(t => {
+                        if (t.param_type === 0) {
+                            let flag = true;
+                            this.groupByOpt.some(ct => {
+                                if (ct.param_name === t.param_name) {
+                                    flag = false;
+                                    return true;
+                                }
+                            });
+                            if (flag) {
+                                this.groupByOpt.push(t);
+                            }
+                        } else {
+                            let flag = true;
+                            this.aggregationOpt.some(ct => {
+                                if (ct.param_name === t.param_name) {
+                                    flag = false;
+                                    return true;
+                                }
+                            });
+                            if (flag) {
+                                this.aggregationOpt.push(t);
+                            }
+                        }
+                    });
+                    item.attrNameOpt.public_params.forEach(t => {
+                        if (t.param_type === 0) {
+                            let flag = true;
+                            this.groupByOpt.some(ct => {
+                                if (ct.param_name === t.param_name) {
+                                    flag = false;
+                                    return true;
+                                }
+                            });
+                            if (flag) {
+                                this.groupByOpt.push(t);
+                            }
+                        } else {
+                            let flag = true;
+                            this.aggregationOpt.some(ct => {
+                                if (ct.param_name === t.param_name) {
+                                    flag = false;
+                                    return true;
+                                }
+                            });
+                            if (flag) {
+                                this.aggregationOpt.push(t);
+                            }
+                        }
+                    });
+                });
+
+                // 处理过滤条件的attrName是用户输入的字段时
+                for (let i = 0; i < this.eventSelect.length; i++) {
+                    for (let j = 0; j < this.eventSelect[i].filterConf.length; j++) {
+                        const { isUserDefine } = this.formDataOpt[i].confArr[j];
+                        const { attrName, attrNameType } = this.eventSelect[i].filterConf[j];
+                        if (isUserDefine && attrNameType === 0) {
+                            let flag = true;
+                            this.groupByOpt.some(ct => {
+                                if (ct.param_name === attrName.substr(5)) {
+                                    flag = false;
+                                    return true;
+                                }
+                            });
+                            flag ? this.groupByOpt.push({param_name: attrName.substr(5), param_type: attrNameType}) : null;
+                        } else if (isUserDefine) {
+                            let flag = true;
+                            this.aggregationOpt.some(ct => {
+                                if (ct.param_name === attrName.substr(5)) {
+                                    flag = false;
+                                    return true;
+                                }
+                            });
+                            flag ? this.aggregationOpt.push({param_name: attrName.substr(5), param_type: attrNameType}) : null;
+                        }
+                    }
+                }
+            },
+            handleCheckForm () {
+                let dateFlag;
+                if (!!this.startDate && !!this.endDate) {
+                    dateFlag = true;
+                } else {
+                    dateFlag = false;
+                    this.datePickerInfo = {
+                        'show-message': true,
+                        error: '不可为空',
+                    };
+                }
+                const flag = this.eventSelect.reduce((bool, item)=> {
+                    let p = true;
+                    if (!item.serviceName) {
+                        p = false;
+                        item.serviceNameInfo = {
+                            'show-message': true,
+                            error: '不可为空',
+                        };
+                    }
+                    if (!item.eventName) {
+                        p = false;
+                        item.eventNameInfo = {
+                            'show-message': true,
+                            error: '不可为空',
+                        };
+                    }
+                    const filterConfFlag = item.filterConf.reduce((res, t) => {
+                        if (!t.attrName) {
+                            t.attrNameInfo = {
+                                'show-message': true,
+                                error: '不可为空',
+                            };
+                        }
+                        let attrValueFlag = true;
+                        if (t.attrOperation === 'null' || t.attrOperation === 'not null') {
+                            attrValueFlag = false;
+                        }
+                        if (attrValueFlag && (!t.attrValue.length && !t.inputValue.toString().length)) {
+                            t.attrValueInfo = {
+                                'show-message': true,
+                                error: '不可为空',
+                            };
+                        }
+                        return attrValueFlag ? res && t.attrName && (t.attrValue.length || t.inputValue.toString().length) : res && t.attrName;
+                    }, p);
+                    return bool && p && filterConfFlag;
+                }, true);
+                const secFlag = this.groupBy.reduce((bool, item) => {
+                    let flag = true;
+                    if (!item.attrName) {
+                        flag = false;
+                        item.attrNameInfo = {
+                            'show-message': true,
+                            error: '不可为空',
+                        };
+                    }
+                    return flag;
+                }, true);
+                const thiFlag = this.aggregation.reduce((bool, item) => {
+                    let flag = true;
+                    if (!item.type) {
+                        flag = false;
+                        item.typeInfo = {
+                            'show-message': true,
+                            error: '不可为空',
+                        };
+                    }
+                    if (item.type === 'quantile' && (item.number === '' || !item.number)) {
+                        flag = false;
+                        item.numberInfo = {
+                            'show-message': true,
+                            error: '不可为空',
+                        };
+                    }
+                    if (item.type !== 'count' && !item.attrName) {
+                        flag = false;
+                        item.attrNameInfo = {
+                            'show-message': true,
+                            error: '不可为空',
+                        };
+                    }
+                    return flag;
+                }, true);
+                return dateFlag && flag && secFlag && thiFlag;
+            },
+            handleSubmit () {
+                if (!this.handleCheckForm()) {
+                    return;
+                }
+
+                this.loading = true;
+
+                const where = this.eventSelect.map(item => {
+                    let public_params = [];
+                    let user_params = [];
+                    item.filterConf.forEach(t => {
+                        if (!t.attrValue.length) {
+                            const NaNFlag = isNaN(Number(t.inputValue));
+                            t.inputValue = NaNFlag ? t.inputValue : Number(t.inputValue);
+                        }
+                        if (/^public/.test(t.attrName)) {
+                            public_params.push({
+                                type: t.attrNameType,
+                                key: t.attrName.substr(7),
+                                opt: t.attrOperation,
+                                args: t.attrValue.length ? t.attrValue : [t.inputValue],
+                            });
+                        }
+                        if (/^user/.test(t.attrName)) {
+                            user_params.push({
+                                type: t.attrNameType,
+                                key: t.attrName.substr(5),
+                                opt: t.attrOperation,
+                                args: t.attrValue.length ? t.attrValue : [t.inputValue],
+                            });
+                        }
+                    });
+                    return {
+                        logical_opt: item.logicalOpt,
+                        service_name: item.serviceName,
+                        event_name: item.eventName,
+                        public_params,
+                        user_params,
+                    };
+                });
+
+                const groupby = this.groupBy.map(item => {
+                    return item.attrName;
+                });
+                let aggregationObj = [];
+                for (let i = 0; i < this.aggregationOpt.length; i++) {
+                    const aggregationOptItem = this.aggregationOpt[i];
+                    for (let j = 0; j < this.aggregation.length; j++) {
+                        const aggregationItem = this.aggregation[j];
+                        if (aggregationOptItem.param_name === aggregationItem.attrName) {
+                            aggregationObj.push({
+                                ...aggregationItem,
+                                param_type: aggregationOptItem.param_type,
+                            });
+                        } else if (aggregationItem.type === 'count') {
+                            aggregationObj.push(aggregationItem);
+                        }
+                    }
+                }
+                const aggregation = aggregationObj.map((item, index) => {
+                    let args;
+                    if (item.type === 'quantile') {
+                        args = [Number(item.number), item.attrName, item.param_type];
+                    } else if (item.type !== 'count') {
+                        args = [item.attrName, item.param_type];
+                    } else {
+                        args = [];
+                    }
+                    return {
+                        type: item.type,
+                        args,
+                    };
+                });
+                // const param = {
+                //     timestamp_from: this.startDate,
+                //     timestamp_to: this.endDate,
+                //     where,
+                //     granularity: this.granularity,
+                //     aggregation,
+                //     groupby,
+                //     limit: 100,
+                //     detail: 0,
+                // };
+                const str = '{"timestamp_from":1554048000,"timestamp_to":1554134400,"where":[{"logical_opt":"and","service_name":"data.sorter.qrec","event_name":"total_latency","public_params":[{"type":0,"key":"address","opt":"in","args":["n27-066-138:9300","n13-016-031:9300","n13-037-096:9300"]}],"user_params":[{"type":2,"key":"latency","opt":"<=","args":[1000000]},{"type":2,"key":"latency","opt":">","args":[1000]},{"type":2,"key":"latency","opt":"not null","args":[0]},{"type":2,"key":"latency","opt":"not in","args":[429324,123157,643519]},{"type":2,"key":"latency","opt":"!=","args":[123456]},{"type":2,"key":"latency","opt":"!=","args":[654321]},{"type":2,"key":"latency","opt":"!=","args":[987654]},{"type":2,"key":"latency","opt":"not in","args":[429324,123157,643519]},{"type":2,"key":"latency","opt":"not in","args":[1230,4560,7890]},{"type":2,"key":"latency","opt":"not in","args":[3210,6500,9870]}]}],"granularity":300,"aggregation":[{"type":"count","args":[]},{"type":"avg","args":["latency",1]},{"type":"quantile","args":[0.99,"latency",1]},{"type":"count","args":[]}],"groupby":["address"],"limit":100,"detail":0}';
+                const param = JSON.parse(str);
+                const reqStartTime = new Date().getTime();
+                let timer;
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    this.spinContent = `加载中，查询耗时已超过10s<br />目前超时设置为${this.timeOut}s，请尽量选择时间跨度较小或过滤条件较少的查询`;
+                }, 10000);
+                this.columns = [];
+                DataTraceClient.getAggregation(param).then(res => {
+                    this.curPage = 1;
+                    const { columns, results, metrics, dimensions } = res.data;
+                    this.lastData = res.data;
+                    this.metrics = metrics;
+                    this.dimensions = dimensions;
+                    this.metricsFilter = metrics.length ? metrics[0] : '';
+                    columns.forEach(item => {
+                        this.columns.push({
+                            key: item,
+                            title: item,
+                        });
+                    });
+                    // 对结果进行格式化生成表格所对应的数据
+                    const arr = [];
+                    results.forEach((item, index) => {
+                        let obj = {};
+                        for (let i = 0; i < columns.length; i++) {
+                            if (columns[i] === 'time') {
+                                obj[columns[i]] = moment(item[i] * 1000).format('YYYY-MM-DD HH:mm:ss');
+                            } else {
+                                obj[columns[i]] = item[i];
+                            }
+                        }
+                        arr.push(obj);
+                    });
+                    this.tableData = arr;
+                    // 分页处理
+                    const firstSliceIndex = this.tableData.length > 10 ? 10 : this.tableData.length;
+                    this.pageData = this.tableData.slice(0, firstSliceIndex);
+                    // 处理折线图数据
+                    const sortedArr = arr.sort(function (a, b) {
+                        return new Date(a['time']).getTime() - new Date(b['time']).getTime();
+                    });
+                    this.sortedArr = sortedArr;
+                    // arr = [[1,2], [3,4,5]]; 对应的种类2 * 3 = 6
+                    let comArr = [];
+                    for (let i = 0; i < this.dimensions.length; i++) {
+                        // const dimensionItemIndex = this.columns.indexOf(this.dimensions[i]);
+                        comArr[i] = [];
+                        sortedArr.forEach(item => {
+                            if (!comArr[i].includes(item[this.dimensions[i]])) {
+                                comArr[i].push(item[this.dimensions[i]]);
+                            }
+                        });
+                    }
+
+                    let filterArr = [];
+                    if (comArr.length > 1) {
+                        filterArr = comArr.reduce((arr, item, index) => {
+                            if (index === 0) {
+                                return item;
+                            }
+                            const res = [];
+                            for (let i = 0; i < arr.length; i++) {
+                                const m = arr[i];
+                                for (let j = 0; j < item.length; j++) {
+                                    const n = item[j];
+                                    if (Array.isArray(m)) {
+                                        res.push([...m, n]);
+                                    } else {
+                                        res.push([m, n]);
+                                    }
+                                }
+                            }
+                            return res;
+                        }, []);
+                    } else if (comArr.length === 1) {
+                        comArr.forEach(item => {
+                            item.forEach(t => {
+                                filterArr.push([t]);
+                            });
+                        });
+                    }
+                    this.filterArr = filterArr;
+
+                    let series = [];
+                    filterArr.forEach((item, index) => {
+                        let resultArr = [];
+                        let name = '';
+                        let first = true;
+                        sortedArr.forEach((t) => {
+                            let flag = true;
+                            for (let i = 0; i < item.length; i++) {
+                                if (item[i] !== t[this.dimensions[i]]) {
+                                    flag = false;
+                                } else {
+                                    if (first) {
+                                        first = false;
+                                        name += (i === (item.length - 1) ? `${this.dimensions[i]}=${item[i]}` : `${this.dimensions[i]}=${item[i]}&`);
+                                    }
+                                }
+                            }
+                            if (flag) {
+                                resultArr.push({value: [t.time, t[this.metricsFilter]]});
+                            }
+                        });
+                        series.push({
+                            name,
+                            type: 'line',
+                            data: resultArr,
+                        });
+                    });
+
+                    const options = {
+                        title: {
+                            text: '聚合查询情况展示',
+                        },
+                        tooltip: {
+                            trriger: 'axis',
+                        },
+                        xAxis: {
+                            type: 'time',
+                            boundaryGap: false,
+                        },
+                        yAxis: {
+                            type: 'value',
+                        },
+                        series,
+                    };
+                    this.showTable = true;
+                    this.loading = false;
+                    this.spinContent = '加载中';
+                    this.$refs.lineEchart.style.height = '500px';
+                    this.lineEchart = echarts.init(this.$refs.lineEchart);
+                    this.lineEchart.setOption(options);
+                }).catch(err => {
+                    const reqCurrentTime = new Date().getTime();
+                    if ((reqCurrentTime - reqStartTime) >= (this.timeOut * 1000)) {
+                        this.$Message.warning({
+                            content: `查询超时！目前超时设置为${this.timeOut}s`,
+                            closable: true,
+                            duration: 60,
+                        });
+                    } else {
+                        this.spinContent = '加载中';
+                    }
+                    this.loading = false;
+                });
+                this.spinContent = '加载中';
+            },
+            handleMetricChange () {
+                this.loading = true;
+
+                let series = [];
+                this.filterArr.forEach((item, index) => {
+                    let resultArr = [];
+                    let name = '';
+                    let first = true;
+                    this.sortedArr.forEach((t) => {
+                        let flag = true;
+                        for (let i = 0; i < item.length; i++) {
+                            if (item[i] !== t[this.dimensions[i]]) {
+                                flag = false;
+                            } else {
+                                if (first) {
+                                    first = false;
+                                    name += (i === (item.length - 1) ? `${this.dimensions[i]}=${item[i]}` : `${this.dimensions[i]}=${item[i]}&`);
+                                }
+                            }
+                        }
+                        if (flag) {
+                            resultArr.push({value: [t.time, t[this.metricsFilter]]});
+                        }
+                    });
+                    series.push({
+                        name,
+                        type: 'line',
+                        data: resultArr,
+                    });
+                });
+
+                const options = {
+                    title: {
+                        text: '聚合查询情况展示',
+                    },
+                    tooltip: {
+                        trriger: 'axis',
+                    },
+                    xAxis: {
+                        type: 'time',
+                        boundaryGap: false,
+                    },
+                    yAxis: {
+                        type: 'value',
+                    },
+                    series,
+                };
+                this.showTable = true;
+                this.loading = false;
+                this.lineEchart.setOption(options);
+            },
+            handleMoreInfoClick (obj) {
+                const { row } = obj;
+                const param = {
+                    timestamp_from: this.startDate,
+                    timestamp_to: this.endDate,
+                    trace_id: row.trace_id,
+                    service_name: row.service_name,
+                    events: row.event_name,
+                };
+                DataTraceClient.getMoreInfo(param).then(res => {
+                    this.moreInfoJson = res.data;
+                    this.showMoreInfoModal = true;
+                });
+            },
+            handlePageChange (curPage) {
+                this.curPage = curPage;
+                // const length = this.tableData.length;
+                const startIndex = (curPage - 1) * this.pageSize;
+                const endIndex = curPage * this.pageSize;
+                this.pageData = this.tableData.slice(startIndex, endIndex);
+            },
+            exportData () {
+                this.$refs.table.exportCsv({
+                    filename: 'AggregationTableInfo',
+                });
+            },
+        },
+    };
+</script>
+
+<style lang="less">
+    .datePicker {
+        .el-input__inner {
+            height: 30px;
+            line-height: 30px;
+        }
+        .ivu-form-item-label {
+            font-size: 12px !important;
+        }
+        
+    }
+    .eventSelect-header {
+        margin-bottom: 20px;
+    }
+    .eventName .ivu-form-item-label  {
+        padding: 10px;
+        margin-right: 10px;
+        box-sizing: border-box;
+        border-radius: 2px;
+        text-align: center;
+        background-color: #2d8cf0;
+        color: white;
+    }
+
+    .filterConf-relation {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 30px;
+        &-top {
+            position: absolute;
+            top: 14px;
+            left: 10px;
+            right: 0;
+            border-top: 1px solid #d9d9d9;
+        }
+        &-bottom {
+            position: absolute;
+            right: 0;
+            bottom: 30px;
+            left: 10px;
+            border-top: 1px solid #d9d9d9;
+        }
+        &-vertical {
+            position: absolute;
+            top: 14px;
+            bottom: 30px;
+            left: 10px;
+            border-right: 1px solid #d9d9d9;
+        }
+        &-label {
+            cursor: pointer;
+            position: absolute;
+            top: calc(50% - 10px);
+            left: -8px;
+            transform: translateY(-50%);
+            font-size: 12px;
+            width: 35px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            color: #999;
+            background-color: #fff;
+        }
+    }
+    .operation-select {
+        .ivu-select-item {
+            .tooltip {
+                width: 100%;
+                .ivu-tooltip-rel {
+                    display: block;
+                }
+            }
+        }
+    }
+    .attrvalueWrapper {
+        width: 100%;
+        overflow: hidden;
+        background: white;
+        border-radius: 5px;
+        padding: 0 5px;
+        line-height: 30px;
+        .ivu-tag {
+            margin-top: 4px;
+        }
+        .attrValueInput {
+            float: left;
+            height: 30px;
+            text-indent: 10px;
+            border: none;
+            outline:none;
+            max-width: 100%;
+            width: 12px;
+            overflow: hidden;
+        }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+    }
+    .action-btn {
+        margin-right: 2px;
+        font-size: 12px;
+        color: #2d8cf0;
+        cursor: pointer;
+    }
+    .table-spin {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        &-icon-load {
+            animation: ani-demo-spin 1s linear infinite;
+        }
+    }
+    @keyframes ani-demo-spin {
+        from { transform: rotate(0deg);}
+        50%  { transform: rotate(180deg);}
+        to   { transform: rotate(360deg);}
+    }
+    .attrName-select {
+        width: 100%;
+        .el-input {
+            font-size: 12px;
+        }
+        .el-input__inner {
+            height: 30px;
+            line-height: 30px;
+        }
+        .el-input__icon {
+            line-height: 30px;
+        }
+        .el-input__suffix {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    }
+    .attrName-select-option {
+        .el-select-dropdown__item {
+            font-size: 12px;
+            height: 30px;
+            line-height: 30px;
+        }
+    }
+    .granularity {
+        .ivu-form-item-label {
+            font-size: 12px !important;
+        }
+    }
+    .groupBy {
+        .ivu-form-item-label {
+            font-size: 12px !important;
+        }
+    }
+    .aggregation {
+        .ivu-form-item-label {
+            font-size: 12px !important;
+        }
+    }
+    .tabelExportBtn {
+        float: right;
+        margin: 20px 0;
+    }
+    .tablePagination {
+        float: left;
+    }
+</style>

@@ -171,9 +171,10 @@ const sendMailToUser = async (data) => {
 
     const mailTransport = nodemailer.createTransport({
         host: 'smtp.163.com',
+        port: '25',
         auth: {
             user: config.mail.user,
-            pass: config.mail.pass,
+            pass: config.mail.pass, //授权码
         }
     });
     const html = "123";
