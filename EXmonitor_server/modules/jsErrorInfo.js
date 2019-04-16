@@ -209,6 +209,7 @@ const getJsErrorInfoStackCode = async (data) => {
             }
         });
     });
+    console.log(sourceMapFileName);
     // 根据对应的sourceMap文件获取源文件内容以及行列数
     const SourceMapData = await readFile('../pubclicFile/' + sourceMapFileName);
     let sourceMapPath = {};
