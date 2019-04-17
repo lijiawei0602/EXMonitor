@@ -146,8 +146,8 @@
     function JSErrorInfo(uploadType, errorMsg, errorStack, url, lineNumber, columnNumber){
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
-        this.errorMsg = encodeURIComponent(errorMsg);
-        this.errorStack = encodeURIComponent(errorStack);
+        this.errorMsg = errorMsg;
+        this.errorStack = errorStack;
         this.browserInfo = BROWSER_INFO;
         this.url = url;
         this.row = lineNumber;
@@ -367,7 +367,7 @@
             realXHR.addEventListener('abort', function() { ajaxEventTrigger.call(this, 'ajaxAbort'); }, false);
             realXHR.addEventListener('error', function() { ajaxEventTrigger.call(this, 'ajaxError'); }, false);
             realXHR.addEventListener('load', function() { ajaxEventTrigger.call(this, 'ajaxLoad'); }, false);
-            realXHR.addEventListener('loadStart', function() { ajaxEventTrigger.call(this, 'ajaxLoadStart'); }, false);
+            realXHR.addEventListener('loadstart', function() { ajaxEventTrigger.call(this, 'ajaxLoadStart'); }, false);
             realXHR.addEventListener('progress', function() { ajaxEventTrigger.call(this, 'ajaxProgress'); }, false);
             realXHR.addEventListener('timeout', function() { ajaxEventTrigger.call(this, 'ajaxTimeout'); }, false);
             realXHR.addEventListener('loadend', function() { ajaxEventTrigger.call(this, 'ajaxLoadEnd'); }, false);
@@ -503,7 +503,7 @@
                     typeof failCallback == 'function' && failCallback();
                 }
             }
-            xhr.send(JSON.stringify(param));
+            xhr.send("data=" + JSON.stringify(param));
         }
 
         /**
