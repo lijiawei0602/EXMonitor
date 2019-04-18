@@ -9,9 +9,9 @@ User.sync({force: false});
  * @returns {Promise.<boolean>}
  */
 async function create(user) {
-    let { username, password } = user;
+    let { userId, password } = user;
     await User.create({
-        username,
+        userId,
         password,
     });
     return true;
@@ -37,7 +37,7 @@ async function deleteUserById(id) {
  */
 async function findAllUserList() {
     return await User.findAll({
-        attributes: ['id', 'username', 'createdAt', 'updatedAt'],
+        attributes: ['id', 'userId', 'createdAt', 'updatedAt'],
     });
 }
 
@@ -46,11 +46,12 @@ async function findAllUserList() {
  * @param username 用户名
  * @returns {Promise.<*>}
  */
-async function findUserByName(username) {
+async function findUserByUserId(userId) {
     return await User.findOne({
         where: {
-            username
-        }
+            userId
+        },
+        attributes: ['id', 'userId', 'createdAt', 'updatedAt'],
     });
 }
 
@@ -58,5 +59,5 @@ export default {
     create,
     deleteUserById,
     findAllUserList,
-    findUserByName,
+    findUserByUserId,
 }

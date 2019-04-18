@@ -8,6 +8,7 @@ import screenShotInfoModel from '../modules/screenShotInfo.js';
 import customerPVModel from '../modules/customerPV.js';
 import loadPageInfoModel from '../modules/loadPageInfo.js';
 import projectModel from '../modules/project.js';
+import userModel from '../modules/user.js';
 import util from '../util/index.js';
 
 const ipQuery = "http://ip.taobao.com/service/getIpInfo.php?ip=";
@@ -31,7 +32,6 @@ const uploadLog = async (ctx) => {
         req.socket.remoteAddress ||
         req.connection.socket.remoteAddress;
     const ipQueryStr = ipQuery + clientIp;
-    // const ipQueryStr = ipQuery + '117.136.0.226';
     const ipInfoPro = await fetch(ipQueryStr)
     const ipInfo = await ipInfoPro.json();
     const { country, region, city } = ipInfo.data;
@@ -42,16 +42,30 @@ const uploadLog = async (ctx) => {
             continue;
         }
         const logInfo = JSON.parse(logInfoArray[i]);
-        const monitorId = logInfo.monitorId;
-        const projectList = await projectModel.getProjectList();
-        const flag = projectList.rows.every(item => {
+
+        // 判断init时填入的userId和monitorId正确与否
+        const { monitorId, userId } = logInfo;
+        const isUser = await userModel.findUserByUserId(userId);
+        if (!isUser) {
+            ctx.response.status = 401;
+            ctx.response.body = {
+                code: 401,
+                message: 'userId配置错误',
+            }
+            return;
+        }
+        const projectList = await projectModel.getProjectListByUserId(userId);
+        let flag = false;
+        flag = projectList.rows.every(item => {
             return item.monitorId !== monitorId;
         })
         if (flag) {
-            projectModel.createProject({
-                monitorId,
-                projectName: monitorId,
-            });
+            ctx.response.status = 401;
+            ctx.response.body = {
+                code: 401,
+                message: '该用户暂未接入对应monitorId项目的配置，请去配置页面获取monitorId',
+            };
+            return;
         }
         logInfo.ip = clientIp;
         logInfo.country = country || "未知";

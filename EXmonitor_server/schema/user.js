@@ -6,7 +6,7 @@ const user = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true,
         },
-        username: {
+        userId: {
             type: DataTypes.STRING(50),
             allowNull: false,
         },

@@ -50,6 +50,14 @@ const getProjectById = async (id) => {
     });
 }
 
+const getProjectListByUserId = async (userId) => {
+    return await Project.findAndCountAll({
+        where: {
+            userId,
+        },
+    });
+};
+
 /**
  * 删除项目
  * @param {*} id 被删除项目的id
@@ -68,6 +76,7 @@ export default {
     createProject,
     updateProject,
     getProjectList,
+    getProjectListByUserId,
     getProjectById,
     deleteProject,
 }

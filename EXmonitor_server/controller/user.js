@@ -15,10 +15,10 @@ const { secret } = config.jwtConfig;
  */
 const create = async (ctx) => {
     const user = ctx.request.body;
-    const { username, password } = user;
-    if (username && password) {
+    const { userId, password } = user;
+    if (userId && password) {
         // 判断是否已存在该用户名
-        const exitUser = await userModel.findUserByName(username);
+        const exitUser = await userModel.findUserByUserId(userId);
         if (exitUser) {
             ctx.response.status = 403;
             ctx.body = {
@@ -32,11 +32,11 @@ const create = async (ctx) => {
             // user.password = hash;
 
             await userModel.create(user);
-            const newUser = userModel.findUserByName(username);
+            const newUser = userModel.findUserByUserId(userId);
 
             // 签发token，用于后续操作鉴权
             const token = jwt.sign({
-                username,
+                userId,
                 id: newUser.id
             }, secret, { expiresIn: '7d' });
 
@@ -64,12 +64,12 @@ const create = async (ctx) => {
  */
 const login = async (ctx) => {
     const params = ctx.request.body;
-    const user = await userModel.findUserByName(params.username);
+    const user = await userModel.findUserByUserId(params.userId);
     if (user) {
         if (user.password === params.password) {
             const payload = {
                 id: user.id,
-                username: user.username,
+                userId: user.userId,
             };
             const token = jwt.sign(payload, secret, { expiresIn: '7d' });
             ctx.response.status = 200;
@@ -78,7 +78,7 @@ const login = async (ctx) => {
                 msg: "登录成功",
                 data: {
                     id: user.id,
-                    username: user.username,
+                    userId: user.userId,
                     token,
                 }
             };
@@ -107,10 +107,10 @@ const getUserInfo = async (ctx) => {
     if (token) {
         let payload;
         try {
-            payload = await verify(token.split(' '[1]), secret);
+            payload = await verify(token.split(' ')[1], secret);
             const user = {
                 id: payload.id,
-                username: payload.username,
+                userId: payload.userId,
             };
             ctx.response.status = 200;
             ctx.body = {
@@ -121,6 +121,7 @@ const getUserInfo = async (ctx) => {
                 },
             };
         } catch (error) {
+            console.log(error);
             ctx.response.status = 401;
             ctx.body = {
                 code: 401,
@@ -134,6 +135,19 @@ const getUserInfo = async (ctx) => {
             msg: "查询失败，not authorization",
         };
     }
+}
+
+const getUserByUserId = async (ctx) => {
+    const userId = ctx.params.userId;
+    const user = await userModel.findUserByUserId(userId);
+    ctx.response.status = 200;
+    ctx.body = {
+        code: 200,
+        msg: '查询成功',
+        data: {
+            user,
+        },
+    };
 }
 
 /**
@@ -178,6 +192,7 @@ export default {
     create,
     login,
     getUserInfo,
+    getUserByUserId,
     deleteUser,
     getUserList,
 };

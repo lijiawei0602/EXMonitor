@@ -46,6 +46,17 @@ const getProjectList = async (ctx) => {
     }
 }
 
+const getProjectListByUserId = async (ctx) => {
+    const userId = ctx.query.userId;
+    const data = await projectModel.getProjectListByUserId(userId);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询项目信息成功",
+        data,
+    };
+}
+
 /**
  * 根据id查询项目信息
  * @param {*} ctx 
@@ -115,6 +126,7 @@ const updateProjectById = async (ctx) => {
 export default {
     create,
     getProjectList,
+    getProjectListByUserId,
     getProjectById,
     deleteProjectById,
 }

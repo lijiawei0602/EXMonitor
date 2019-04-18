@@ -12,6 +12,7 @@ import ignoreErrorController from '../controller/ignoreError.js';
 import commonController from '../controller/common.js';
 import sourceMapController from '../controller/sourceMap.js';
 import mailController from '../controller/mail.js';
+import generateController from '../controller/generate.js';
 
 const router = new Router({
     prefix: config.app.base,
@@ -40,16 +41,24 @@ router.post('/user', userController.create);
 router.post('/user/login', userController.login);
 // 用户信息
 router.get('/user', userController.getUserInfo);
+router.get('/getUserByUserId/:userId', userController.getUserByUserId);
 // 用户列表
 router.get('/user/list', userController.getUserList);
 // 删除用户
 router.delete('/user/:id', userController.deleteUser);
 
 /**
+ * 生成monitorId并创建project
+ */
+router.post('/generate', generateController.create);
+
+/**
  * 项目相关 
  */
 // 添加项目
 router.post('/project', projectController.create);
+// 根据userId获取projectList
+router.get('/projectList', projectController.getProjectListByUserId);
 // 获取项目列表
 router.get('/project/list', projectController.getProjectList);
 // 根据id获取项目信息

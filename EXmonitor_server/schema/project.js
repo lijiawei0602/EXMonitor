@@ -26,6 +26,11 @@ const project = (sequelize, DataTypes) => {
             allowNull: true,
             field: 'monitorCode',
         },
+        userId: {
+            type: DataTypes.STRING(100),
+            allowNull: true,
+            field: 'userId',
+        },
         // fetch代码
         fetchCode: {
             type: DataTypes.TEXT,
