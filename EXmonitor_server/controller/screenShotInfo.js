@@ -53,6 +53,7 @@ const create = async (ctx) => {
     //     });
     // });
     const params = ctx.request.body;
+    params.screenInfo = decodeURIComponent(params.screenInfo);
     const res = await screenShotInfoModel.create(params);
     const data = await screenShotInfoModel.getScreenShotInfoDetail(res.id);
     ctx.response.status = 200;
