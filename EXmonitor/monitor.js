@@ -146,7 +146,7 @@
     function JSErrorInfo(uploadType, errorMsg, errorStack, url, lineNumber, columnNumber){
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
-        this.errorMsg = errorMsg;
+        this.errorMessage = errorMsg;
         this.errorStack = errorStack;
         this.browserInfo = BROWSER_INFO;
         this.url = url;
