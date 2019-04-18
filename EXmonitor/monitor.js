@@ -530,7 +530,7 @@
             };
             window.html2canvas && window.html2canvas(ele, opt).then(function(canvas) {
                 var dataUrl = canvas.toDataURL("image/webp");
-                var screenShotInfo = new ScreenShotInfo(SCREEN_SHOT, description, dataUrl);
+                var screenShotInfo = new ScreenShotInfo(SCREEN_SHOT, description, encodeURIComponent(dataUrl));
                 screenShotInfo.handleLogInfo(SCREEN_SHOT, screenShotInfo);
             })
         }
