@@ -11,6 +11,7 @@ import screenShotInfoController from '../controller/screenShotInfo.js';
 import ignoreErrorController from '../controller/ignoreError.js';
 import commonController from '../controller/common.js';
 import sourceMapController from '../controller/sourceMap.js';
+import mailController from '../controller/mail.js';
 
 const router = new Router({
     prefix: config.app.base,
@@ -123,7 +124,7 @@ router.get('/getJsErrorInfoListAffect', jsErrorInfoController.getJsErrorInfoAffe
 // 根据页面信息获取jsErrorInfo列表
 router.get('/getJsErrorInfoListByPage', jsErrorInfoController.getJsErrorInfoByPage);
 // 定位js错误代码
-router.get('/getJsErrorInfoStackCode', jsErrorInfoController.getJsErrorInfoStackCode);
+router.get('/getJsErrorInfoStackCode/:id', jsErrorInfoController.getJsErrorInfoStackCode);
 
 /**
 * js错误信息截屏
@@ -142,6 +143,13 @@ router.get('/ignoreError/:id', ignoreErrorController.getIgnoreErrorDetail);
 router.put('/ignoreError/:id', ignoreErrorController.update);
 router.delete('/ignoreError/:id', ignoreErrorController.deleteIgnoreError);
 router.get('/getIgnoreErrorByApplication', ignoreErrorController.getIgnoreErrorInfoByApplication);
+
+/**
+ * 报警邮箱
+ */
+router.post('/mail', mailController.create);
+router.get('/mailList',mailController.getMailListByMonitorId);
+router.delete('/mail', mailController.deleteMail);
 
 /**
  * 处理上传sourceMap文件上传

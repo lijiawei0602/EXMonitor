@@ -1,4 +1,8 @@
 .ant-upload.ant-upload-drag {
   max-width: 700px;
-  margin: 300px auto;
+  height: 300px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

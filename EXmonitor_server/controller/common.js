@@ -7,6 +7,7 @@ import httpLogInfoModel from '../modules/httpLogInfo.js';
 import screenShotInfoModel from '../modules/screenShotInfo.js';
 import customerPVModel from '../modules/customerPV.js';
 import loadPageInfoModel from '../modules/loadPageInfo.js';
+import projectModel from '../modules/project.js';
 import util from '../util/index.js';
 
 const ipQuery = "http://ip.taobao.com/service/getIpInfo.php?ip=";
@@ -41,6 +42,17 @@ const uploadLog = async (ctx) => {
             continue;
         }
         const logInfo = JSON.parse(logInfoArray[i]);
+        const monitorId = logInfo.monitorId;
+        const projectList = await projectModel.getProjectList();
+        const flag = projectList.rows.every(item => {
+            return item.monitorId !== monitorId;
+        })
+        if (flag) {
+            projectModel.createProject({
+                monitorId,
+                projectName: monitorId,
+            });
+        }
         logInfo.ip = clientIp;
         logInfo.country = country || "未知";
         logInfo.province = region || "未知";
@@ -52,7 +64,7 @@ const uploadLog = async (ctx) => {
                 break;
             case 'JS_ERROR':
                 const ignoreArr = await ignoreErrorModel.getIgnoreErrorByMsg(logInfo);
-                if (!ignoreArr.length) {
+                if (!ignoreArr[0].count) {
                     await jsErrorInfoModel.create(logInfo);
                 }
                 break;

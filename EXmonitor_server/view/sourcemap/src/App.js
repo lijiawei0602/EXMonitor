@@ -23,7 +23,7 @@ const props = {
 class App extends Component {
   render() {
     return (
-      <div>
+      <div style={{ height: '100vh' }}>
         <Dragger {...props}>
           <p className="ant-upload-drag-icon">
             <Icon type="inbox" />

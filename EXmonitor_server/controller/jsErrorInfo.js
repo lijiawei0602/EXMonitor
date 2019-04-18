@@ -200,9 +200,8 @@ const getJsErrorInfoByPage = async (ctx) => {
  * @param {*} ctx 
  */
 const getJsErrorInfoStackCode = async (ctx) => {
-    // const param = ctx.request.body;
     const id = ctx.params.id;
-    const jsData = await getErrorInfoDetailById(id);
+    const jsData = await jsErrorInfoModel.getJsErrorInfoDetail(id);
     const data = await jsErrorInfoModel.getJsErrorInfoStackCode(jsData);
     ctx.response.status = 200;
     ctx.response.body = {

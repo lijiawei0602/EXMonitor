@@ -1,4 +1,4 @@
-import * as fetch from 'node-fetch';
+import JSON2 from 'JSON2';
 import nodemailer from 'nodemailer';
 const SourceMapConsumer = require('source-map').SourceMapConsumer;
 const promisify = require('util').promisify;
@@ -202,40 +202,41 @@ const getJsErrorInfoStackCode = async (data) => {
     // 根据url获取js文件名，从而获取对应的sourceMap文件
     const fileName = path.basename(url, '.js');
     let sourceMapFileName = "";
-    fs.readdirSync('../publicFile', (err, files) => {
-        files.forEach(item => {
-            if (item.includes(fileName)) {
-                sourceMapFileName = item;
-            }
-        });
+    const fileDir = path.resolve(__dirname, '../publicFile/');
+    const list = fs.readdirSync(fileDir);
+    list.forEach(item => {
+        if (item.includes(fileName)) {
+            sourceMapFileName = item;
+        }
     });
-    console.log(sourceMapFileName);
     // 根据对应的sourceMap文件获取源文件内容以及行列数
-    const SourceMapData = await readFile('../pubclicFile/' + sourceMapFileName);
+    const SourceMapData = await readFile(fileDir + '/' + sourceMapFileName);
     let sourceMapPath = {};
     const sourceMapContent = SourceMapData.toString();
-    const sourceMapJson = JSON.parse(sourceMapContent);
+    const sourceMapJson = JSON2.parse(sourceMapContent);
     const sources = sourceMapJson.sources;
     sources.forEach(item => {
         sourceMapPath[filterPath(item)] = item;
     });
-
-    const consumer = new SourceMapConsumer(sourceMapFileName);
-    const result = consumer.originalPositionFor({
-        line: parseInt(row),
-        column: parseInt(col),
-    });
-    const originSource = sourceMapPath[result.source];
-    const originContent = sourceMapJson.sourcesContent[sources.indexOf(originSource)];
-
-    return {
-        row: result.line,
-        col: result.column,
-        source: result.source,
-        msg: errorMessage,
-        file: originContent,
-    }
-
+    return new Promise((resolve, reject) => {
+        SourceMapConsumer.with(sourceMapContent, null, consumer => {
+            const result = consumer.originalPositionFor({
+                line: parseInt(row),
+                column: parseInt(col),
+            });
+            const originSource = sourceMapPath[result.source];
+            const originContent = sourceMapJson.sourcesContent[sources.indexOf(originSource)];
+        
+            const obj =  {
+                row: result.line,
+                col: result.column,
+                source: result.source,
+                msg: errorMessage,
+                file: originContent,
+            };
+            resolve(obj);
+        });
+    })
 }
 
 const filterPath = (path) => {
