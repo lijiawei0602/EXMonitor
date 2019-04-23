@@ -87,7 +87,7 @@ const updateJsErrorInfo = async (id, data) => {
  * @param {*} data 
  */
 const getJsErrorInfoCountDaysAgo = async (data) => {
-    const sql = "select DATE_FORMAT(created, '%Y-%m-%d') as day, count(errorMessage) as count from jsErrorInfos where monitorId='" + data.monitorId + "' and DATE_SUB(CURDATE(),INTERVAL " + data.days + " DAY) <= createdAt GROUP BY day";
+    const sql = "select DATE_FORMAT(createdAt, '%Y-%m-%d') as day, count(errorMessage) as count from jsErrorInfos where monitorId='" + data.monitorId + "' and DATE_SUB(CURDATE(),INTERVAL " + data.days + " DAY) <= createdAt GROUP BY day";
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 

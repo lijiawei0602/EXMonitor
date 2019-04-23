@@ -61,6 +61,7 @@ const getUserInfo = () => {
             api.getUserInfo().then(res => {
                 if (res.data.code === 200) {
                     dispatch(receiveUserInfo(res.data.data.user));
+                    resolve(res.data);
                 } else {
                     message.error(res.data.msg);
                     reject(res.data);
@@ -70,8 +71,128 @@ const getUserInfo = () => {
     }
 }
 
+const receiveCreateProject = (data) => {
+    return {
+        type: types.INIT_PROJECT,
+        initProject: data,
+    }
+}
+
+const createProject = (data) => {
+    return (dispatch) => {
+        return new Promise((resolve, reject) => {
+            api.createProject(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveCreateProject(res.data.data));
+                    resolve(res.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            });
+        })
+    }
+}
+
+const receiveProjectList = (data) => {
+    return {
+        type: types.PROJECT_LIST,
+        projectList: data,
+    }
+}
+
+const getProjectList = (userId) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getProjectList(userId).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveProjectList(res.data.data.rows));
+                    resolve(res.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveMailList = (data) => {
+    return {
+        type: types.MAIL_LIST,
+        mailList: data,
+    }
+}
+
+const getMailList = (userId) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getMailList(userId).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveMailList(res.data.data.data));
+                    resolve(res.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveDeleteMail = (account) => {
+    return {
+        type: types.DELETE_MAIL,
+        account,
+    }
+}
+
+const deleteMail = (account) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.deleteMail(account).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveDeleteMail(account));
+                    resolve(res.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveAddMail = (data) => {
+    return {
+        type: types.ADD_MAIL,
+        data,
+    }
+}
+
+const addMail = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.addMail(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveAddMail(res.data.data.data));
+                    resolve(res.data);
+                } else {
+                    message.error(res.data);
+                    reject(res.data);
+                }
+            });
+        })
+    }
+}
+
 export default {
     login,
     create,
     getUserInfo,
+    createProject,
+    getProjectList,
+    getMailList,
+    addMail,
+    deleteMail,
 }

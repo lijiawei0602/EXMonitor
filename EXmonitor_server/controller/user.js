@@ -20,7 +20,7 @@ const create = async (ctx) => {
         // 判断是否已存在该用户名
         const exitUser = await userModel.findUserByUserId(userId);
         if (exitUser) {
-            ctx.response.status = 403;
+            ctx.response.status = 200;
             ctx.body = {
                 code: 403,
                 msg: "创建失败，该用户已存在",
@@ -45,12 +45,13 @@ const create = async (ctx) => {
                 code: 200,
                 msg: "创建用户成功",
                 data: {
+                    userId: newUser.userId,
                     token,
                 },
             };
         }
     } else {
-        ctx.response.status = 400;
+        ctx.response.status = 200;
         ctx.body = {
             code: 400,
             msg: "创建失败，参数错误",
@@ -64,8 +65,9 @@ const create = async (ctx) => {
  */
 const login = async (ctx) => {
     const params = ctx.request.body;
-    const user = await userModel.findUserByUserId(params.userId);
+    let user = await userModel.findUserByUserId(params.userId);
     if (user) {
+        // user = user.dataValues;
         if (user.password === params.password) {
             const payload = {
                 id: user.id,
@@ -83,14 +85,14 @@ const login = async (ctx) => {
                 }
             };
         } else {
-            ctx.response.status = 400;
+            ctx.response.status = 200;
             ctx.body = {
                 code: 400,
                 msg: "登录失败，密码不正确",
             }
         }
     } else {
-        ctx.response.status = 400;
+        ctx.response.status = 200;
         ctx.body = {
             code: 400,
             msg: "登录失败，用户名不正确",
@@ -122,14 +124,14 @@ const getUserInfo = async (ctx) => {
             };
         } catch (error) {
             console.log(error);
-            ctx.response.status = 401;
+            ctx.response.status = 200;
             ctx.body = {
                 code: 401,
                 msg: "查询失败，authorization error",
             };
         }
     } else {
-        ctx.response.status = 401;
+        ctx.response.status = 200;
         ctx.body = {
             code: 401,
             msg: "查询失败，not authorization",
@@ -164,7 +166,7 @@ const deleteUser = async (ctx) => {
             msg: "删除用户成功",
         }
     } else {
-        ctx.response.status = 400;
+        ctx.response.status = 200;
         ctx.body = {
             code: 400,
             msg: "删除用户失败，参数错误",

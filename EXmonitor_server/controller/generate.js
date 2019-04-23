@@ -7,7 +7,7 @@ const create = async (ctx) => {
         return item.projectName !== projectName;
     })
     if (!isNoExist) {
-        ctx.response.status = 400;
+        ctx.response.status = 200;
         ctx.response.body = {
             code: 400,
             message: "该用户已有相同projectName的项目，请重新填写",

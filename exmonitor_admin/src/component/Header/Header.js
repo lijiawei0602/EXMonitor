@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
 import './Header.less'
-import action from '../../action/index.js';
+
 
 const { Header } = Layout;
 
@@ -11,25 +10,14 @@ class HeaderTop extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            projectList: [
-                { projectName: '测试应用' },
-                { projectName: '测试应用2' },
-            ],
         }
     }
 
-    componentWillMount () {
-        const { dispatch } = this.props;
-        if (!this.props.user) {
-            dispatch(action.getUserInfo());
-        }
-    }
-
-    projectMenu () {
+    projectMenu (projectList = []) {
         return (
             <Menu>
                 {
-                    this.state.projectList.map((item, index) => {
+                    projectList.map((item, index) => {
                         return (
                             <Menu.Item key={index} onClick={() => this.handleProjectChange(item.projectName)}>{item.projectName}</Menu.Item>
                         )
@@ -62,15 +50,15 @@ class HeaderTop extends React.Component {
     }
 
     render () {
-        const { projectList } = this.state;
+        const projectList = this.props.projectList || [];
         const { user } = this.props;
         return (
                 <Header className="header">
                     <div>
-                        <Icon type="project" style={{ fontSize: "30px", marginRight: "10px", color: '#1890ff', }} />
-                        <Dropdown overlay={this.projectMenu()} trigger={['click', 'hover']}>
+                        <Icon type="project" style={{ fontSize: "30px", marginRight: "10px", color: '#1890ff', }} onClick={() => this.props.history.push('/Admin/Home')}/>
+                        <Dropdown overlay={this.projectMenu(projectList)} trigger={['click', 'hover']}>
                             <span className="ant-dropdown-link" style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                                {projectList[0].projectName}
+                                {projectList.length ? projectList[0].projectName : ''}
                                 <Icon type="down" />
                             </span>
                         </Dropdown>
@@ -95,9 +83,4 @@ class HeaderTop extends React.Component {
     }
 }
 
-const mapStateToProps = (state, ownProps) => {
-    return {
-        user: state.user.user,
-    }
-}
-export default withRouter(connect(mapStateToProps)(HeaderTop));
+export default withRouter(HeaderTop);

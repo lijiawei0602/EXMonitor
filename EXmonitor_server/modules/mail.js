@@ -9,10 +9,19 @@ const create = async (data) => {
 };
 
 const getMailListByMonitorId = async (id) => {
-    return await Mail.findAndCountAll({
+    return await Mail.findAll({
         where: {
             monitorId: id,
         },
+    });
+}
+
+const getMailListByUserId = async (id) => {
+    return await Mail.findAll({
+        where: {
+            userId: id,
+        },
+        raw: true
     });
 }
 
@@ -24,8 +33,14 @@ const deleteMail = async (account) => {
     });
 }
 
+const getMailList = async () => {
+    return await Mail.findAll();
+}
+
 export default {
     create,
+    getMailListByUserId,
     getMailListByMonitorId,
     deleteMail,
+    getMailList,
 }

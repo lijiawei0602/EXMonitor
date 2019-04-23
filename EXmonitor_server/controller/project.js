@@ -5,7 +5,7 @@ import projectModel from '../modules/project.js';
  */
 const create = async (ctx) => {
     const project = ctx.request.body;
-    if (project.title && project.author && project.content && project.category) {
+    if (project.projectName && project.author && project.content && project.category) {
         let ret = await projectModel.createProject(project);
         let data = await projectModel.getProjectById(ret.id);
 

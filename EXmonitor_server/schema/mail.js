@@ -16,6 +16,16 @@ const mail = (sequelize, DataTypes) => {
             allowNull: true,
             field: 'monitorId',
         },
+        userId: {
+            type: DataTypes.STRING(20),
+            allowNull: true,
+            field: 'userId',
+        },
+        projectName: {
+            type: DataTypes.STRING(36),
+            allowNull: true,
+            field: 'projectName',
+        },
     })
 }
 

@@ -1,0 +1,59 @@
+.projectInfo {
+    overflow: hidden;
+    height: 100%;
+    &-header {
+        line-height: 64px;
+        border-bottom: 1px solid #eee;
+        &-right {
+            float: right;
+            position: relative;
+            top: -64px;
+            &-item {
+                padding: 0 32px;
+                display: inline-block;
+                position: relative;
+                &-top {
+                    color: rgba(0, 0, 0, 0.45);
+                    font-size: 14px;
+                    margin-bottom: 4px;
+                    line-height: 22px;
+                }
+                &-bottom {
+                    margin: 0;
+                    color: rgba(0, 0, 0, 0.85);
+                    font-size: 30px;
+                    line-height: 38px;
+                    text-align: center;
+                }
+                &:after {
+                    content: '';
+                    position: absolute;
+                    top: 8px;
+                    right: 0;
+                    width: 1px;
+                    height: 40px;
+                    background: #e8e8e8;
+                }
+            }
+        }
+    }
+    &-content {
+        overflow-y: scroll;
+        width: 100%;
+        position: relative;
+        top: -60px;
+        height: calc(100% - 80px);
+        margin-top: 20px;
+        .ant-card-head-title {
+            font-size: 14px;
+        }
+        .ant-card-extra {
+            span {
+                font-size: 13px;
+            }
+        }
+        pre {
+            font-size: 12px;
+        }
+    }
+}

@@ -12,6 +12,12 @@ const apiUrl = {
     "login": `${apiHost}/api/user/login`,
     "create": `${apiHost}/api/user`,
     'getUserInfo': `${apiHost}/api/user`,
+    "createProject": `${apiHost}/api/generate`,
+    "sourcemap": `${apiHost}/api/sourceMap`,
+    "projectList": `${apiHost}/api/projectList`,
+    "mailList": `${apiHost}/api/mail/list`,
+    "addMail": `${apiHost}/api/mail`,
+    "deleteMail": `${apiHost}/api/mail`,
 }
 
 
@@ -30,8 +36,52 @@ const getUserInfo = () => {
     return axios(apiUrl.getUserInfo);
 }
 
+const createProject = (data) => {
+    return axios.post(apiUrl.createProject, {
+        ...data,
+    });
+}
+
+const sourceMapUrl = apiUrl.sourcemap;
+
+const getProjectList = (userId) => {
+    return axios.get(apiUrl.projectList, {
+        params: {
+            userId,
+        }
+    });
+}
+
+const getMailList = (userId) => {
+    return axios.get(apiUrl.mailList, {
+        params: {
+            userId,
+        }
+    });
+}
+
+const addMail = (data) => {
+    return axios.post(apiUrl.addMail, {
+        ...data,
+    });
+}
+
+const deleteMail = (account) => {
+    return axios.delete(apiUrl.deleteMail, {
+        params: {
+            account,
+        },
+    });
+}
+
 export default {
     login,
     create,
     getUserInfo,
+    createProject,
+    sourceMapUrl,
+    getProjectList,
+    getMailList,
+    addMail,
+    deleteMail,
 };

@@ -4,13 +4,33 @@ import {
     Switch,
     Route,
     Redirect,
-    withRouter,
   } from 'react-router-dom';
 import configStore from './store/index.js';
-import HeaderTop from './container/Header/Header.js';
+import Layout from './component/Layout/Layout.js';
 import Test from './container/Test.js';
+import Login from './container/User/Login/Login.js';
+import Create from './container/User/Create/Create.js';
+import Info from './container/User/Info/Info.js';
+import Home from './container/Home/Home.js';
 
 const store = configStore();
+
+const UserRouter = () => (
+    <Switch>
+        <Route exact path="/User/login" component={Login}></Route>
+        <Route exact path="/User/create" component={Create}></Route>
+    </Switch>
+)
+
+const LayoutRouter = () => (
+    <Layout>
+        <Switch>
+            <Route path='/Admin/Home' component={Home}></Route>
+            <Route exact path="/Admin/info" component={Info}></Route>
+        </Switch>
+    </Layout>
+)
+
 
 class App extends React.Component {
     constructor (props) {
@@ -22,14 +42,14 @@ class App extends React.Component {
     render () {
         return (
             <Provider store={store}>
-                <HeaderTop />
                 <Switch>
-                    <Route path='/index' component={Test}></Route>
-                    <Redirect from='/' to='/index'></Redirect>
+                    <Route path='/User' component={UserRouter}></Route>
+                    <Route path="/Admin" component={LayoutRouter}></Route>
+                    <Redirect from='/' to="/User/login"></Redirect>
                 </Switch>
             </Provider>
         );
     }
 }
 
-export default withRouter(App);
+export default App;

@@ -1,0 +1,26 @@
+.mail {
+    height: 100%;
+    &-header {
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e8e8e8;
+        // line-height: 45px;
+    }
+    &-list {
+        overflow: scroll;
+        height: calc(100% - 82px);
+        &-item {
+            border-bottom: 1px solid #e8e8e8;
+            &-col2 {
+                float: right;
+                right: 25px;
+                display: flex;
+                align-items: center;
+                height: 69px;
+            }
+            &-action {
+                cursor: pointer;
+                color: #1890ff;
+            }
+        }
+    }
+}

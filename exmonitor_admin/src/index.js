@@ -6,8 +6,8 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
-    <HashRouter basename='EXmonitor'>
-        <App />
+    <HashRouter>
+        <App />,
     </HashRouter>,
     document.getElementById('root'));
 

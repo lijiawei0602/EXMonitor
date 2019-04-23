@@ -58,6 +58,14 @@ const getProjectListByUserId = async (userId) => {
     });
 };
 
+const getProjectByMonitorId = async (monitorId) => {
+    return await Project.findOne({
+        where: {
+            monitorId,
+        }
+    })
+}
+
 /**
  * 删除项目
  * @param {*} id 被删除项目的id
@@ -77,6 +85,7 @@ export default {
     updateProject,
     getProjectList,
     getProjectListByUserId,
+    getProjectByMonitorId,
     getProjectById,
     deleteProject,
 }

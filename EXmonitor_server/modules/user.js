@@ -48,10 +48,11 @@ async function findAllUserList() {
  */
 async function findUserByUserId(userId) {
     return await User.findOne({
+        raw: true,
         where: {
             userId
         },
-        attributes: ['id', 'userId', 'createdAt', 'updatedAt'],
+        // attributes: ['id', 'userId', 'createdAt', 'updatedAt'],
     });
 }
 

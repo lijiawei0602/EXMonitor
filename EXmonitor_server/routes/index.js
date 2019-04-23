@@ -41,7 +41,7 @@ router.post('/user', userController.create);
 router.post('/user/login', userController.login);
 // 用户信息
 router.get('/user', userController.getUserInfo);
-router.get('/getUserByUserId/:userId', userController.getUserByUserId);
+// router.get('/getUserByUserId/:userId', userController.getUserByUserId);
 // 用户列表
 router.get('/user/list', userController.getUserList);
 // 删除用户
@@ -158,6 +158,7 @@ router.get('/getIgnoreErrorByApplication', ignoreErrorController.getIgnoreErrorI
  */
 router.post('/mail', mailController.create);
 router.get('/mailList',mailController.getMailListByMonitorId);
+router.get('/mail/list', mailController.getMailListByUserId);
 router.delete('/mail', mailController.deleteMail);
 
 /**

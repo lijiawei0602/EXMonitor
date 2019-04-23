@@ -1,4 +1,4 @@
-const { override, fixBabelImports } = require('customize-cra');
+const { override, fixBabelImports, addLessLoader } = require('customize-cra');
 
 module.exports = override(
     fixBabelImports('import', {
@@ -6,4 +6,8 @@ module.exports = override(
         libraryDirectory: 'es',
         style: 'css',
    }),
+   addLessLoader({
+        strictMath: true,
+        noIeCompat: true
+  }),
 );

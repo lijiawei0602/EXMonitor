@@ -1,12 +1,29 @@
 import MailModel from '../modules/mail.js';
+import ProjectModel from '../modules/project.js';
 
 const create = async (ctx) => {
     const param = ctx.request.body;
-    await MailModel.create(param);
+    const data = await MailModel.create(param);
     ctx.response.status = 200;
     ctx.response.body = {
         code: 200,
         message: '创建成功',
+        data: {
+            data,
+        }
+    };
+}
+
+const getMailListByUserId = async (ctx) => {
+    const userId = ctx.query.userId;
+    const data = await MailModel.getMailListByUserId(userId);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询成功",
+        data: {
+            data,
+        },
     };
 }
 
@@ -33,8 +50,22 @@ const deleteMail = async (ctx) => {
     };
 }
 
+const getMailList = async (ctx) => {
+    const data = await MailModel.getMailList();
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: '查询成功',
+        data: {
+            data,
+        }
+    };
+}
+
 export default {
     create,
+    getMailListByUserId,
     getMailListByMonitorId,
     deleteMail,
+    getMailList,
 }
