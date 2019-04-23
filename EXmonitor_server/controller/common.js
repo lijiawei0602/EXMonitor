@@ -11,7 +11,8 @@ import projectModel from '../modules/project.js';
 import userModel from '../modules/user.js';
 import util from '../util/index.js';
 
-const ipQuery = "http://ip.taobao.com/service/getIpInfo.php?ip=";
+// const ipQuery = "http://ip.taobao.com/service/getIpInfo.php?ip=";
+const ipQuery = "https://api.ip.sb/geoip/";
 
 /**
  * 按上传类型分类处理并创建各自信息
@@ -31,10 +32,12 @@ const uploadLog = async (ctx) => {
         req.connection.remoteAddress ||
         req.socket.remoteAddress ||
         req.connection.socket.remoteAddress;
+
     const ipQueryStr = ipQuery + clientIp;
     const ipInfoPro = await fetch(ipQueryStr)
     const ipInfo = await ipInfoPro.json();
-    const { country, region, city } = ipInfo.data;
+    // const { country, region, city } = ipInfo.data;
+    const { country, region, city } = ipInfo;
 
     const logInfoArray = param.logInfo.split("$$$");
     for(let i = 0; i < logInfoArray.length; i++) {
