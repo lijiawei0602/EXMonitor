@@ -1322,7 +1322,7 @@
             }
             // PC端浏览器模式，获取更多浏览器信息
             if(ua.indexOf("Mobile") == -1){
-                device.deviceName = "未知";
+                device.deviceName = "PC";
                 var agent = navigator.userAgent.toLowerCase();
                 var regStr_ie = /msie[\d.]+/gi;
                 var regStr_ff = /firefox\/[\d.]+/gi;
@@ -1410,7 +1410,7 @@
             if(!userId)
                 console.warn("userId 初始值为0 或 未初始化");
             if(!secondUserParam)
-                console.warn("secondUserParam 初始值为0 或 未初始化");
+                console.warn("secondUserParam 初始值为01 或 未初始化");
             localStorage.wmUserInfo = JSON.stringify({
                 userId: userId,
                 secondUserParam: secondUserParam
