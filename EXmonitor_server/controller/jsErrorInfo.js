@@ -80,24 +80,60 @@ const getJsErrorInfoCountByDay = async (ctx) => {
  */
 const getJsErrorInfoCountByTime = async (ctx) => {
     const param = ctx.request.query;
-    const data = [];
-    const time = moment().format('YYYY-MM');
+    let data = [];
+    let dataSeven = [];
+    const date = new Date().getTime();
+    const dateSeven = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
+    const time = moment(date).format('YYYY-MM-DD');
+    const timeSeven = moment(dateSeven).format('YYYY-MM-DD');
+    let isFinish = false;
     for(let i = 0; i < 24; i++) {
         const hour = `${i < 10 ? '0' + i : i}`;
         const startTime = `${time} ${hour}:00:00`;
-        const endTime = `${time} ${hour}:59:59`;  
-        const count = await jsErrorInfoModel.getJsErrorInfoCountTimesAgo(startTime, endTime, param);
+        let endTime = `${time} ${hour}:59:59`;
+        if (new Date(endTime).getTime() > date) {
+            isFinish = true;
+            endTime = moment(date).format('YYYY-MM-DD HH:mm:ss');
+        }
+       const count = await jsErrorInfoModel.getJsErrorInfoCountTimesAgo(startTime, endTime, param);
+
         data.push({
             hour,
-            count,
+            count: count[0].count,
         });
+        if (isFinish) {
+            break;
+        }
     }
+    let isFinishSev = false;
+    for(let i = 0; i < 24; i++) {
+        const hour = `${i < 10 ? '0' + i : i}`;
+        const startTime = `${timeSeven} ${hour}:00:00`;
+        let endTime = `${timeSeven} ${hour}:59:59`;
+        if (new Date(endTime).getTime() > dateSeven) {
+            isFinishSev = true;
+            endTime = moment(dateSeven).format('YYYY-MM-DD HH:mm:ss');
+        }
+       const count = await jsErrorInfoModel.getJsErrorInfoCountTimesAgo(startTime, endTime, param);
+
+        dataSeven.push({
+            hour,
+            count: count[0].count,
+        });
+        if (isFinishSev) {
+            break;
+        }
+    }
+
 
     ctx.response.status = 200;
     ctx.response.body = {
         code: 200,
         message: "查询当天不同时间段错误数量成功",
-        data,
+        data: {
+            'today': data,
+            'sevenAgo': dataSeven,
+        }
     };
 }
 

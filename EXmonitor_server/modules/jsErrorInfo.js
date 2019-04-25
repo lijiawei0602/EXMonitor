@@ -97,7 +97,7 @@ const getJsErrorInfoCountDaysAgo = async (data) => {
  * @param {*} startTime 查询区间开始时间
  * @param {*} endTime   查询区间结束时间
  */
-const getJsErrorInfoCountTimesAgo = async (data, startTime, endTime) => {
+const getJsErrorInfoCountTimesAgo = async (startTime, endTime, data) => {
     const sql = "select count(*) as count from jsErrorInfos where monitorId='" + data.monitorId + "' and createdAt > '" + startTime + "' and createdAt < '" + endTime + "'";
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
