@@ -1,7 +1,9 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
 import './Header.less'
+import actions from '../../action/index.js';
 
 
 const { Header } = Layout;
@@ -13,13 +15,24 @@ class HeaderTop extends React.Component {
         }
     }
 
+    componentDidMount () {
+    }
+
+    componentWillReceiveProps (nextProps) {
+        const { dispatch } = this.props;
+        // 页面初始化时获取对应数据
+        if (!this.props.currentProject.projectName && nextProps.projectList && nextProps.projectList.length) {
+            dispatch(actions.switchProject(nextProps.projectList[0]));
+        }
+    }
+
     projectMenu (projectList = []) {
         return (
             <Menu>
                 {
                     projectList.map((item, index) => {
                         return (
-                            <Menu.Item key={index} onClick={() => this.handleProjectChange(item.projectName)}>{item.projectName}</Menu.Item>
+                            <Menu.Item key={index} onClick={() => this.handleProjectChange(item)}>{item.projectName}</Menu.Item>
                         )
                     })
                 }
@@ -36,8 +49,9 @@ class HeaderTop extends React.Component {
         )
     }
 
-    handleProjectChange (projectName) {
-        console.log(projectName);
+    handleProjectChange (projectItem) {
+        const { dispatch } = this.props;
+        dispatch(actions.switchProject(projectItem));
     }
     handleUserExit = () => {
         sessionStorage.token = '';
@@ -58,7 +72,10 @@ class HeaderTop extends React.Component {
                         <Icon type="project" style={{ fontSize: "30px", marginRight: "10px", color: '#1890ff', }} onClick={() => this.props.history.push('/Admin/Home')}/>
                         <Dropdown overlay={this.projectMenu(projectList)} trigger={['click', 'hover']}>
                             <span className="ant-dropdown-link" style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                                {projectList.length ? projectList[0].projectName : ''}
+                                {
+                                    Object.keys(this.props.currentProject).length ?
+                                    this.props.currentProject.projectName :
+                                    projectList.length ? projectList[0].projectName : ''}
                                 <Icon type="down" />
                             </span>
                         </Dropdown>
@@ -83,4 +100,10 @@ class HeaderTop extends React.Component {
     }
 }
 
-export default withRouter(HeaderTop);
+const mapStateToProps = (state, ownProps) => {
+    return {
+        currentProject: state.project.currentProject,
+    }
+}
+
+export default withRouter(connect(mapStateToProps)(HeaderTop));

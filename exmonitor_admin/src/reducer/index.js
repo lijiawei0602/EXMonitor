@@ -16,13 +16,18 @@ const user = (state = nameInitialState, action) => {
     }
 }
 
-const projectInitialState = {}
+const projectInitialState = {
+    projetList: [],
+    currentProject: {},
+}
 const project = (state = projectInitialState, action) => {
     switch (action.type) {
         case types['INIT_PROJECT']:
             return Object.assign({}, state, {initProject: action.initProject});
         case types.PROJECT_LIST:
             return Object.assign({}, state, {projectList: action.projectList});
+        case types.SWITCH_PROJECT:
+            return Object.assign({}, state, {currentProject: action.currentProject});
         default:
             return state
     }
@@ -44,9 +49,25 @@ const mail = (state = mailInitialState, action) => {
     }
 }
 
+const jsErrorInitialState = {
+    jsErrorMonthList: [],
+    jsErrorDayList: [],
+}
+const jsError = (state = jsErrorInitialState, action) => {
+    switch (action.type) {
+        case types.JSERROR_MONTH_LIST:
+            return Object.assign({}, state, {jsErrorMonthList: action.jsErrorMonthList});
+        case types.JSERROR_DAY_LIST:
+            return Object.assign({}, state, {jsErrorDayList: action.jsErrorDayList});
+        default:
+            return state
+    }
+}
+
 export default combineReducers({
     user,
     project,
     mail,
+    jsError,
     routing: routerReducer,
 })

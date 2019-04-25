@@ -18,6 +18,8 @@ const apiUrl = {
     "mailList": `${apiHost}/api/mail/list`,
     "addMail": `${apiHost}/api/mail`,
     "deleteMail": `${apiHost}/api/mail`,
+    "jsErrorMonthList": `${apiHost}/api/getJsErrorInfoDaysAgo`,
+    "jsErrorDayList": `${apiHost}/api/getJsErrorInfoTimesAgo`,
 }
 
 
@@ -74,6 +76,23 @@ const deleteMail = (account) => {
     });
 }
 
+const getJsErrorMonthList = (data) => {
+    return axios.get(apiUrl.jsErrorMonthList, {
+        params: {
+            monitorId: data.monitorId,
+            days: data.days,
+        }
+    })
+}
+
+const getJsErrorDayList = (data) => {
+    return axios.get(apiUrl.jsErrorDayList, {
+        params: {
+            monitorId: data.monitorId,
+        }
+    });
+}
+
 export default {
     login,
     create,
@@ -84,4 +103,6 @@ export default {
     getMailList,
     addMail,
     deleteMail,
+    getJsErrorMonthList,
+    getJsErrorDayList,
 };

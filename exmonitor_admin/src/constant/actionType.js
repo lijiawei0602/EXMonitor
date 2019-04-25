@@ -6,3 +6,6 @@ export const PROJECT_LIST = "PROJECT_LIST";
 export const MAIL_LIST = "MAIL_LIST";
 export const DELETE_MAIL = "DELETE_MAIL";
 export const ADD_MAIL = "ADD_MAIL";
+export const SWITCH_PROJECT = "SWITCH_PROJECT";
+export const JSERROR_MONTH_LIST = "JSERROR_MONTH_LIST";
+export const JSERROR_DAY_LIST = "JSERROR_DAY_LIST";

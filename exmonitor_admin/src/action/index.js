@@ -1,6 +1,7 @@
 import { message } from 'antd';
 import * as types from '../constant/actionType.js';
 import api from '../api/index.js';
+import { promises } from 'fs';
 
 const receiveLogin = (user) => {
     return {
@@ -186,6 +187,59 @@ const addMail = (data) => {
     }
 }
 
+const switchProject = (data) => {
+    return {
+        type: types.SWITCH_PROJECT,
+        currentProject: data,
+    }
+}
+
+const receiveJsErrorMonthList = (data) => {
+    return {
+        type: types.JSERROR_MONTH_LIST,
+        jsErrorMonthList: data,
+    }
+}
+
+const getJsErrorMonthList = (data) => {
+    return dispatch => {
+        return new Promise ((resolve, reject) => {
+            api.getJsErrorMonthList(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveJsErrorMonthList(res.data.data));
+                    resolve(res.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveJsErrorDayList = (data) => {
+    return {
+        type: types.JSERROR_DAY_LIST,
+        jsErrorDayList: data,
+    }
+}
+
+const getJsErrorDayList = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getJsErrorDayList(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveJsErrorDayList(res.data.data));
+                    resolve(res.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
 export default {
     login,
     create,
@@ -195,4 +249,7 @@ export default {
     getMailList,
     addMail,
     deleteMail,
+    switchProject,
+    getJsErrorMonthList,
+    getJsErrorDayList,
 }
