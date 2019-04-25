@@ -8,12 +8,26 @@
         height: 200px;
     }
     .rate {
+        &-tab {
+            // border-left: 1px solid #e8e8e8;
+             &::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 61px;
+                bottom: 10px;
+                border-left: 1px solid #e8e8e8;
+                // height: 200px;
+            }
+        }
         &-item {
             float: left;
             width: 50%;
             height: 100px;
             &-font {
-                
+                margin-top: 5px;
+                text-align: center;
+                color: rgba(0, 0, 0, .65);
             }
         }
     }
