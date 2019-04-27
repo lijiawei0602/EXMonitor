@@ -33,7 +33,9 @@ const project = (state = projectInitialState, action) => {
     }
 }
 
-const mailInitialState = {}
+const mailInitialState = {
+    mailListMonitorId: [],
+}
 const mail = (state = mailInitialState, action) => {
     switch (action.type) {
         case types.MAIL_LIST:
@@ -44,6 +46,8 @@ const mail = (state = mailInitialState, action) => {
         case types.ADD_MAIL:
             const t = [...state.mailList, action.data];
             return Object.assign({}, state, {mailList: t});
+        case types.MAIL_LIST_MONITORID:
+            return Object.assign({}, state, {mailListMonitorId: action.mailListMonitorId});
         default:
             return state;
     }
@@ -52,6 +56,11 @@ const mail = (state = mailInitialState, action) => {
 const jsErrorInitialState = {
     jsErrorMonthList: [],
     jsErrorDayList: [],
+    jsErrorRate: {},
+    jsErrorList: {},
+    jsErrorInfo: {},
+    jsErrorInfoAffect: {},
+    jsErrorInfoMsg: [],
 }
 const jsError = (state = jsErrorInitialState, action) => {
     switch (action.type) {
@@ -59,6 +68,16 @@ const jsError = (state = jsErrorInitialState, action) => {
             return Object.assign({}, state, {jsErrorMonthList: action.jsErrorMonthList});
         case types.JSERROR_DAY_LIST:
             return Object.assign({}, state, {jsErrorDayList: action.jsErrorDayList});
+        case types.JSERROR_RATE:
+            return Object.assign({}, state, {jsErrorRate: action.jsErrorRate});
+        case types.JSERROR_LIST:
+            return Object.assign({}, state, {jsErrorList: action.jsErrorList});
+        case types.JSError_INFO:
+            return Object.assign({}, state, {jsErrorInfo: action.jsErrorInfo});
+        case types.JSERROR_INFO_AFFECT:
+            return Object.assign({}, state, {jsErrorInfoAffect: action.jsErrorInfoAffect});
+        case types.JSERROR_INFO_MSG:
+            return Object.assign({}, state, {jsErrorInfoMsg: action.jsErrorInfoMsg});
         default:
             return state
     }

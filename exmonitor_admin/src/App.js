@@ -12,6 +12,7 @@ import Login from './container/User/Login/Login.js';
 import Create from './container/User/Create/Create.js';
 import Info from './container/User/Info/Info.js';
 import Home from './container/Home/Home.js';
+import Detail from './container/Detail/Detail.js';
 
 const store = configStore();
 
@@ -27,6 +28,7 @@ const LayoutRouter = () => (
         <Switch>
             <Route path='/Admin/Home' component={Home}></Route>
             <Route exact path="/Admin/info" component={Info}></Route>
+            <Route exact path="/Admin/detail" component={Detail}></Route>
         </Switch>
     </Layout>
 )

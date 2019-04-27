@@ -30,6 +30,26 @@ const getJsErrorInfoList = async () => {
     return await JsErrorInfo.findAndCountAll();
 }
 
+const getJsErrorInfoListByMonitorId = async (data) => {
+    const jsErrorList =  await JsErrorInfo.findAll({
+        where: {
+            monitorId: data.monitorId,
+        },
+        order: [['createdAt', 'DESC']],
+        limit: parseInt(data.limit),
+        offset: parseInt(data.offset),
+    });
+    const total = await JsErrorInfo.count({
+        where: {
+            monitorId: data.monitorId,
+        }
+    });
+    return {
+        total,
+        jsErrorList,
+    };
+}
+
 /**
  * 根据id获取jsErrorInfo信息
  * @param {*} id jsErrorINfo信息的id
@@ -87,7 +107,7 @@ const updateJsErrorInfo = async (id, data) => {
  * @param {*} data 
  */
 const getJsErrorInfoCountDaysAgo = async (data) => {
-    const sql = "select DATE_FORMAT(createdAt, '%Y-%m-%d') as day, count(errorMessage) as count from jsErrorInfos where monitorId='" + data.monitorId + "' and DATE_SUB(CURDATE(),INTERVAL " + data.days + " DAY) <= createdAt GROUP BY day";
+    const sql = "select DATE_FORMAT(createdAt, '%Y-%m-%d') as day, count(errorMessage) as count, errorMessage, createdAt, customerKey from jsErrorInfos where monitorId='" + data.monitorId + "' and DATE_SUB(CURDATE(),INTERVAL " + data.days + " DAY) <= createdAt GROUP BY day";
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
@@ -265,7 +285,7 @@ const getJsErrorInfoIosCount = async (data) => {
  * 获取Android错误总数
  * @param {*} data 
  */
-const getJsErrorInfOAndroidCount = async (data) => {
+const getJsErrorInfoAndroidCount = async (data) => {
     const sql = `select count(distinct pageKey) as count from jsErrorInfos where monitorId='${data.monitorId}' and createdAt > '${data.day}' and os like 'android%'`;
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
@@ -294,6 +314,7 @@ const getBehaviorInfoByUser = async (monitorIdSql,  customerKeySql, happenTimeSq
 export default {
     create,
     getJsErrorInfoList,
+    getJsErrorInfoListByMonitorId,
     getJsErrorInfoDetail,
     deleteJsErrorInfo,
     deleteJsErrorInfoDaysAgo,
@@ -307,7 +328,7 @@ export default {
     getJsErrorInfoStackCode,
     getJsErrorInfoPcCount,
     getJsErrorInfoIosCount,
-    getJsErrorInfOAndroidCount,
+    getJsErrorInfoAndroidCount,
     getJsErrorInfoByUser,
     getBehaviorInfoByUser,
 }

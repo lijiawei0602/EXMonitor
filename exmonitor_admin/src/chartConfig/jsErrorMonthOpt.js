@@ -1,4 +1,5 @@
-const jsErrorMonthOpt = (param) => {
+export const jsErrorMonthOpt = (param) => {
+    // rgb(59,192,193)
     return {
         color: ['#1890ff'],
         tooltip: {
@@ -11,7 +12,7 @@ const jsErrorMonthOpt = (param) => {
         grid: {
             containLabel: true,
             left: '3%',
-            bottom: '20%',
+            bottom: '15%',
         },
         xAxis: [
             {
@@ -53,8 +54,70 @@ const jsErrorMonthOpt = (param) => {
                 data: param.map(item => item.count),
             },
         ]
-
     }
 }
 
-export default jsErrorMonthOpt;
+export const jsErrorMonthLineOpt = (param) => {
+    return {
+        color: ['#1890ff'],
+        tooltip: {
+            trigger: 'axis',
+            confine: true,
+            axisPointer: {
+                type: 'line',
+            },
+        },
+        legend: {
+            data: ["当月"],
+        },
+        grid: {
+            containLabel: true,
+            left: '3%',
+            bottom: '15%',
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: param.map(item => item.day.slice(5)),
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: "#1890ff",
+                        type: "dashed"
+                    }
+                },
+                axisTick: {
+                    show: false,
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value',
+                name: '数量',
+                max: 'dataMax',
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: "#1890ff",
+                        type: "dashed"
+                    }
+                },
+                axisTick: {
+                    show: false,
+                },
+                splitLine: {
+                    show: false
+                },
+            }
+        ],
+        series: [
+            {
+                type: 'line',
+                name: '当月',
+                data: param.map(item => item.count),
+                // smooth: 0.1,
+            },
+        ]
+    }
+}

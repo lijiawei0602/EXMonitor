@@ -12,16 +12,35 @@ class HeaderTop extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
+            searchParam: {},
         }
     }
 
     componentDidMount () {
+        const { dispatch } = this.props;
+        let { search } = this.props.location;
+        let param = {};
+        search = search.slice(1);
+        search.split('&').forEach(item => {
+            const t = item.split('=');
+            param[t[0]] = t[1];
+        });
+        const { monitorId, projectName } = param;
+        if (monitorId && projectName) {
+            dispatch(actions.switchProject({
+                monitorId,
+                projectName: decodeURIComponent(projectName),
+            }));
+        }
+        this.setState({
+            searchParam: param,
+        });
     }
 
     componentWillReceiveProps (nextProps) {
         const { dispatch } = this.props;
         // 页面初始化时获取对应数据
-        if (!this.props.currentProject.projectName && nextProps.projectList && nextProps.projectList.length) {
+        if (!this.state.searchParam['monitorId'] && !this.props.currentProject.projectName && nextProps.projectList && nextProps.projectList.length) {
             dispatch(actions.switchProject(nextProps.projectList[0]));
         }
     }
@@ -50,7 +69,11 @@ class HeaderTop extends React.Component {
     }
 
     handleProjectChange (projectItem) {
-        const { dispatch } = this.props;
+        const { dispatch, history } = this.props;
+        history.push({
+            pathname: '/Admin/home',
+            search: `?monitorId=${projectItem.monitorId}&projectName=${encodeURIComponent(projectItem.projectName)}`
+        });
         dispatch(actions.switchProject(projectItem));
     }
     handleUserExit = () => {

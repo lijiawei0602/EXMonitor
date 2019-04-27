@@ -240,6 +240,144 @@ const getJsErrorDayList = (data) => {
     }
 }
 
+const receiveJsErrorRate = (data) => {
+    return {
+        type: types.JSERROR_RATE,
+        jsErrorRate: data,
+    }
+}
+
+const getJsErrorRate = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getJsErrorRate(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveJsErrorRate(res.data.data.result));
+                    resolve(res.data.data.result);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveJsErrorList = (data) => {
+    return {
+        type: types.JSERROR_LIST,
+        jsErrorList: data,
+    }
+}
+
+const getJsErrorList = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getJsErrorList(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveJsErrorList(res.data.data));
+                    resolve(res.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveJsErrorInfo = (data) => {
+    return {
+        type: types.JSError_INFO,
+        jsErrorInfo: data,
+    }
+}
+
+const getJsErrorInfo = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getJsErrorInfo(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveJsErrorInfo(res.data.data.data));
+                    resolve(res.data.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveMailListByMonitorId = (data) => {
+    return {
+        type: types.MAIL_LIST_MONITORID,
+        mailListMonitorId: data,
+    }
+}
+
+const getMailListByMonitorId = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getMailListByMonitorId(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveMailListByMonitorId(res.data.data.data));
+                    resolve(res.data.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveJsErrorInfoListAffect = (data) => {
+    return {
+        type: types.JSERROR_INFO_AFFECT,
+        jsErrorInfoAffect: data,
+    }
+}
+
+const getJsErrorInfoListAffect = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getJsErrorInfoListAffect(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveJsErrorInfoListAffect(res.data.data.data));
+                    resolve(res.data.data.data)
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            });
+        });
+    };
+}
+
+const receiveJsErrorInfoByMsg = (data) => {
+    return {
+        type: types.JSERROR_INFO_MSG,
+        jsErrorInfoMsg: data,
+    }
+}
+
+const getJsErrorInfoByMsg = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getJsErrorInfoListByMsg(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveJsErrorInfoByMsg(res.data.data.data));
+                    resolve(res.data.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
 export default {
     login,
     create,
@@ -252,4 +390,10 @@ export default {
     switchProject,
     getJsErrorMonthList,
     getJsErrorDayList,
+    getJsErrorRate,
+    getJsErrorList,
+    getJsErrorInfo,
+    getMailListByMonitorId,
+    getJsErrorInfoListAffect,
+    getJsErrorInfoByMsg,
 }

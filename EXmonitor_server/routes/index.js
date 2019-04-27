@@ -112,6 +112,8 @@ router.post('/getLoadPageInfoTimeByDate', loadPageInfoController.getLoadPageInfo
 router.post('/jsErrorInfo', jsErrorInfoController.create);
 // 获取js错误列表
 router.get('/jsErrorInfoList', jsErrorInfoController.getJsErrorInfoList);
+// 获取指定应用错误列表
+router.get('/getJsErrorInfoListByMonitorId', jsErrorInfoController.getJsErrorInfoListByMonitorId);
 // 获取js错误详情
 router.get('/jsErrorInfo/:id', jsErrorInfoController.getErrorInfoDetailById);
 // 删除
@@ -127,9 +129,9 @@ router.get('/getJsErrorInfoSort', jsErrorInfoController.getJsErrorInfoSort);
 // 获取各种平台js错误信息
 router.get('/getJsErrorInfoCountByOs', jsErrorInfoController.getJsErrorInfoByOs);
 // 根据errorMsg获取jsErrorInfo列表
-router.get('/getJsErrorInfoListByMsg', jsErrorInfoController.getJsErrorInfoByMsg);
+router.post('/getJsErrorInfoListByMsg', jsErrorInfoController.getJsErrorInfoByMsg);
 // 根据errorMsg获取受影响的用户数量
-router.get('/getJsErrorInfoListAffect', jsErrorInfoController.getJsErrorInfoAffectCount);
+router.post('/getJsErrorInfoListAffect', jsErrorInfoController.getJsErrorInfoAffectCount);
 // 根据页面信息获取jsErrorInfo列表
 router.get('/getJsErrorInfoListByPage', jsErrorInfoController.getJsErrorInfoByPage);
 // 定位js错误代码

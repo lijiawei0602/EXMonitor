@@ -50,6 +50,17 @@ const getJsErrorInfoList = async (ctx) => {
     }
 }
 
+const getJsErrorInfoListByMonitorId = async (ctx) => {
+    const param = ctx.request.query;
+    const data = await jsErrorInfoModel.getJsErrorInfoListByMonitorId(param);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询信息成功",
+        data,
+    }
+}
+
 /**
  * 获取近几天内的错误数量
  * @param {*} ctx 
@@ -81,10 +92,13 @@ const getJsErrorInfoCountByDay = async (ctx) => {
 const getJsErrorInfoCountByTime = async (ctx) => {
     const param = ctx.request.query;
     let data = [];
+    let dataPre = [];
     let dataSeven = [];
     const date = new Date().getTime();
+    const datePre = new Date().getTime() - 1 * 24 * 60 * 60 * 1000;
     const dateSeven = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
     const time = moment(date).format('YYYY-MM-DD');
+    const timePre = moment(datePre).format('YYYY-MM-DD');
     const timeSeven = moment(dateSeven).format('YYYY-MM-DD');
     let isFinish = false;
     for(let i = 0; i < 24; i++) {
@@ -105,6 +119,27 @@ const getJsErrorInfoCountByTime = async (ctx) => {
             break;
         }
     }
+
+    let isFinishPre = false;
+    for(let i = 0; i < 24; i++) {
+        const hour = `${i < 10 ? '0' + i : i}`;
+        const startTime = `${timePre} ${hour}:00:00`;
+        let endTime = `${timePre} ${hour}:59:59`;
+        if (new Date(endTime).getTime() > datePre) {
+            isFinishPre = true;
+            endTime = moment(dateSeven).format('YYYY-MM-DD HH:mm:ss');
+        }
+       const count = await jsErrorInfoModel.getJsErrorInfoCountTimesAgo(startTime, endTime, param);
+
+        dataPre.push({
+            hour,
+            count: count[0].count,
+        });
+        if (isFinishPre) {
+            break;
+        }
+    }
+
     let isFinishSev = false;
     for(let i = 0; i < 24; i++) {
         const hour = `${i < 10 ? '0' + i : i}`;
@@ -132,6 +167,7 @@ const getJsErrorInfoCountByTime = async (ctx) => {
         message: "查询当天不同时间段错误数量成功",
         data: {
             'today': data,
+            'previous': dataPre,
             'sevenAgo': dataSeven,
         }
     };
@@ -160,14 +196,14 @@ const getJsErrorInfoSort = async (ctx) => {
 const getJsErrorInfoByOs = async (ctx) => {
     const param = ctx.request.query;
     let result = {};
-    param.day = util.addDays(0 - param.day) + "00:00:00";
-    result.pcCount = await jsErrorInfoModel.getJsErrorInfoPcCount(param);
-    result.iosCount = await jsErrorInfoModel.getJsErrorInfoIosCount(param);
-    result.androidCount = await jsErrorInfoModel.getJsErrorInfOAndroidCount(param);
+    param.day = util.addDays(0 - param.day) + " 00:00:00";
+    result.pcCount = (await jsErrorInfoModel.getJsErrorInfoPcCount(param))[0].count;
+    result.iosCount = (await jsErrorInfoModel.getJsErrorInfoIosCount(param))[0].count;
+    result.androidCount = (await jsErrorInfoModel.getJsErrorInfoAndroidCount(param))[0].count;
 
-    result.pcPv = await customerPVModal.getCustomerPcPvCount(param);
-    result.iosCount = await customerPVModal.getCustomerIosPvCount(param);
-    result.androidCount = await customerPVModal.getCustomerAndroidCount(param);
+    result.pcPV = (await customerPVModal.getCustomerPcPvCount(param))[0].count;
+    result.iosPV = (await customerPVModal.getCustomerIosPvCount(param))[0].count;
+    result.androidPV = (await customerPVModal.getCustomerAndroidCount(param))[0].count;
 
     ctx.response.status = 200;
     ctx.response.body = {
@@ -202,7 +238,7 @@ const getJsErrorInfoByMsg = async (ctx) => {
  */
 const getJsErrorInfoAffectCount = async (ctx) => {
     const param = ctx.request.body;
-    const data = await jsErrorInfoModel.getJsErrorInfoAffectCount(decodeURIComponent(param.errorMsg), param);
+    const data = (await jsErrorInfoModel.getJsErrorInfoAffectCount(decodeURIComponent(param.errorMsg), param))[0];
 
     ctx.response.status = 200;
     ctx.response.body = {
@@ -320,6 +356,7 @@ const updateJsErrorInfoById = async (ctx) => {
 export default {
     create,
     getJsErrorInfoList,
+    getJsErrorInfoListByMonitorId,
     getJsErrorInfoCountByDay,
     getJsErrorInfoCountByTime,
     getJsErrorInfoSort,

@@ -7,19 +7,26 @@ const token = sessionStorage.getItem('token');
 if (token) {
     axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 }
+axios.defaults.baseURL = `${apiHost}/api`;
 
 const apiUrl = {
-    "login": `${apiHost}/api/user/login`,
-    "create": `${apiHost}/api/user`,
-    'getUserInfo': `${apiHost}/api/user`,
-    "createProject": `${apiHost}/api/generate`,
-    "sourcemap": `${apiHost}/api/sourceMap`,
-    "projectList": `${apiHost}/api/projectList`,
-    "mailList": `${apiHost}/api/mail/list`,
-    "addMail": `${apiHost}/api/mail`,
-    "deleteMail": `${apiHost}/api/mail`,
-    "jsErrorMonthList": `${apiHost}/api/getJsErrorInfoDaysAgo`,
-    "jsErrorDayList": `${apiHost}/api/getJsErrorInfoTimesAgo`,
+    "login": `/user/login`,
+    "create": `/user`,
+    'getUserInfo': `/user`,
+    "createProject": `/generate`,
+    "sourcemap": `/sourceMap`,
+    "projectList": `/projectList`,
+    "mailList": `/mail/list`,
+    "addMail": `/mail`,
+    "deleteMail": `/mail`,
+    "jsErrorMonthList": `/getJsErrorInfoDaysAgo`,
+    "jsErrorDayList": `/getJsErrorInfoTimesAgo`,
+    "jsErrorRate": `/getJsErrorInfoCountByOs`,
+    "jsErrorList": `/getJsErrorInfoListByMonitorId`,
+    "jsErrorInfo": `/jsErrorInfo`,
+    "mailListByMonitorId": '/mailList',
+    "jsErrorInfoListAffect": '/getJsErrorInfoListAffect',
+    "jsErrorInfoListByMsg": '/getJsErrorInfoListByMsg',
 }
 
 
@@ -93,6 +100,50 @@ const getJsErrorDayList = (data) => {
     });
 }
 
+const getJsErrorRate = (data) => {
+    return axios.get(apiUrl.jsErrorRate, {
+        params: {
+            monitorId: data.monitorId,
+            day: data.day,
+        },
+    });
+}
+
+const getJsErrorList = (data) => {
+    return axios.get(apiUrl.jsErrorList, {
+        params: {
+            monitorId: data.monitorId,
+            limit: data.limit,
+            offset: data.offset,
+        }
+    });
+}
+
+const getJsErrorInfo = (data) => {
+    return axios.get(`${apiUrl.jsErrorInfo}/${data.errorId}`);
+}
+
+const getMailListByMonitorId = (data) => {
+    return axios.get(apiUrl.mailListByMonitorId, {
+        params: {
+            monitorId: data.monitorId,
+        },
+    });
+}
+
+const getJsErrorInfoListAffect = (data) => {
+    return axios.post(apiUrl.jsErrorInfoListAffect, {
+        monitorId: data.monitorId,
+        errorMsg: data.errorMsg,
+    });
+}
+
+const getJsErrorInfoListByMsg = (data) => {
+    return axios.post(apiUrl.jsErrorInfoListByMsg, {
+        ...data,
+    });
+}
+
 export default {
     login,
     create,
@@ -105,4 +156,10 @@ export default {
     deleteMail,
     getJsErrorMonthList,
     getJsErrorDayList,
+    getJsErrorRate,
+    getJsErrorList,
+    getJsErrorInfo,
+    getMailListByMonitorId,
+    getJsErrorInfoListAffect,
+    getJsErrorInfoListByMsg,
 };
