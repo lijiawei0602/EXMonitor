@@ -47,6 +47,12 @@ class Home extends React.Component {
             dispatch(actions.getJsErrorMonthList(data)).then(res => {
                 this.handleMonthData(res);
             });
+            const jsErrorData = {
+                monitorId: this.props.currentProject.monitorId,
+                limit: this.state.limit,
+                offset: this.state.offset,
+            }
+            dispatch(actions.getJsErrorList(jsErrorData));
         }
     }
 
@@ -98,6 +104,12 @@ class Home extends React.Component {
             }
             dispatch(actions.getJsErrorList(jsErrorData));
         }
+    }
+
+    componentWillUnmount () {
+        this.setState({
+            offset: 0,
+        })
     }
 
     handleMonthData (res) {

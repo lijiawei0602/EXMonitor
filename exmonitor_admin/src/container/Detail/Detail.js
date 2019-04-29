@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Row, Col, Icon, Button, Dropdown, Menu, Modal, message, Tabs } from 'antd';
 import './Detail.less';
 import actions from '../../action/index.js';
+import SimilarList from '../../component/SimilarList/SimilarList.js';
 const TabPane = Tabs.TabPane;
 
 class Detail extends React.Component {
@@ -212,7 +213,9 @@ class Detail extends React.Component {
                 <Row className="detail-content">
                     <Tabs defaultActiveKey="detail" onChange={this.handleTabChange}>
                         <TabPane tab="详情" key="detail">1</TabPane>
-                        <TabPane tab="相似" key="similar">2</TabPane>
+                        <TabPane tab="相似" key="similar">
+                            <SimilarList similarList={this.props.jsErrorInfoMsg} />
+                        </TabPane>
                     </Tabs>
                 </Row>
            </div>

@@ -27,17 +27,15 @@ const ignoreError = (sequelize, DataTypes) => {
         createdAt: {
             type: DataTypes.DATE,
             get() {
-                const createAt = this.getDataValue('createdAt');
-                return moment(createAt).format('YYYY-MM-DD HH:mm:ss');
-            }
+                return moment(this.getDataValue('createdAt')).format('YYYY-MM-DD HH:mm:ss');
+            },
         },
         updatedAt: {
             type: DataTypes.DATE,
             get() {
-                const updateAt = this.getDataValue('updatedAt');
-                return moment(updateAt).format('YYYY-MM-DD HH:mm:ss');
-            }
-        }
+                return moment(this.getDataValue('updatedAt')).format('YYYY-MM-DD HH:mm:ss');
+            },
+        },
     }, {
         freezeTableName: false,
     })
