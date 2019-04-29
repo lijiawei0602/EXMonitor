@@ -31,6 +31,10 @@ class HeaderTop extends React.Component {
                 monitorId,
                 projectName: decodeURIComponent(projectName),
             }));
+        } else if (monitorId) {
+            dispatch(actions.getProjectByMonitorId({monitorId})).then(res => {
+                dispatch(actions.switchProject(res));
+            });
         }
         this.setState({
             searchParam: param,

@@ -22,8 +22,9 @@ const create = async (ctx) => {
     }
 }
 
-const getIgnoreErrorList = async () => {
-    const data = await ignoreErrorModel.getIgnoreErrorList();
+const getIgnoreErrorList = async (ctx) => {
+    const param = ctx.request.query;
+    const data = await ignoreErrorModel.getIgnoreErrorList(param);
     ctx.response.status = 200;
     ctx.response.body = {
         code: 200,

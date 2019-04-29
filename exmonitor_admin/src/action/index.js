@@ -118,6 +118,18 @@ const getProjectList = (userId) => {
     }
 }
 
+const getProjectByMonitorId = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getProjectByMonitorId(data).then(res => {
+                if (res.data.code === 200) {
+                    resolve(res.data.data);
+                }
+            })
+        })
+    }
+}
+
 const receiveMailList = (data) => {
     return {
         type: types.MAIL_LIST,
@@ -378,12 +390,72 @@ const getJsErrorInfoByMsg = (data) => {
     }
 }
 
+const updateIgnoreError = (data) => {
+    return {
+        type: types.UPDATE_IGNORE_ERROR,
+        isIgnore: data.isIgnore,
+    }
+}
+
+const setIgnoreError = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.setIgnoreError(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(updateIgnoreError({ isIgnore: true }));
+                    resolve(res.data.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveIgnoreErrorList = (data) => {
+    return {
+        type: types.IGNORE_ERROR_LIST,
+        ignoreErrorList: data,
+    }
+}
+
+const getIgnoreErrorList = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getIgnoreErrorList(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveIgnoreErrorList(res.data.data.data));
+                    resolve(res.data.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        });
+    }
+}
+
+const dispatchMail = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.dispatchMail(data).then(res => {
+                if (res.data.code === 200) {
+                    resolve(res.data.message);
+                }
+            })
+        })
+    }
+}
+
+
 export default {
     login,
     create,
     getUserInfo,
     createProject,
     getProjectList,
+    getProjectByMonitorId,
     getMailList,
     addMail,
     deleteMail,
@@ -396,4 +468,8 @@ export default {
     getMailListByMonitorId,
     getJsErrorInfoListAffect,
     getJsErrorInfoByMsg,
+    updateIgnoreError,
+    setIgnoreError,
+    getIgnoreErrorList,
+    dispatchMail,
 }

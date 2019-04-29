@@ -57,6 +57,17 @@ const getProjectListByUserId = async (ctx) => {
     };
 }
 
+const getProjectByMonitorId = async (ctx) => {
+    const monitorId = ctx.query.monitorId;
+    const data = await projectModel.getProjectByMonitorId(monitorId);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询项目信息成功",
+        data,
+    };
+}
+
 /**
  * 根据id查询项目信息
  * @param {*} ctx 
@@ -129,4 +140,5 @@ export default {
     getProjectListByUserId,
     getProjectById,
     deleteProjectById,
+    getProjectByMonitorId,
 }

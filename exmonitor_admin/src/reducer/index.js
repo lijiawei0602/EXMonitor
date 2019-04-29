@@ -83,10 +83,26 @@ const jsError = (state = jsErrorInitialState, action) => {
     }
 }
 
+const ignoreErrorInitialState = {
+    isIgnore: false,
+    ignoreErrorList: [],
+}
+const ignoreError = (state = ignoreErrorInitialState, action) => {
+    switch (action.type) {
+        case types.UPDATE_IGNORE_ERROR:
+            return Object.assign({}, state, {isIgnore: action.isIgnore});
+        case types.IGNORE_ERROR_LIST:
+            return Object.assign({}, state, {ignoreErrorList: action.ignoreErrorList});
+        default:
+            return state
+    }
+}
+
 export default combineReducers({
     user,
     project,
     mail,
     jsError,
+    ignoreError,
     routing: routerReducer,
 })

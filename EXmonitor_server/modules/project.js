@@ -58,6 +58,7 @@ const getProjectListByUserId = async (userId) => {
     });
 };
 
+
 const getProjectByMonitorId = async (monitorId) => {
     return await Project.findOne({
         where: {

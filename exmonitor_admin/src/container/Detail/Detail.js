@@ -1,14 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Row, Col, Icon, Button, Dropdown, Menu } from 'antd';
+import { Row, Col, Icon, Button, Dropdown, Menu, Modal, message, Tabs } from 'antd';
 import './Detail.less';
 import actions from '../../action/index.js';
+const TabPane = Tabs.TabPane;
 
 class Detail extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            
+            monitorId: '',
+            errorMessage: '',
         }
     }
 
@@ -27,21 +29,101 @@ class Detail extends React.Component {
         }
         dispatch(actions.getJsErrorInfo(jsErrorInfoData)).then(res => {
             console.log(res);
-
         });
         dispatch(actions.getMailListByMonitorId({ monitorId }));
 
         const jsErrorInfoAffect = {
-            monitorId,
+            monitorId: param.monitorId,
             errorMsg: errorMessage,
         }
         dispatch(actions.getJsErrorInfoListAffect(jsErrorInfoAffect));
         dispatch(actions.getJsErrorInfoByMsg(jsErrorInfoAffect));
+        const ignoreData = {
+            monitorId: param.monitorId
+        };
+        dispatch(actions.getIgnoreErrorList(ignoreData)).then(res => {
+            const result = res.some(item => item.ignoreErrorMessage === errorMessage);
+            if (result) {
+                dispatch(actions.updateIgnoreError({ isIgnore: true }));
+            }
+        })
+        this.setState({
+            monitorId,
+            errorMessage,
+        });
+    }
+
+    componentWillUnmount () {
+        const { dispatch } = this.props;
+        dispatch(actions.updateIgnoreError({ isIgnore: false }));
+    }
+
+    handleResolveBtn = () => {
+        const { dispatch } = this.props;
+        Modal.info({
+            title: '提示',
+            content: (
+                <div>
+                    <p>是否已经修复了该异常？</p>
+                </div>
+            ),
+            onOk: () => {
+                const data = {
+                    ignoreErrorMessage: this.state.errorMessage,
+                    monitorId: this.state.monitorId,
+                    type: 'resolve',
+                }
+                dispatch(actions.setIgnoreError(data)).then(res => {
+                    console.log(res);
+                });
+            },
+        });
+    }
+
+    handleIgnoreBtn = () => {
+        const { dispatch } = this.props;
+        Modal.info({
+            title: '提示',
+            content: (
+                <div>
+                    <p>是否已经修复了该异常？</p>
+                </div>
+            ),
+            onOk() {
+                const data = {
+                    ignoreErrorMessage: this.state.errorMessage,
+                    monitorId: this.state.monitorId,
+                    type: 'ignore',
+                }
+                dispatch(actions.setIgnoreError(data)).then(res => {
+                    console.log(res);
+                });
+            },
+        });
     }
 
     handleMenuClick = (e) => {
+        const { dispatch, currentProject } = this.props;
         const account = e.key;
         // 调用接口发送报警被容
+        const data = {
+            account,
+            content: `<div>您好，异常监控系统监听到应用：${currentProject.projectName} 发生异常报警，请尽快查看修复，避免影响线上用户</div><br /><div>异常信息：${decodeURIComponent(this.state.errorMessage)}</div><br/ ><div>异常发生时间：${currentProject.createdAt}</div></div><br /><a href="${window.location.href}">点击查看异常详情</a>`,
+        }
+        dispatch(actions.dispatchMail(data)).then(res => {
+            message.success(res);
+        });
+    }
+    
+    handleDeleteBtn = () => {
+        Modal.warning({
+            title: "提醒",
+            content: "避免误操作，暂不开通删除功能",
+        })
+    }
+
+    handleTabChange = (key) => {
+        console.log(key);
     }
 
     render () {
@@ -78,20 +160,28 @@ class Detail extends React.Component {
                             <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
                         </Row>
                         <Row className="detail-header-action">
-                            <Button className="detail-header-action-btn">
+                            <Button
+                                className="detail-header-action-btn"
+                                onClick={this.handleResolveBtn}
+                                disabled={this.props.isIgnore}>
                                 <Icon type="check-circle" />
                                 <span>解决</span>
                             </Button>
-                            <Button className="detail-header-action-btn">
+                            <Button
+                                className="detail-header-action-btn"
+                                onClick={this.handleIgnoreBtn}
+                                disabled={this.props.isIgnore}>
                                 <Icon type="minus-circle" />
                                 <span>忽略</span>
                             </Button>
-                            <Button className="detail-header-action-btn">
+                            <Button
+                                className="detail-header-action-btn"
+                                onClick={this.handleDeleteBtn}>
                                 <Icon type="close-circle" />
                                 <span>删除</span>
                             </Button>
                             <Dropdown overlay={menu}>
-                                <Button><Icon type="usergroup-add" />派发</Button>
+                                <Button style={{fontSize: '12px'}}><Icon type="usergroup-add" />派发</Button>
                             </Dropdown>
                         </Row>
                     </Col>
@@ -119,17 +209,26 @@ class Detail extends React.Component {
                         </div>
                     </Col>
                 </Row>
-            </div>
+                <Row className="detail-content">
+                    <Tabs defaultActiveKey="detail" onChange={this.handleTabChange}>
+                        <TabPane tab="详情" key="detail">1</TabPane>
+                        <TabPane tab="相似" key="similar">2</TabPane>
+                    </Tabs>
+                </Row>
+           </div>
         )
     }
 }
 
 const mapStateToProps = (state, ownProps) => {
     return {
+        currentProject: state.project.currentProject,
         jsErrorInfo: state.jsError.jsErrorInfo,
         mailListMonitorId: state.mail.mailListMonitorId,
         jsErrorInfoAffect: state.jsError.jsErrorInfoAffect,
         jsErrorInfoMsg: state.jsError.jsErrorInfoMsg,
+        isIgnore: state.ignoreError.isIgnore,
+        ignoreErrorList: state.ignoreError.ignoreErrorList,
     }
 }
 export default connect(mapStateToProps)(Detail);

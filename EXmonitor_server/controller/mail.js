@@ -1,5 +1,6 @@
 import MailModel from '../modules/mail.js';
 import ProjectModel from '../modules/project.js';
+import jsErrorInfoModel from '../modules/jsErrorInfo.js';
 
 const create = async (ctx) => {
     const param = ctx.request.body;
@@ -62,10 +63,21 @@ const getMailList = async (ctx) => {
     };
 }
 
+const dispatch = async (ctx) => {
+    const param = ctx.request.body;
+    const data = await jsErrorInfoModel.sendMailToUser(param);
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: data.message,
+    }
+}
+
 export default {
     create,
     getMailListByUserId,
     getMailListByMonitorId,
     deleteMail,
     getMailList,
+    dispatch,
 }

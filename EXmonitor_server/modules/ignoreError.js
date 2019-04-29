@@ -19,8 +19,12 @@ const update = async (id, data) => {
     });
 }
 
-const getIgnoreErrorList = async () => {
-    return await IgnoreError.findAndCountAll();
+const getIgnoreErrorList = async (data) => {
+    return await IgnoreError.findAll({
+        where: {
+            monitorId: data.monitorId,
+        }
+    });
 }
 
 const deleteIgnoreError = async (id) => {

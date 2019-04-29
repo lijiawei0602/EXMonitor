@@ -59,6 +59,7 @@ router.post('/generate', generateController.create);
 router.post('/project', projectController.create);
 // 根据userId获取projectList
 router.get('/projectList', projectController.getProjectListByUserId);
+router.get('/getProjectByMonitorId', projectController.getProjectByMonitorId);
 // 获取项目列表
 router.get('/project/list', projectController.getProjectList);
 // 根据id获取项目信息
@@ -162,6 +163,7 @@ router.post('/mail', mailController.create);
 router.get('/mailList',mailController.getMailListByMonitorId);
 router.get('/mail/list', mailController.getMailListByUserId);
 router.delete('/mail', mailController.deleteMail);
+router.post('/dispatch', mailController.dispatch);
 
 /**
  * 处理上传sourceMap文件上传

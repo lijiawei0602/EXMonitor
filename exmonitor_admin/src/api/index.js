@@ -16,6 +16,7 @@ const apiUrl = {
     "createProject": `/generate`,
     "sourcemap": `/sourceMap`,
     "projectList": `/projectList`,
+    "projectByMonitorId": '/getProjectByMonitorId',
     "mailList": `/mail/list`,
     "addMail": `/mail`,
     "deleteMail": `/mail`,
@@ -27,6 +28,9 @@ const apiUrl = {
     "mailListByMonitorId": '/mailList',
     "jsErrorInfoListAffect": '/getJsErrorInfoListAffect',
     "jsErrorInfoListByMsg": '/getJsErrorInfoListByMsg',
+    "ignoreError": '/ignoreError',
+    "ignoreErrorList": '/getIgnoreErrorList',
+    "dispatchMail": '/dispatch',
 }
 
 
@@ -58,6 +62,14 @@ const getProjectList = (userId) => {
         params: {
             userId,
         }
+    });
+}
+
+const getProjectByMonitorId = (data) => {
+    return axios.get(apiUrl.projectByMonitorId, {
+        params: {
+            monitorId: data.monitorId,
+        },
     });
 }
 
@@ -144,6 +156,27 @@ const getJsErrorInfoListByMsg = (data) => {
     });
 }
 
+const setIgnoreError = (data) => {
+    return axios.post(apiUrl.ignoreError, {
+        ...data,
+    });
+}
+
+const getIgnoreErrorList = (data) => {
+    return axios.get(apiUrl.ignoreErrorList, {
+        params: {
+            ...data,
+        }
+    });
+}
+
+const dispatchMail = (data) => {
+    return axios.post(apiUrl.dispatchMail, {
+        ...data,
+    });
+}
+
+
 export default {
     login,
     create,
@@ -151,6 +184,7 @@ export default {
     createProject,
     sourceMapUrl,
     getProjectList,
+    getProjectByMonitorId,
     getMailList,
     addMail,
     deleteMail,
@@ -162,4 +196,7 @@ export default {
     getMailListByMonitorId,
     getJsErrorInfoListAffect,
     getJsErrorInfoListByMsg,
+    setIgnoreError,
+    getIgnoreErrorList,
+    dispatchMail,
 };

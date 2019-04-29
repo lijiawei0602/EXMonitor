@@ -53,7 +53,6 @@ class Home extends React.Component {
     componentWillReceiveProps (nextProps) {
         const { dispatch } = this.props;
         if (this.props.currentProject.projectName !== nextProps.currentProject.projectName) {
-            console.log(123123);
             this.setState({
                 monthFlag: 'bar',
             });

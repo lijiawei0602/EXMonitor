@@ -1,3 +1,4 @@
+import moment from 'moment';
 const ignoreError = (sequelize, DataTypes) => {
     return sequelize.define('ignoreError', {
         id: {

@@ -187,7 +187,7 @@ const getJsErrorInfoByPage = async (data) => {
  */
 const sendMailToUser = async (data) => {
     // 获取当前用户的邮箱账号
-    let mail;
+    const { account, content } = data;
 
     const mailTransport = nodemailer.createTransport({
         host: 'smtp.163.com',
@@ -197,19 +197,27 @@ const sendMailToUser = async (data) => {
             pass: config.mail.pass, //授权码
         }
     });
-    const html = "123";
+
     const mailInfo = {
         from: config.mail.user,
-        to: mail,
+        to: account,
         subject: '异常监控系统报警提醒',
-        html,
+        html: content,
     };
-    mailTransport.sendMail(mailInfo, function (err, msg) {
-        if (err) {
-            console.log('mail sned error:', err);
-        } else {
-            console.log('报警邮件发送成功...');
-        }
+    return new Promise((resolve, reject) => {
+        mailTransport.sendMail(mailInfo, function (err, msg) {
+            if (err) {
+                console.log('mail sned error:', err);
+                reject({
+                    message: '报警邮件发送失败' + err,
+                });
+            } else {
+                console.log('报警邮件发送成功...');
+                resolve({
+                    message: '报警邮件发送成功',
+                });
+            }
+        });
     });
 }
 
@@ -331,4 +339,5 @@ export default {
     getJsErrorInfoAndroidCount,
     getJsErrorInfoByUser,
     getBehaviorInfoByUser,
+    sendMailToUser,
 }
