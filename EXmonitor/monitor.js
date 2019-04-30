@@ -83,7 +83,7 @@
         this.customerKey = utils.getCustomerKey();  // 用于区分用户，所对应唯一的标识，清理本地数据就失效
         this.pageKey = utils.getPageKey();  // 用户区分页面，所对应的唯一标识，每个新页面对应一个值
         this.deviceName = DEVICE_INFO.deviceName;
-        this.os = DEVICE_INFO.os + (DEVICE_INFO.osVersion ? '' + DEVICE_INFO.osVersion : '');
+        this.os = DEVICE_INFO.os + (DEVICE_INFO.osVersion ? ' ' + DEVICE_INFO.osVersion : '');
         this.browserName = DEVICE_INFO.browserName;
         this.browserVersion = DEVICE_INFO.browserVersion;
         // 用户自定义信息，由开发者主动传入，便于对线上进行准确定位

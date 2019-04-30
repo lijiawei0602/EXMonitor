@@ -4,6 +4,7 @@ import { Row, Col, Icon, Button, Dropdown, Menu, Modal, message, Tabs } from 'an
 import './Detail.less';
 import actions from '../../action/index.js';
 import SimilarList from '../../component/SimilarList/SimilarList.js';
+import DetailContent from '../../component/DetailContent/DetailContent.js';
 const TabPane = Tabs.TabPane;
 
 class Detail extends React.Component {
@@ -212,7 +213,9 @@ class Detail extends React.Component {
                 </Row>
                 <Row className="detail-content">
                     <Tabs defaultActiveKey="detail" onChange={this.handleTabChange}>
-                        <TabPane tab="详情" key="detail">1</TabPane>
+                        <TabPane tab="详情" key="detail">
+                            <DetailContent jsErrorInfo={this.props.jsErrorInfo} />
+                        </TabPane>
                         <TabPane tab="相似" key="similar">
                             <SimilarList similarList={this.props.jsErrorInfoMsg} />
                         </TabPane>
