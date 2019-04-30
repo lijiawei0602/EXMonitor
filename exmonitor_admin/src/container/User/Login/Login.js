@@ -23,7 +23,7 @@ class Login extends React.Component {
     }
 
     componentWillMount () {
-        const token = sessionStorage.token;
+        const token = localStorage.token;
         if (token) {
             this.props.history.push('/Admin/Home');
         }
@@ -82,8 +82,8 @@ class Login extends React.Component {
         };
         dispatch(action.login(param)).then(res => {
             const token = res.data.token;
-            sessionStorage.token = token;
-            sessionStorage.userId = res.data.userId;
+            localStorage.token = token;
+            localStorage.userId = res.data.userId;
             this.props.history.push('/Admin/Home');
         });
         

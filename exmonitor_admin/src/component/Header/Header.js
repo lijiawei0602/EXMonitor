@@ -81,8 +81,8 @@ class HeaderTop extends React.Component {
         dispatch(actions.switchProject(projectItem));
     }
     handleUserExit = () => {
-        sessionStorage.token = '';
-        sessionStorage.userId = '';
+        localStorage.token = '';
+        localStorage.userId = '';
         this.props.history.push('/User/login');
     }
 

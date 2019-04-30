@@ -14,7 +14,7 @@ class Layout extends React.Component {
         }
     }
     componentWillMount () {
-        const token = sessionStorage.getItem('token');
+        const token = localStorage.getItem('token');
         const { dispatch } = this.props;
         if (!token) {
             this.props.history.push('/User/login');

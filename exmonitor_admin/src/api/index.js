@@ -1,13 +1,22 @@
 import axios from 'axios';
 import getHost from './getHost.js';
+import { message } from 'antd';
 
 const apiHost = getHost();
 
-const token = sessionStorage.getItem('token');
+const token = localStorage.getItem('token');
 if (token) {
     axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 }
 axios.defaults.baseURL = `${apiHost}/api`;
+axios.interceptors.response.use(res => {
+    if (res.status === 200) {
+        return Promise.resolve(res);
+    } else {
+        message.error(res.data.message);
+        return Promise.reject(res);
+    }
+})
 
 const apiUrl = {
     "login": `/user/login`,
