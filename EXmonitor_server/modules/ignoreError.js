@@ -54,7 +54,7 @@ const getIgnoreErrorByApplication = async (data) => {
 
 // 判断错误是否被忽略
 const getIgnoreErrorByMsg = async (data) => {
-    const sql = "select count(*) as count from ignoreErrors where monitorId='" + data.monitorId + "' and ignoreErrorMessage='" + data.errorMessage + "'";
+    const sql = "select * from ignoreErrors where monitorId='" + data.monitorId + "' and ignoreErrorMessage='" + data.errorMessage + "'";
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 

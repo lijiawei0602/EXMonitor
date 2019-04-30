@@ -81,7 +81,10 @@ const uploadLog = async (ctx) => {
                 break;
             case 'JS_ERROR':
                 const ignoreArr = await ignoreErrorModel.getIgnoreErrorByMsg(logInfo);
-                if (!ignoreArr[0].count) {
+                // if (!ignoreArr[0].count) {
+                //     await jsErrorInfoModel.create(logInfo);
+                // }
+                if (ignoreArr.every(item => item.type !== 'ignore')) {
                     await jsErrorInfoModel.create(logInfo);
                 }
                 break;
