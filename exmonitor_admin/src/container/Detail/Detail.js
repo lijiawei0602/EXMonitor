@@ -13,6 +13,11 @@ class Detail extends React.Component {
         this.state = {
             monitorId: '',
             errorMessage: '',
+            stackCodeSource: '',
+            stackCodeStart: 0,
+            stackCodeRow: 0,
+            stackCodeCol: 0,
+            stackCodeArr: [],
         }
     }
 
@@ -49,6 +54,25 @@ class Detail extends React.Component {
                 dispatch(actions.updateIgnoreError({ isIgnore: true }));
             }
         })
+        dispatch(actions.getJsErrorInfoStackCode({id: errorId})).then(res => {
+            const { row, col, file, source } = res;
+            const line = file.split('\n');
+
+            const startRow = row - 3 > 0 ? row - 3 : 0;
+            const endRow = (row + 3) >= (line.length - 1) ? (line.length - 1) : (row + 3);
+            const resArr = [];
+            for (let i = startRow; i <= endRow; i++) {
+                resArr.push(line[i]);
+            }
+            this.setState({
+                stackCodeStart: startRow,
+                stackCodeRow: row,
+                stackCodeCol: col,
+                stackCodeSource: source,
+                stackCodeArr: resArr,
+            });
+
+        });
         this.setState({
             monitorId,
             errorMessage,
@@ -129,6 +153,7 @@ class Detail extends React.Component {
     }
 
     render () {
+        const { stackCodeRow, stackCodeCol, stackCodeSource, stackCodeArr, stackCodeStart } = this.state;
         let { errorMessage, url, createdAt } = this.props.jsErrorInfo;
         const { count } = this.props.jsErrorInfoAffect || {};
         errorMessage = errorMessage || '';
@@ -214,7 +239,15 @@ class Detail extends React.Component {
                 <Row className="detail-content">
                     <Tabs defaultActiveKey="detail" onChange={this.handleTabChange}>
                         <TabPane tab="详情" key="detail">
-                            <DetailContent jsErrorInfo={this.props.jsErrorInfo} />
+                            <DetailContent
+                                errorType={errorType}
+                                errorMsg={errorMsg}
+                                jsErrorInfo={this.props.jsErrorInfo}
+                                stackCodeStart={stackCodeStart}
+                                stackCodeArr={stackCodeArr}
+                                stackCodeRow={stackCodeRow}
+                                stackCodeCol={stackCodeCol}
+                                stackCodeSource={stackCodeSource}/>
                         </TabPane>
                         <TabPane tab="相似" key="similar">
                             <SimilarList similarList={this.props.jsErrorInfoMsg} />
@@ -235,6 +268,7 @@ const mapStateToProps = (state, ownProps) => {
         jsErrorInfoMsg: state.jsError.jsErrorInfoMsg,
         isIgnore: state.ignoreError.isIgnore,
         ignoreErrorList: state.ignoreError.ignoreErrorList,
+        jsErrorStackCode: state.jsError.jsErrorStackCode,
     }
 }
 export default connect(mapStateToProps)(Detail);

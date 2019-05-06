@@ -448,6 +448,29 @@ const dispatchMail = (data) => {
     }
 }
 
+const receiveJsErrorStackCode = (data) => {
+    return {
+        type: types.JSERROR_STACK_CODE,
+        jsErrorStackCode: data,
+    }
+}
+
+const getJsErrorInfoStackCode = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getJsErrorInfoStackCode(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveJsErrorStackCode(res.data.data.data));
+                    resolve(res.data.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
 
 export default {
     login,
@@ -472,4 +495,5 @@ export default {
     setIgnoreError,
     getIgnoreErrorList,
     dispatchMail,
+    getJsErrorInfoStackCode,
 }

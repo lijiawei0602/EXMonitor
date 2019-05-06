@@ -171,6 +171,6 @@ router.post('/dispatch', verify, mailController.dispatch);
  * 处理上传sourceMap文件上传
  */
 // http://localhost:8086/view/sourcemap/build/index.html 上传sourcemap文件页面
-router.post('/sourceMap', verify, sourceMapController.uploadFile);
+router.post('/sourceMap', sourceMapController.uploadFile);
 
 export default router;

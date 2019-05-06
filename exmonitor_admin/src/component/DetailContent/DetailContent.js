@@ -1,13 +1,15 @@
 import React from 'react';
-import { Row, Col, Icon } from 'antd';
+import { Row, Col, Icon, Collapse, Timeline } from 'antd';
 import './DetailContent.less';
+const Panel = Collapse.Panel;
 
 class DetailContent extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-
+            show: true,
         }
+        this.stackCodeContent = React.createRef();
     }
 
     analysisInfo (info) {
@@ -66,6 +68,23 @@ class DetailContent extends React.Component {
         }
     }
 
+    handleStackCodeClick = () => {
+        if (this.state.show) {
+            this.stackCodeContent.current.style.display = 'none';
+        } else {
+            this.stackCodeContent.current.style.display = 'block';
+        }
+        this.setState({
+            show: !this.state.show,
+        });
+    }
+
+    componentWillUnmount () {
+        this.setState({
+            show: true,
+        });
+    }
+
     render () {
         console.log(this.props.jsErrorInfo);
         const info = this.props.jsErrorInfo;
@@ -81,6 +100,12 @@ class DetailContent extends React.Component {
             osIcon = <Icon type="apple" />;
         } else {
             osIcon = <Icon type="windows" />;
+        }
+        let deviceicon = null;
+        if (info.deviceName === 'PC') {
+            deviceicon = <Icon type="desktop" />;
+        } else {
+            deviceicon = <Icon type="mobile" />;
         }
 
         return (
@@ -107,10 +132,49 @@ class DetailContent extends React.Component {
                         </div>
                     </Col>
                     <Col span={6} style={{ padding: '20px', display: 'flex', alignItems: 'center' }}>
-                        <Icon type="mobile" />
+                        {deviceicon}
                         <div className="detailContent-icon-right">
                             <div>{info.deviceName || '未知'}</div>
                         </div>
+                    </Col>
+                </Row>
+                <Row className="detailContent-footmark">
+                    <Collapse accordion bordered={false}>
+                        <Panel header="足迹" key="1">
+                            <Timeline>
+                                <Timeline.Item color="green">进入页面</Timeline.Item>
+                                <Timeline.Item color="green">点击按钮</Timeline.Item>
+                                <Timeline.Item color="red">发生了一个错误 noerror</Timeline.Item>
+                            </Timeline>
+                        </Panel>
+                    </Collapse>
+                </Row>
+                <Row className="detailContent-stackCode">
+                    <Col>
+                        <div style={{ padding: '10px' }}>
+                            <h3 style={{color: '#968ba0', marginBottom: '20px'}}>EXCEPTION</h3>
+                            <h5 style={{fontSize: '15px'}}>{this.props.errorType}</h5>
+                            <pre style={{fontSize: '12px'}}>{this.props.errorMsg}</pre>
+                        </div>
+                        <div className="detailContent-stackCode-header" onClick={this.handleStackCodeClick}>
+                            {this.props.stackCodeSource}
+                            &nbsp;<span>at line</span>&nbsp;
+                            {this.props.stackCodeRow}
+                            :
+                            {this.props.stackCodeCol}
+                        </div>
+                        <div ref={this.stackCodeContent}>
+                            {
+                                this.props.stackCodeArr.map((item, index) => {
+                                    const i = this.props.stackCodeStart + index + 1;
+                                    return (
+                                        <pre key={index} className={i === this.props.stackCodeRow ? 'detailContent-stackCode-item highlightRow' : 'detailContent-stackCode-item'}>
+                                        {`${i}.${item}`}
+                                        </pre>
+                                    )
+                                })
+                            }
+                        </div> 
                     </Col>
                 </Row>
             </div>

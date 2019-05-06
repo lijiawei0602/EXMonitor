@@ -61,6 +61,7 @@ const jsErrorInitialState = {
     jsErrorInfo: {},
     jsErrorInfoAffect: {},
     jsErrorInfoMsg: [],
+    jsErrorStackCode: {},
 }
 const jsError = (state = jsErrorInitialState, action) => {
     switch (action.type) {
@@ -78,6 +79,8 @@ const jsError = (state = jsErrorInitialState, action) => {
             return Object.assign({}, state, {jsErrorInfoAffect: action.jsErrorInfoAffect});
         case types.JSERROR_INFO_MSG:
             return Object.assign({}, state, {jsErrorInfoMsg: action.jsErrorInfoMsg});
+        case types.JSERROR_STACK_CODE:
+            return Object.assign({}, state, {jsErrorStackCode: action.jsErrorStackCode});
         default:
             return state
     }

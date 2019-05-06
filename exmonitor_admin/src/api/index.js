@@ -23,7 +23,7 @@ const apiUrl = {
     "create": `/user`,
     'getUserInfo': `/user`,
     "createProject": `/generate`,
-    "sourcemap": `/sourceMap`,
+    "sourcemap": `${apiHost}/api/sourceMap`,
     "projectList": `/projectList`,
     "projectByMonitorId": '/getProjectByMonitorId',
     "mailList": `/mail/list`,
@@ -40,6 +40,7 @@ const apiUrl = {
     "ignoreError": '/ignoreError',
     "ignoreErrorList": '/getIgnoreErrorList',
     "dispatchMail": '/dispatch',
+    "jsErrorInfoStackCode": '/getJsErrorInfoStackCode',
 }
 
 
@@ -185,6 +186,10 @@ const dispatchMail = (data) => {
     });
 }
 
+const getJsErrorInfoStackCode = (data) => {
+    return axios.get(`${apiUrl.jsErrorInfoStackCode}/${data.id}`);
+}
+
 
 export default {
     login,
@@ -208,4 +213,5 @@ export default {
     setIgnoreError,
     getIgnoreErrorList,
     dispatchMail,
+    getJsErrorInfoStackCode,
 };
