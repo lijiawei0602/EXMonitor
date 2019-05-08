@@ -115,7 +115,7 @@ const getCustomerPVByCustomerKey = async (monitorIdSql, customerKeySql, happenTi
  * @param {*} param 
  */
 const getCustomerKeyByUserId = async (param) => {
-    const createdAtTime = util.addDays(0 - param.timeScope) + "00:00:00";
+    const createdAtTime = util.addDays(0 - param.timeScope) + " 00:00:00";
     const sql = "select distinct(customerKey) from customerPVs where createdAt> '" + createdAtTime + "' and userId='" + param.searchValue + "'"
                 + " union " +
                 "select distinct(customerKey) from behaviorInfos where createdAt> '" + createdAtTime + "' and userId='" + param.searchValue + "'"
@@ -135,6 +135,14 @@ const getBehaviorInfoByUser = async (monitorIdSql, customerKeySql, happenTimeSql
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
+const getCustomerInfoByPageKey = async (pageKey) => {
+    return await CustomerPV.findOne({
+        where: {
+            pageKey,
+        }
+    });
+}
+
 export default {
     createCustomerPV,
     updateCustomerPV,
@@ -149,4 +157,5 @@ export default {
     getCustomerPVByCustomerKey,
     getCustomerKeyByUserId,
     getBehaviorInfoByUser,
+    getCustomerInfoByPageKey,
 }

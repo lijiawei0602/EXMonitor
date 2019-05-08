@@ -33,6 +33,7 @@ router.post('/searchBehaviorRecord', commonController.searchBehaviorRecord);
 // 根据用户查询用户详细信息
 router.post('/searchCustomerInfo', commonController.searchCustomerInfo);
 
+
 /**
  * 用户相关
  */
@@ -138,6 +139,8 @@ router.post('/getJsErrorInfoListAffect', verify, jsErrorInfoController.getJsErro
 router.get('/getJsErrorInfoListByPage', verify, jsErrorInfoController.getJsErrorInfoByPage);
 // 定位js错误代码
 router.get('/getJsErrorInfoStackCode/:id', verify, jsErrorInfoController.getJsErrorInfoStackCode);
+// 查询js错误踪迹
+router.get('/getJsErrorTrack/:id', jsErrorInfoController.getJsErrorTrackById);
 
 /**
 * js错误信息截屏

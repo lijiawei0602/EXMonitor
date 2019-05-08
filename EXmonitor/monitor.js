@@ -398,11 +398,13 @@
                     var status = timeRecordArray[i].event.detail.status;
                     var statusText = timeRecordArray[i].event.detail.statusText;
                     var loadTime = currentTime - timeRecordArray[i].timeStamp;
-                    if(!url || url.indexOf(UPLOAD_LOG_API) != -1) return;
-                    var httpLogInfoStart = new HttpLogInfo(HTTP_LOG, url, status, statusText, "发起请求", timeRecordArray[i].timeStamp, 0);
-                    httpLogInfoStart.handleLogInfo(HTTP_LOG, httpLogInfoStart);
-                    var httpLogInfoEnd = new HttpLogInfo(HTTP_LOG, url, status, statusText, "请求返回", currentTime, loadTime);
-                    httpLogInfoEnd.handleLogInfo(HTTP_LOG, httpLogInfoEnd);
+                    if (url && url.indexOf(UPLOAD_LOG_API) === -1) {
+                        var httpLogInfoStart = new HttpLogInfo(HTTP_LOG, url, status, statusText, "发起请求", timeRecordArray[i].timeStamp, 0);
+                        httpLogInfoStart.handleLogInfo(HTTP_LOG, httpLogInfoStart);
+                        var httpLogInfoEnd = new HttpLogInfo(HTTP_LOG, url, status, statusText, "请求返回", currentTime, loadTime);
+                        httpLogInfoEnd.handleLogInfo(HTTP_LOG, httpLogInfoEnd);
+                    }
+                    timeRecordArray[i].flag = true;
                 }
             }
         });

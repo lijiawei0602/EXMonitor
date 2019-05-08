@@ -1,5 +1,4 @@
 import sequelize from '../config/db.js';
-import screenShotInfo from '../schema/screenShotInfo';
 const ScreenShotInfo = sequelize.import('../schema/screenShotInfo.js');
 ScreenShotInfo.sync({ force: false });
 
@@ -45,7 +44,20 @@ const deleteScreenShotInfo = async (id) => {
 
 const getScreenShotInfoByUser = async (monitorSql, userIdSql, happenTimeSql) => {
     const sql = "select * from screenShotInfos where " + monitorSql + " and " + happenTimeSql + " and " + userIdSql + "'";
-    return await Sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+const getScreenShotTrack = async (startTime, endTime, customerKey) => {
+    endTime = (Number(endTime) + 2000).toString();
+    return ScreenShotInfo.findAll({
+        where: {
+            happenTime: {
+                $gte: startTime,
+                $lte: endTime,
+            },
+            customerKey,
+        }
+    })
 }
 
 export default {
@@ -55,4 +67,5 @@ export default {
     getScreenShotInfoDetail,
     deleteScreenShotInfo,
     getScreenShotInfoByUser,
+    getScreenShotTrack,
 }

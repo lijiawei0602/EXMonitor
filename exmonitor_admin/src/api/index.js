@@ -41,6 +41,7 @@ const apiUrl = {
     "ignoreErrorList": '/getIgnoreErrorList',
     "dispatchMail": '/dispatch',
     "jsErrorInfoStackCode": '/getJsErrorInfoStackCode',
+    "jsErrorTrack": '/getJsErrorTrack',
 }
 
 
@@ -190,6 +191,9 @@ const getJsErrorInfoStackCode = (data) => {
     return axios.get(`${apiUrl.jsErrorInfoStackCode}/${data.id}`);
 }
 
+const getJsErrorTrack = (data) => {
+    return axios.get(`${apiUrl.jsErrorTrack}/${data.id}`);
+}
 
 export default {
     login,
@@ -214,4 +218,5 @@ export default {
     getIgnoreErrorList,
     dispatchMail,
     getJsErrorInfoStackCode,
+    getJsErrorTrack,
 };

@@ -55,24 +55,30 @@ class Detail extends React.Component {
             }
         })
         dispatch(actions.getJsErrorInfoStackCode({id: errorId})).then(res => {
-            const { row, col, file, source } = res;
-            const line = file.split('\n');
+            if (res.type === 'origin') {
+                // 后端暂未支持
+                const { row, col } = res;
+            } else if (res.type === 'sourcemap') {
+                const { row, col, file, source } = res;
+                const line = file.split('\n');
 
-            const startRow = row - 3 > 0 ? row - 3 : 0;
-            const endRow = (row + 3) >= (line.length - 1) ? (line.length - 1) : (row + 3);
-            const resArr = [];
-            for (let i = startRow; i <= endRow; i++) {
-                resArr.push(line[i]);
+                const startRow = row - 3 > 0 ? row - 3 : 0;
+                const endRow = (row + 3) >= (line.length - 1) ? (line.length - 1) : (row + 3);
+                const resArr = [];
+                for (let i = startRow; i <= endRow; i++) {
+                    resArr.push(line[i]);
+                }
+                this.setState({
+                    stackCodeStart: startRow,
+                    stackCodeRow: row,
+                    stackCodeCol: col,
+                    stackCodeSource: source,
+                    stackCodeArr: resArr,
+                });
             }
-            this.setState({
-                stackCodeStart: startRow,
-                stackCodeRow: row,
-                stackCodeCol: col,
-                stackCodeSource: source,
-                stackCodeArr: resArr,
-            });
-
         });
+        dispatch(actions.getJsErrorTrack({id: errorId}));
+
         this.setState({
             monitorId,
             errorMessage,
@@ -154,7 +160,7 @@ class Detail extends React.Component {
 
     render () {
         const { stackCodeRow, stackCodeCol, stackCodeSource, stackCodeArr, stackCodeStart } = this.state;
-        let { errorMessage, url, createdAt } = this.props.jsErrorInfo;
+        let { errorMessage, completeUrl, createdAt } = this.props.jsErrorInfo;
         const { count } = this.props.jsErrorInfoAffect || {};
         errorMessage = errorMessage || '';
         const errorType = errorMessage.split(':')[0];
@@ -184,7 +190,7 @@ class Detail extends React.Component {
                         </Row>
                         <Row style={{marginTop: '10px'}}>
                             <Icon type="link" style={{color: '#1890ff', marginRight: '10px'}} />
-                            <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+                            <a href={completeUrl} target="_blank" rel="noopener noreferrer">{completeUrl}</a>
                         </Row>
                         <Row className="detail-header-action">
                             <Button
@@ -247,7 +253,8 @@ class Detail extends React.Component {
                                 stackCodeArr={stackCodeArr}
                                 stackCodeRow={stackCodeRow}
                                 stackCodeCol={stackCodeCol}
-                                stackCodeSource={stackCodeSource}/>
+                                stackCodeSource={stackCodeSource}
+                                jsErrorTrack={this.props.jsErrorTrack}/>
                         </TabPane>
                         <TabPane tab="相似" key="similar">
                             <SimilarList similarList={this.props.jsErrorInfoMsg} />
@@ -269,6 +276,7 @@ const mapStateToProps = (state, ownProps) => {
         isIgnore: state.ignoreError.isIgnore,
         ignoreErrorList: state.ignoreError.ignoreErrorList,
         jsErrorStackCode: state.jsError.jsErrorStackCode,
+        jsErrorTrack: state.jsError.jsErrorTrack,
     }
 }
 export default connect(mapStateToProps)(Detail);

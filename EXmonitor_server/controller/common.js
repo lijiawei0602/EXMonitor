@@ -118,8 +118,8 @@ const uploadLog = async (ctx) => {
  * @param {*} ctx 
  */
 const searchBehaviorRecord = async (ctx) => {
-    const param = JSON.parse(ctx.request.body);
-    param.happenTimeScope = new Date(util.addDays(0 - param.timeScope) + "00:00:00").getTime();
+    const param = ctx.request.body;
+    param.happenTimeScope = new Date(util.addDays(0 - param.timeScope) + " 00:00:00").getTime();
     let customerKeyList = [];
     // 查询当前用户的customerKey列表
     let startTime = new Date().getTime();
@@ -128,14 +128,15 @@ const searchBehaviorRecord = async (ctx) => {
         customerKeyList.push(item.customerKey);
     });
     let currentTime = new Date().getTime();
-    console.log(`CustomerKeyResult获取时间：${currentTime - startTime}`);
+    console.log(`CustomerKeyResult获取时间：${currentTime - startTime}ms`);
     startTime = currentTime;
 
     // 拼接monitorIdSql/customerKeySql/happenTimeSql/userIdSql查询参数
-    const monitorIdSql = " monitorIdSql='" + param.monitorId + "' ";
+    const monitorIdSql = " monitorId='" + param.monitorId + "' ";
     const happenTimeSql = " happenTime>'" + param.happenTimeScope + "' ";
-    const userIdSql = " userId='" + param.searchValue + "' ";
+    const userIdSql = " userId='" + param.searchValue;
     let customerKeySql = "";
+    console.log(customerKeyList);
     if (customerKeyList.length) {
         customerKeyList.forEach((item, index) => {
             if (index === customerKeyList.length - 1) {
@@ -171,8 +172,8 @@ const searchBehaviorRecord = async (ctx) => {
  * @param {*} ctx 
  */
 const searchCustomerInfo = async (ctx) => {
-    const param = JSON.parse(ctx.request.body);
-    param.happenTimeScope = new Date(util.addDays(0 - param.timeScope) + "00:00:00").getTime();
+    const param = ctx.request.body;
+    param.happenTimeScope = new Date(util.addDays(0 - param.timeScope) + " 00:00:00").getTime();
     let customerKeyList = [];
     const customerKeyData = await customerPVModel.getCustomerKeyByUserId(param);
     customerKeyData.forEach(item => {
@@ -197,17 +198,17 @@ const searchCustomerInfo = async (ctx) => {
     let startTime = new Date().getTime();
     const customerDetailList = await customerPVModel.getCustomerDetailByCustomerKey(monitorIdSql, customerKeySql, happenTimeSql);
     let currentTime = new Date().getTime();
-    console.log("个人信息获取时间：", currentTime - startTime);
+    console.log("个人信息获取时间：", currentTime - startTime, "ms");
     startTime = currentTime;
     
     const pvCountList = await customerPVModel.getCustomerPVByCustomerKey(monitorIdSql, customerKey, happenTimeSql);
     currentTime = new Date().getTime();
-    console.log("PVcount获取时间：", currentTime - startTime);
+    console.log("PVcount获取时间：", currentTime - startTime, "ms");
     startTime = currentTime;
 
     const loadPageTimeList = await loadPageInfoModel.getPageLoadTimeByCustomerKey(monitorIdSql, customerKeySql, happenTimeSql);
     currentTime = new Date().getTime();
-    console.log("loadPageTimeList获取时间：", currentTime - startTime);
+    console.log("loadPageTimeList获取时间：", currentTime - startTime, "ms");
 
     ctx.response.status = 200;
     ctx.response.body = {

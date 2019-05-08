@@ -85,14 +85,27 @@ class DetailContent extends React.Component {
         });
     }
 
+    timeLineItem = (data) => {
+        return data.map((item, index) => {
+            if (item.uploadType === 'CUSTOMER_PV') {
+                return (
+                    <Timeline.Item dot={<Icon type="compass" />}>进入页面{item.completeUrl}</Timeline.Item>
+                )
+            } else {
+                // <Icon type="sync" />
+                return (
+                    <Timeline.Item></Timeline.Item>
+                )
+            }
+        });
+    }
+
     render () {
-        console.log(this.props.jsErrorInfo);
         const info = this.props.jsErrorInfo;
         let data = {};
         if (Object.keys(info).length) {
             data = this.analysisInfo(info);
         }
-        console.log(data);
         let osIcon = null;
         if (data.osName === 'android') {
             osIcon = <Icon type="android" />;
@@ -108,6 +121,7 @@ class DetailContent extends React.Component {
             deviceicon = <Icon type="mobile" />;
         }
 
+        console.log(this.props.jsErrorTrack);
         return (
             <div className="detailContent">
                 <Row className="detailContent-icon">
@@ -139,7 +153,7 @@ class DetailContent extends React.Component {
                     </Col>
                 </Row>
                 <Row className="detailContent-footmark">
-                    <Collapse accordion bordered={false}>
+                    <Collapse accordion bordered={false} activeKey="1">
                         <Panel header="足迹" key="1">
                             <Timeline>
                                 <Timeline.Item color="green">进入页面</Timeline.Item>
@@ -152,7 +166,10 @@ class DetailContent extends React.Component {
                 <Row className="detailContent-stackCode">
                     <Col>
                         <div style={{ padding: '10px' }}>
-                            <h3 style={{color: '#968ba0', marginBottom: '20px'}}>EXCEPTION</h3>
+                            <h3 style={{color: '#968ba0', marginBottom: '20px'}}>
+                                <Icon type="heat-map" style={{marginRight: '10px', color: 'red'}} />
+                                EXCEPTION
+                            </h3>
                             <h5 style={{fontSize: '15px'}}>{this.props.errorType}</h5>
                             <pre style={{fontSize: '12px'}}>{this.props.errorMsg}</pre>
                         </div>
@@ -163,7 +180,7 @@ class DetailContent extends React.Component {
                             :
                             {this.props.stackCodeCol}
                         </div>
-                        <div ref={this.stackCodeContent}>
+                        <div ref={this.stackCodeContent} className="detailContent-stackCode-content">
                             {
                                 this.props.stackCodeArr.map((item, index) => {
                                     const i = this.props.stackCodeStart + index + 1;

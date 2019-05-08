@@ -47,8 +47,20 @@ const deleteHttpLogInfo = async (id) => {
  * @param {*} happenTimeSql 
  */
 const getHttpLogInfoByUser = async (monitorIdSql, customerKeySql, happenTimeSql) => {
-    const sql = "select * from HttpLogInfo where " + monitorIdSql + " and " +  customerKeySql + " and " + happenTimeSql;
+    const sql = "select * from httpLogInfos where " + monitorIdSql + " and " +  customerKeySql + " and " + happenTimeSql;
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+const getHttpLogTrack = async (startTime, endTime, customerKey) => {
+    return HttpLogInfo.findAll({
+        where: {
+            happenTime: {
+                $gte: startTime,
+                $lte: endTime,
+            },
+            customerKey,
+        }
+    })
 }
 
 export default {
@@ -58,4 +70,5 @@ export default {
     getHttpLogInfoDetail,
     deleteHttpLogInfo,
     getHttpLogInfoByUser,
+    getHttpLogTrack,
 }

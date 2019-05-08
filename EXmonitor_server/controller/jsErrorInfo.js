@@ -1,6 +1,9 @@
 import moment from 'moment';
 import jsErrorInfoModel from '../modules/jsErrorInfo.js';
-import customerPVModal from '../modules/customerPV.js';
+import customerPVModel from '../modules/customerPV.js';
+import behaviorModel from '../modules/behaviorInfo.js';
+import httpLogModel from '../modules/httpLogInfo.js';
+import screenShotModel from '../modules/screenShotInfo.js';
 import util from '../util/index.js';
 
 /**
@@ -201,9 +204,9 @@ const getJsErrorInfoByOs = async (ctx) => {
     result.iosCount = (await jsErrorInfoModel.getJsErrorInfoIosCount(param))[0].count;
     result.androidCount = (await jsErrorInfoModel.getJsErrorInfoAndroidCount(param))[0].count;
 
-    result.pcPV = (await customerPVModal.getCustomerPcPvCount(param))[0].count;
-    result.iosPV = (await customerPVModal.getCustomerIosPvCount(param))[0].count;
-    result.androidPV = (await customerPVModal.getCustomerAndroidCount(param))[0].count;
+    result.pcPV = (await customerPVModel.getCustomerPcPvCount(param))[0].count;
+    result.iosPV = (await customerPVModel.getCustomerIosPvCount(param))[0].count;
+    result.androidPV = (await customerPVModel.getCustomerAndroidCount(param))[0].count;
 
     ctx.response.status = 200;
     ctx.response.body = {
@@ -334,7 +337,7 @@ const deleteJsErrorInfoById = async (ctx) => {
 
 const updateJsErrorInfoById = async (ctx) => {
     const id = ctx.params.id;
-    const param = ctx.request.bodyl;
+    const param = ctx.request.body;
     if (id) {
         await jsErrorInfoModel.updateJsErrorInfo(id, param);
         const data = jsErrorInfoModel.getJsErrorInfoDetail(id);
@@ -353,6 +356,33 @@ const updateJsErrorInfoById = async (ctx) => {
     }
 }
 
+const getJsErrorTrackById = async (ctx) => {
+    const id = ctx.params.id;
+    const jsErrorInfo = await jsErrorInfoModel.getJsErrorInfoDetail(id);
+    const pageKey = jsErrorInfo.pageKey;
+    const endTime = jsErrorInfo.happenTime;
+    const customerKey = jsErrorInfo.customerKey;
+    // 根据pageKey查询customerInfo信息
+    const customerInfo = await customerPVModel.getCustomerInfoByPageKey(pageKey);
+    const startTime = customerInfo.happenTime;
+    // 根据时间和customerKey查询在startTime和endTime区间内的httpLog、behaviorInfo、screenShotInfo
+    const behaviorInfoArr = await behaviorModel.getBehaviorTrack(startTime, endTime, customerKey);
+    const httpLogInfoArr = await httpLogModel.getHttpLogTrack(startTime, endTime, customerKey);
+    const screenShotInfoArr = await screenShotModel.getScreenShotTrack(startTime, endTime, customerKey);
+    const data = [].concat(customerInfo, behaviorInfoArr, httpLogInfoArr, screenShotInfoArr);
+    data.sort((a, b) => {
+        return Number(a.happenTime) - Number(b.happenTime);
+    });
+    ctx.response.status = 200;
+    ctx.response.body = {
+        code: 200,
+        message: "查询成功",
+        data: {
+            data,
+        }
+    }
+}
+
 export default {
     create,
     getJsErrorInfoList,
@@ -368,4 +398,5 @@ export default {
     getErrorInfoDetailById,
     deleteJsErrorInfoById,
     updateJsErrorInfoById,
+    getJsErrorTrackById,
 }

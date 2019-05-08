@@ -72,6 +72,18 @@ const getBehaviorInfoByUser = async (monitorIdSql, customerKeySql, happenTimeSql
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
+const getBehaviorTrack = async (startTime, endTime, customerKey) => {
+    return BehaviorInfo.findAll({
+        where: {
+            happenTime: {
+                $gte: startTime,
+                $lte: endTime,
+            },
+            customerKey,
+        }
+    })
+}
+
 export default {
     createBehaviorInfo,
     updateBehaviorInfo,
@@ -79,5 +91,6 @@ export default {
     getBehaviorInfoDetail,
     deleteBehaviorInfo,
     getBehaviorInfoByUser,
+    getBehaviorTrack,
 }
 

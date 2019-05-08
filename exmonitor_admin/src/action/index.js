@@ -1,7 +1,6 @@
 import { message } from 'antd';
 import * as types from '../constant/actionType.js';
 import api from '../api/index.js';
-import { promises } from 'fs';
 
 const receiveLogin = (user) => {
     return {
@@ -471,6 +470,29 @@ const getJsErrorInfoStackCode = (data) => {
     }
 }
 
+const receiveJsErrorTrack = (data) => {
+    return {
+        type: types.JSERROR_TRACK,
+        jsErrorTrack: data,
+    }
+}
+
+const getJsErrorTrack = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getJsErrorTrack(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveJsErrorTrack(res.data.data.data));
+                    resolve(res.data.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            });
+        });
+    }
+}
+
 
 export default {
     login,
@@ -496,4 +518,5 @@ export default {
     getIgnoreErrorList,
     dispatchMail,
     getJsErrorInfoStackCode,
+    getJsErrorTrack,
 }

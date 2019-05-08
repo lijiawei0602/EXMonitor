@@ -237,6 +237,14 @@ const getJsErrorInfoStackCode = async (data) => {
             sourceMapFileName = item;
         }
     });
+    if (!sourceMapFileName) {
+        return {
+            type: 'origin',
+            row,
+            col,
+            msg: errorMessage,
+        }
+    }
     // 根据对应的sourceMap文件获取源文件内容以及行列数
     const SourceMapData = await readFile(fileDir + '/' + sourceMapFileName);
     let sourceMapPath = {};
@@ -256,6 +264,7 @@ const getJsErrorInfoStackCode = async (data) => {
             const originContent = sourceMapJson.sourcesContent[sources.indexOf(originSource)];
         
             const obj =  {
+                type: 'sourcemap',
                 row: result.line,
                 col: result.column,
                 source: result.source,
