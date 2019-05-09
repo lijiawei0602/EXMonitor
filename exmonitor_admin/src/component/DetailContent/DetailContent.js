@@ -1,10 +1,11 @@
 import React from 'react';
 import moment from 'moment';
 import Zmage from 'react-zmage'
-import { Row, Col, Icon, Collapse, Timeline } from 'antd';
+import { Row, Col, Icon, Collapse, Timeline, Tabs } from 'antd';
 import './DetailContent.less';
 import chrome from '../../assets/chrome.png';
 const Panel = Collapse.Panel;
+const TabPane = Tabs.TabPane;
 
 class DetailContent extends React.Component {
     constructor (props) {
@@ -307,8 +308,17 @@ class DetailContent extends React.Component {
                                 <Icon type="heat-map" style={{marginRight: '10px', color: 'red'}} />
                                 EXCEPTION
                             </h3>
-                            <h5 style={{fontSize: '15px'}}>{this.props.errorType}</h5>
-                            <pre style={{fontSize: '12px'}}>{this.props.errorMsg}</pre>
+                            <Tabs>
+                                <TabPane tab="异常信息" key="1">
+                                    <h5 style={{fontSize: '15px'}}>{this.props.errorType}</h5>
+                                    <pre style={{fontSize: '12px'}}>{this.props.errorMsg}</pre>
+                                </TabPane>
+                                <TabPane tab="堆栈明细" key="2">
+                                    <pre style={{fontSize: '12px'}}>
+                                        {this.props.errorStack}
+                                    </pre>
+                                </TabPane>
+                            </Tabs>
                         </div>
                         <div className="detailContent-stackCode-header" onClick={this.handleStackCodeClick}>
                             {this.props.stackCodeSource}

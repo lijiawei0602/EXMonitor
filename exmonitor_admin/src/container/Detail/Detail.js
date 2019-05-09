@@ -174,7 +174,7 @@ class Detail extends React.Component {
 
     render () {
         const { stackCodeRow, stackCodeCol, stackCodeSource, stackCodeArr, stackCodeStart } = this.state;
-        let { errorMessage, completeUrl, createdAt } = this.props.jsErrorInfo;
+        let { errorMessage, completeUrl, createdAt, errorStack } = this.props.jsErrorInfo;
         const { count } = this.props.jsErrorInfoAffect || {};
         errorMessage = errorMessage || '';
         const errorType = errorMessage.split(':')[0];
@@ -262,6 +262,7 @@ class Detail extends React.Component {
                             <DetailContent
                                 errorType={errorType}
                                 errorMsg={errorMsg}
+                                errorStack={errorStack}
                                 jsErrorInfo={this.props.jsErrorInfo}
                                 stackCodeStart={stackCodeStart}
                                 stackCodeArr={stackCodeArr}

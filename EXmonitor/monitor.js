@@ -311,25 +311,25 @@
      */
     function recordJSError(){
         // 重写console.error,用于捕获全面的报错信息
-        var oldError = console.error;
-        console.error = function(){
-            var errorMsg = arguments[0] && arguments[0].message;
-            var url = LOCACTION;
-            var lineNumber = 0;
-            var columnNumber = 0;
-            var errorObj = arguments[0] && arguments[0].stack;
-            if(!errorObj)
-                errorObj = arguments[0];
-            // 如果在onerror处捕获了，则无须在此处上报了
-            !jsMonitorStarted && siftAndMakeUpMsg(errorMsg, url, lineNumber, columnNumber, errorObj);
-            return oldError.apply(console, arguments);
-        };
+        // var oldError = console.error;
+        // console.error = function(){
+        //     var errorMsg = arguments[0] && arguments[0].message;
+        //     var url = LOCACTION;
+        //     var lineNumber = 0;
+        //     var columnNumber = 0;
+        //     var errorObj = arguments[0] && arguments[0].stack;
+        //     if(!errorObj)
+        //         errorObj = arguments[0];
+        //     // 如果在onerror处捕获了，则无须在此处上报了
+        //     !jsMonitorStarted && siftAndMakeUpMsg(errorMsg, url, lineNumber, columnNumber, errorObj);
+        //     return oldError.apply(console, arguments);
+        // };
         // 重写onerror进行jsError的监听
         window.onerror = function(errorMsg, url, lineNumber, columnNumber, errObj){
             jsMonitorStarted = true;
-            if (errObj) {
-                console.error(errObj.stack || errorMsg);
-            }
+            // if (errObj) {
+            //     console.error(errObj.stack || errorMsg);
+            // }
             var errStack = errObj ? errObj.stack : null;
             siftAndMakeUpMsg(errorMsg, url, lineNumber, columnNumber, errStack);
         };
