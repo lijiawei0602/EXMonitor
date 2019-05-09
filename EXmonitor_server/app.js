@@ -24,14 +24,18 @@ app.use(static1(__dirname));
 // 打印日志
 app.use(logger());
 // 处理文件上传 ctx.request.files.
-app.use(KoaBody({
-    multipart: true,
-    formidable: {
-        maxFieldsSize: 20 * 1024 * 1024,
-    },
-}));
+// app.use(KoaBody({
+//     multipart: true,
+//     formidable: {
+//         // maxFieldsSize: 20 * 1024 * 1024,
+//     },
+// }));
 // 解析body
-app.use(bodyparser());
+app.use(bodyparser({
+    formLimit: "1024mb",
+    jsonLimit: "1024mb",
+    textLimit: "1024mb",
+}));
 
 app.use(router.routes());
 app.use(router.allowedMethods());

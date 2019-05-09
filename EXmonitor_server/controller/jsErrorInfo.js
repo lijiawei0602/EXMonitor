@@ -369,7 +369,7 @@ const getJsErrorTrackById = async (ctx) => {
     const behaviorInfoArr = await behaviorModel.getBehaviorTrack(startTime, endTime, customerKey);
     const httpLogInfoArr = await httpLogModel.getHttpLogTrack(startTime, endTime, customerKey);
     const screenShotInfoArr = await screenShotModel.getScreenShotTrack(startTime, endTime, customerKey);
-    const data = [].concat(customerInfo, behaviorInfoArr, httpLogInfoArr, screenShotInfoArr);
+    const data = [].concat(customerInfo, behaviorInfoArr, httpLogInfoArr, screenShotInfoArr, jsErrorInfo);
     data.sort((a, b) => {
         return Number(a.happenTime) - Number(b.happenTime);
     });

@@ -57,7 +57,21 @@ class Detail extends React.Component {
         dispatch(actions.getJsErrorInfoStackCode({id: errorId})).then(res => {
             if (res.type === 'origin') {
                 // 后端暂未支持
-                const { row, col } = res;
+                const { row, col, file } = res;
+                const line = file.split('\n');
+
+                const startRow = row - 3 > 0 ? row - 3 : 0;
+                const endRow = (row + 3) >= (line.length - 1) ? (line.length - 1) : (row + 3);
+                const resArr = [];
+                for (let i = startRow; i <= endRow; i++) {
+                    resArr.push(line[i]);
+                }
+                this.setState({
+                    stackCodeStart: startRow,
+                    stackCodeRow: row,
+                    stackCodeCol: col,
+                    stackCodeArr: resArr,
+                });
             } else if (res.type === 'sourcemap') {
                 const { row, col, file, source } = res;
                 const line = file.split('\n');

@@ -520,7 +520,7 @@
             var width = shotDom.offsetWidth;    // 获取dom宽度
             var height = shotDom.offsetHeight;  //获取dom高度
             var canvas = document.createElement('canvas');
-            var scale = 0.3;    // 定义任意放大倍数
+            var scale = 1;    // 定义任意放大倍数
             canvas.width = width * scale;
             canvas.height = height * scale;
             var context = canvas.getContext("2d");
@@ -530,8 +530,8 @@
                 scale: scale,
                 canvas: canvas,
                 logging: false, // 日志开关，便于查看html2canvas的内部执行流程
-                width: width,
-                height: height,
+                width: width * scale,
+                height: height * scale,
                 useCORS: true,  // 开启跨域配置
             };
             window.html2canvas && window.html2canvas(ele, opt).then(function(canvas) {

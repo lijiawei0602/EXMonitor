@@ -1,6 +1,9 @@
 import React from 'react';
+import moment from 'moment';
+import Zmage from 'react-zmage'
 import { Row, Col, Icon, Collapse, Timeline } from 'antd';
 import './DetailContent.less';
+import chrome from '../../assets/chrome.png';
 const Panel = Collapse.Panel;
 
 class DetailContent extends React.Component {
@@ -8,6 +11,7 @@ class DetailContent extends React.Component {
         super(props);
         this.state = {
             show: true,
+            showScrrenShot: false,
         }
         this.stackCodeContent = React.createRef();
     }
@@ -87,17 +91,147 @@ class DetailContent extends React.Component {
 
     timeLineItem = (data) => {
         return data.map((item, index) => {
+            const time = moment(new Date(Number(item.happenTime)).getTime()).format('HH:mm:ss');
+            
             if (item.uploadType === 'CUSTOMER_PV') {
                 return (
-                    <Timeline.Item dot={<Icon type="compass" />}>进入页面{item.completeUrl}</Timeline.Item>
+                    <Timeline.Item className="detailContent-footmark-item" key={index} dot={<Icon type="flag" style={{color: '#2c58a8', fontSize: '12px', border: '1px solid #2c58a8', padding: '5px', borderRadius: '50%'}} />}>
+                        <p className="detailContent-footmark-item-topic">进入页面</p>
+                        <a href={item.completeUrl}>{item.completeUrl}</a>
+                        <span className="detailContent-footmark-item-time">{time}</span>
+                    </Timeline.Item>
                 )
-            } else {
-                // <Icon type="sync" />
+            } else if (item.uploadType === 'HTTP_LOG') {
                 return (
-                    <Timeline.Item></Timeline.Item>
+                    <Timeline.Item className="detailContent-footmark-item" key={index} dot={<Icon type="sync" style={{color: '#3fa372', fontSize: '12px', border: '1px solid #3fa372', padding: '5px', borderRadius: '50%'}} />}>
+                        <p className="detailContent-footmark-item-topic">
+                            ajax{item.statusResult}
+                            <span style={{marginLeft: '30px', fontWeight: 'normal', fontSize: '12px'}}>{item.httpUrl}  <i style={{color: '#3fa372', marginLeft: '10px'}}>[{item.status}]</i></span>
+                        </p>
+                        {
+                            item.statusResult === '请求返回'
+                            ?
+                            <div>
+                                result
+                                <span style={{marginLeft: '80px', fontSize: '12px'}}>{item.statusText}</span>
+                            </div>
+                            :
+                            null
+                        } 
+                        <span className="detailContent-footmark-item-time">{time}</span>
+                    </Timeline.Item>
+                )
+            } else if (item.uploadType === 'BEHAVIOR_INFO') {
+                return (
+                    <Timeline.Item className="detailContent-footmark-item" key={index} dot={<Icon type="user" style={{color: '#6c5fc7', fontSize: '12px', border: '1px solid #6c5fc7', padding: '5px', borderRadius: '50%'}} />}>
+                        <p className="detailContent-footmark-item-topic">
+                            {item.behaviorType}
+                            <span style={{marginLeft: '80px', fontWeight: 'normal', fontSize: '12px'}}>
+                                {item.tagName} .{item.className}
+                            </span>
+                        </p>
+                        {
+                            item.innerText
+                            ?
+                            <p>
+                                innerText
+                                <span style={{marginLeft: '50px', fontSize: '12px'}}>123{item.innerText}</span>
+                            </p>
+                            :
+                            null
+                        }
+                        {
+                            item.innerValue
+                            ?
+                            <p>
+                                inputValue
+                                <span style={{marginLeft: '50px', fontSize: '12px'}}>123{item.inputValue}</span>
+                            </p>
+                            :
+                            null
+                        }
+                        {
+                            item.placeholder === 'undefined'
+                            ?
+                            null
+                            :
+                            <p>
+                                placeholder
+                                <span style={{marginLeft: '50px', fontSize: '12px'}}>123{item.placeholder}</span>
+                            </p>
+                        }
+                        <span className="detailContent-footmark-item-time">{time}</span>
+                    </Timeline.Item>
+                )
+            } else if (item.uploadType === 'SCREEN_SHOT') {
+                const imgSrc = this.byteToString(item.screenInfo.data);
+                return (
+                    <Timeline.Item className="detailContent-footmark-item" key={index} dot={<Icon type="user" style={{color: '#6c5fc7', fontSize: '12px', border: '1px solid #6c5fc7', padding: '5px', borderRadius: '50%'}} />}>
+                        <p className="detailContent-footmark-item-topic">
+                            屏幕截图
+                            <span style={{color: '#1890ff', cursor: 'pointer', marginLeft: '55px', fontSize: '12px'}} onClick={this.handleShowScreenShot}>预览</span>
+                        </p>
+                        <div style={{fontSize: '12px'}}>
+                            描述
+                            <span style={{marginLeft: '90px'}}>{item.description}</span>
+                        </div>
+                        <span className="detailContent-footmark-item-time">{time}</span>
+                        {
+                                this.state.showScreenShot
+                                ?
+                                <div className="mark" onClick={this.handleShowScreenShot}>
+                                    <Zmage src={imgSrc} alt="屏幕截图" className="detailContent-footmark-item-screenShot"/>
+                                </div>
+                                :
+                                null
+                            }
+                    </Timeline.Item>
+                )
+            } else if (item.uploadType === 'JS_ERROR') {
+                return (
+                    <Timeline.Item className="detailContent-footmark-item" style={{background: '#fffcfb'}} key={index} dot={<Icon type="warning" theme="filled" style={{color: 'red', fontSize: '12px', border: '1px solid #bf2a1d', padding: '5px', borderRadius: '50%'}} />}>
+                        <p className="detailContent-footmark-item-topic">
+                            <span style={{color: '#bf2a1d'}}>发生错误</span>
+                            <span style={{marginLeft: '55px', fontWeight: 'normal', fontSize: '12px', color: '#bf2a1d'}}>{item.errorMessage}</span>
+                        </p>
+                        <span className="detailContent-footmark-item-time">{time}</span>
+                    </Timeline.Item>
                 )
             }
         });
+    }
+
+    handleShowScreenShot = (e) => {
+        if (e.target.tagName.toLowerCase() === 'img') {
+            return;
+        }
+        this.setState({
+            showScreenShot: !this.state.showScreenShot,
+        })
+    }
+
+    byteToString = (arr) =>  {
+        if(typeof arr === 'string') {
+            return arr;
+        }
+        var str = '',
+            _arr = arr;
+        for(var i = 0; i < _arr.length; i++) {
+            var one = _arr[i].toString(2),
+                v = one.match(/^1+?(?=0)/);
+            if(v && one.length === 8) {
+                var bytesLength = v[0].length;
+                var store = _arr[i].toString(2).slice(7 - bytesLength);
+                for(var st = 1; st < bytesLength; st++) {
+                    store += _arr[st + i].toString(2).slice(2);
+                }
+                str += String.fromCharCode(parseInt(store, 2));
+                i += bytesLength - 1;
+            } else {
+                str += String.fromCharCode(_arr[i]);
+            }
+        }
+        return str;
     }
 
     render () {
@@ -105,6 +239,12 @@ class DetailContent extends React.Component {
         let data = {};
         if (Object.keys(info).length) {
             data = this.analysisInfo(info);
+        }
+        let browserIcon = null;
+        if (data.browserName === 'chrome') {
+            browserIcon = <img src={chrome} alt="" style={{width: '50px'}} />
+        } else {
+            browserIcon = <Icon type="ie" style={{color: '#1890ff'}} />
         }
         let osIcon = null;
         if (data.osName === 'android') {
@@ -121,7 +261,6 @@ class DetailContent extends React.Component {
             deviceicon = <Icon type="mobile" />;
         }
 
-        console.log(this.props.jsErrorTrack);
         return (
             <div className="detailContent">
                 <Row className="detailContent-icon">
@@ -132,7 +271,7 @@ class DetailContent extends React.Component {
                         </div>
                     </Col>
                     <Col span={6} style={{ padding: '20px', display: 'flex', alignItems: 'center' }}>
-                        <Icon type="calendar" />
+                        {browserIcon}
                         <div className="detailContent-icon-right">
                             <div>{data.browserName}</div>
                             <span>版本：{data.browserVersion || '未知'}</span>
@@ -153,12 +292,10 @@ class DetailContent extends React.Component {
                     </Col>
                 </Row>
                 <Row className="detailContent-footmark">
-                    <Collapse accordion bordered={false} activeKey="1">
+                    <Collapse accordion bordered={false} defaultActiveKey={['1']}>
                         <Panel header="足迹" key="1">
                             <Timeline>
-                                <Timeline.Item color="green">进入页面</Timeline.Item>
-                                <Timeline.Item color="green">点击按钮</Timeline.Item>
-                                <Timeline.Item color="red">发生了一个错误 noerror</Timeline.Item>
+                                {this.timeLineItem(this.props.jsErrorTrack)}
                             </Timeline>
                         </Panel>
                     </Collapse>
