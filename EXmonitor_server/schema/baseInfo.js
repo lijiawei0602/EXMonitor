@@ -26,7 +26,7 @@ const baseInfo = (DataTypes) => {
             field: 'customerKey',
         },
         // 发生的页面URL
-        simleUrl: {
+        simpleUrl: {
             type: DataTypes.TEXT,
             allowNull: true,
             field: 'simpleUrl',

@@ -89,6 +89,7 @@ class Home extends React.Component {
                 day: 30,
             }
             dispatch(actions.getJsErrorRate(rateData)).then(res => {
+                console.log(res);
                 this.setState({
                     allRate: (((res.pcCount + res.iosCount + res.androidCount) / (res.pcPV + res.iosPV + res.androidPV)) || 0) * 100,
                     pcRate: ((res.pcCount / res.pcPV) || 0) * 100,

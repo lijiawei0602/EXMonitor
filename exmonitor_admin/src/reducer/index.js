@@ -104,11 +104,26 @@ const ignoreError = (state = ignoreErrorInitialState, action) => {
     }
 }
 
+const behaviorInitialState = {
+    behaviorRecord: [],
+}
+const behavior = (state = behaviorInitialState, action) => {
+    switch (action.type) {
+        case types.BEHAVIOR_RECORD:
+            return Object.assign({}, state, {behaviorRecord: action.behaviorRecord});
+        case types.CUSTOMER_INFO:
+            return Object.assign({}, state, {customerInfo: action.customerInfo});
+        default:
+            return state
+    }
+}
+
 export default combineReducers({
     user,
     project,
     mail,
     jsError,
     ignoreError,
+    behavior,
     routing: routerReducer,
 })

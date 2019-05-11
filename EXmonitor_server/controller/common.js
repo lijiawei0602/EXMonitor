@@ -180,7 +180,7 @@ const searchCustomerInfo = async (ctx) => {
         customerKeyList.push(item.customerKey);
     });
     // 拼接monitorIdSql/customerKeySql/happenTimeSql/userIdSql查询参数
-    const monitorIdSql = " monitorIdSql='" + param.monitorId + "' ";
+    const monitorIdSql = " monitorId='" + param.monitorId + "' ";
     const happenTimeSql = " happenTime>'" + param.happenTimeScope + "' ";
     let customerKeySql = "";
     if (customerKeyList.length) {
@@ -201,7 +201,7 @@ const searchCustomerInfo = async (ctx) => {
     console.log("个人信息获取时间：", currentTime - startTime, "ms");
     startTime = currentTime;
     
-    const pvCountList = await customerPVModel.getCustomerPVByCustomerKey(monitorIdSql, customerKey, happenTimeSql);
+    const pvCountList = await customerPVModel.getCustomerPVByCustomerKey(monitorIdSql, customerKeySql, happenTimeSql);
     currentTime = new Date().getTime();
     console.log("PVcount获取时间：", currentTime - startTime, "ms");
     startTime = currentTime;

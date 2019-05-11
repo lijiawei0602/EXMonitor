@@ -106,7 +106,7 @@ const getCustomerDetailByCustomerKey = async (monitorIdSql, customerKeySql, happ
  * @param {*} happenTimeSql 
  */
 const getCustomerPVByCustomerKey = async (monitorIdSql, customerKeySql, happenTimeSql) => {
-    const sql = "select cast(simpleUrl as char) as simpleUrl, count(simpleUrl) where " + monitorIdSql + " and " + customerKeySql + " and " + happenTimeSql + " group by simpleUrl";
+    const sql = "select cast(simpleUrl as char) as simpleUrl, count(simpleUrl) as count from customerPVs where " + monitorIdSql + " and " + customerKeySql + " and " + happenTimeSql + " group by simpleUrl";
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 

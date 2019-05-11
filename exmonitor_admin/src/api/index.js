@@ -12,6 +12,10 @@ axios.defaults.baseURL = `${apiHost}/api`;
 axios.interceptors.response.use(res => {
     if (res.status === 200) {
         return Promise.resolve(res);
+    } else if (res.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        return Promise.reject(res);
     } else {
         message.error(res.data.message);
         return Promise.reject(res);
@@ -42,6 +46,8 @@ const apiUrl = {
     "dispatchMail": '/dispatch',
     "jsErrorInfoStackCode": '/getJsErrorInfoStackCode',
     "jsErrorTrack": '/getJsErrorTrack',
+    "behaviorRecord": '/searchBehaviorRecord',
+    "searchCustomerInfo": '/searchCustomerInfo',
 }
 
 
@@ -195,6 +201,22 @@ const getJsErrorTrack = (data) => {
     return axios.get(`${apiUrl.jsErrorTrack}/${data.id}`);
 }
 
+const getBehaviorRecord = (data) => {
+    return axios.post(apiUrl.behaviorRecord, {
+        monitorId: data.monitorId,
+        timeScope: data.timeScope,
+        searchValue: data.searchValue,
+    });
+}
+
+const getSearchCustomerInfo = (data) => {
+    return axios.post(apiUrl.searchCustomerInfo, {
+        monitorId: data.monitorId,
+        timeScope: data.timeScope,
+        searchValue: data.searchValue,
+    });
+}
+
 export default {
     login,
     create,
@@ -219,4 +241,6 @@ export default {
     dispatchMail,
     getJsErrorInfoStackCode,
     getJsErrorTrack,
+    getBehaviorRecord,
+    getSearchCustomerInfo,
 };

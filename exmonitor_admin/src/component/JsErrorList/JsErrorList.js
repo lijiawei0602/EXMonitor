@@ -28,7 +28,7 @@ class JsErrorList extends React.Component {
                     width: 300,
                     dataIndex: 'customerKey',
                     render: (text, record) => {
-                        return(<a href='#'>{text}</a>);
+                        return(<a href={`#/Admin/behavior?monitorId=${record.monitorId}&customerKey=${text}`}>{text}</a>);
                     },
                 },
                 {

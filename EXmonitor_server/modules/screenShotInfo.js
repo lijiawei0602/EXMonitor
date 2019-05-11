@@ -48,7 +48,7 @@ const getScreenShotInfoByUser = async (monitorSql, userIdSql, happenTimeSql) => 
 }
 
 const getScreenShotTrack = async (startTime, endTime, customerKey) => {
-    endTime = (Number(endTime) + 2000).toString();
+    endTime = (Number(endTime) + 4000).toString();
     return ScreenShotInfo.findAll({
         where: {
             happenTime: {

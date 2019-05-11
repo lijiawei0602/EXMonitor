@@ -493,6 +493,52 @@ const getJsErrorTrack = (data) => {
     }
 }
 
+const receiveBehaviorRecord = (data) => {
+    return {
+        type: types.BEHAVIOR_RECORD,
+        behaviorRecord: data,
+    }
+}
+
+const getBehaviorRecord = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getBehaviorRecord(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveBehaviorRecord(res.data.data.behaviorList));
+                    resolve(res.data.data.behaviorList);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveSearchCustomerInfo = (data) => {
+    return {
+        type: types.CUSTOMER_INFO,
+        customerInfo: data,
+    }
+}
+
+const getSearchCustomerInfo = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getSearchCustomerInfo(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveSearchCustomerInfo(res.data.data));
+                    resolve(res.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
 
 export default {
     login,
@@ -519,4 +565,6 @@ export default {
     dispatchMail,
     getJsErrorInfoStackCode,
     getJsErrorTrack,
+    getBehaviorRecord,
+    getSearchCustomerInfo,
 }

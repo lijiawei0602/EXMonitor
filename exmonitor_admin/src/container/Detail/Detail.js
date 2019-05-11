@@ -34,9 +34,7 @@ class Detail extends React.Component {
         const jsErrorInfoData = {
             errorId,
         }
-        dispatch(actions.getJsErrorInfo(jsErrorInfoData)).then(res => {
-            console.log(res);
-        });
+        dispatch(actions.getJsErrorInfo(jsErrorInfoData));
         dispatch(actions.getMailListByMonitorId({ monitorId }));
 
         const jsErrorInfoAffect = {
@@ -74,6 +72,7 @@ class Detail extends React.Component {
                 });
             } else if (res.type === 'sourcemap') {
                 const { row, col, file, source } = res;
+                console.log(res);
                 const line = file.split('\n');
 
                 const startRow = row - 3 > 0 ? row - 3 : 0;
