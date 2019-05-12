@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Form, Row, Col, Select, Icon, Modal, Tag, Input, Tooltip, message } from 'antd';
+import { Form, Row, Col, Select, Icon, Modal, Tag, Input, Tooltip, message, AutoComplete } from 'antd';
 import './Mail.less';
 import actions from '../../action/index.js';
 import action from '../../action/index.js';
-const FormItem = Form.Item;
+const InputGroup = Input.Group;
 const Option = Select.Option;
 
 class Mail extends React.Component {
@@ -17,6 +17,7 @@ class Mail extends React.Component {
             clickIndex: 0,
             inputVisible: false,
             inputValue: '',
+            dataSource: [],
         }
     }
 
@@ -121,11 +122,20 @@ class Mail extends React.Component {
         })
     }
 
-    handleInputChange = (e) => {
+    handleInputChange = (value) => {
         this.setState({
-            inputValue: e.target.value,
-        });
+            dataSource: !value || value.indexOf('@') >= 0 ? [] : [
+              `${value}@gmail.com`,
+              `${value}@163.com`,
+              `${value}@qq.com`,
+            ],
+            inputValue: value,
+          });
+        // this.setState({
+        //     inputValue: e.target.value,
+        // });
     }
+
 
     handleInputConfirm = () => {
         const { dispatch, user } = this.props;
@@ -233,16 +243,25 @@ class Mail extends React.Component {
                     }
                     {
                         inputVisible && (
-                            <Input 
+                            // <Input 
+                            //     ref={(c) => this.input = c}
+                            //     type="text"
+                            //     size="small"
+                            //     style={{width: 78}}
+                            //     value={inputValue}
+                            //     onChange={this.handleInputChange}
+                            //     onBlur={this.handleInputConfirm}
+                            //     onPressEnter={this.handleInputConfirm}
+                            // />
+                            <AutoComplete
                                 ref={(c) => this.input = c}
-                                type="text"
-                                size="small"
-                                style={{width: 78}}
+                                // style={{width: 78}}
                                 value={inputValue}
+                                dataSource={this.state.dataSource}
                                 onChange={this.handleInputChange}
                                 onBlur={this.handleInputConfirm}
                                 onPressEnter={this.handleInputConfirm}
-                            />
+                            ></AutoComplete>
                         )
                     }
                     {

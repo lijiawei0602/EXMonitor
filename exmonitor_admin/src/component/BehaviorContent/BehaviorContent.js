@@ -1,7 +1,9 @@
 import React from 'react';
 import moment from 'moment';
 import { Timeline, Icon, Col, Row, Card } from 'antd';
+import echarts from 'echarts'
 import Zmage from 'react-zmage'
+import { loadPageInfoOpt } from '../../chartConfig/loadPageInfoOpt';
 import './BehaviorContent.less';
 
 class BehaviorContent extends React.Component {
@@ -15,8 +17,8 @@ class BehaviorContent extends React.Component {
     }
 
     componentWillReceiveProps (nextProps) {
-        const { behaviorRecord } = nextProps;
-        if (behaviorRecord.length) {
+        const { behaviorRecord, customerInfo } = nextProps;
+        if (behaviorRecord.length && this.props.behaviorRecord.length !== behaviorRecord.length) {
             behaviorRecord.forEach((item, index) => {
                 const time = moment(new Date(Number(item.happenTime)).getTime()).format('YYYY-MM-DD HH:mm:ss');
                 if (index === 0) {
@@ -37,6 +39,28 @@ class BehaviorContent extends React.Component {
                 }
             })
         }
+
+        if(customerInfo && this.props.behaviorRecord.length) {
+            const loadPageChart = echarts.init(document.getElementById('loadPageChart'));
+            const options = loadPageInfoOpt(customerInfo.loadPageTimeList);
+            loadPageChart.setOption(options);
+        }
+    }
+
+    componentDidUpdate (prevProps, prevState) {
+        const { customerInfo, behaviorRecord } = this.props;
+        if (customerInfo && behaviorRecord.length) {
+            const loadPageChart = echarts.init(document.getElementById('loadPageChart'));
+            const options = loadPageInfoOpt(customerInfo.loadPageTimeList);
+            loadPageChart.setOption(options);
+            window.addEventListener('resize', () => {
+                loadPageChart.resize();
+            });
+        }
+    }
+
+    componentWillUnmount () {
+        window.onresize = null;
     }
 
     timeLineItem = (data) => {
@@ -84,7 +108,7 @@ class BehaviorContent extends React.Component {
                             ?
                             <p>
                                 innerText
-                                <span style={{marginLeft: '50px', fontSize: '12px'}}>123{item.innerText}</span>
+                                <span style={{marginLeft: '50px', fontSize: '12px'}}>{item.innerText}</span>
                             </p>
                             :
                             null
@@ -94,19 +118,19 @@ class BehaviorContent extends React.Component {
                             ?
                             <p>
                                 inputValue
-                                <span style={{marginLeft: '50px', fontSize: '12px'}}>123{item.inputValue}</span>
+                                <span style={{marginLeft: '50px', fontSize: '12px'}}>{item.inputValue}</span>
                             </p>
                             :
                             null
                         }
                         {
-                            item.placeholder === 'undefined'
+                            item.placeholder === undefined
                             ?
                             null
                             :
                             <p>
                                 placeholder
-                                <span style={{marginLeft: '50px', fontSize: '12px'}}>123{item.placeholder}</span>
+                                <span style={{marginLeft: '50px', fontSize: '12px'}}>{item.placeholder}</span>
                             </p>
                         }
                         <span className="detailContent-footmark-item-time">{time}</span>
@@ -174,7 +198,7 @@ class BehaviorContent extends React.Component {
                             <p>结束时间：{endTime}</p>
                             <p>行为记录条数：{behaviorRecord.length}</p>
                         </Card>
-                        <Card title="页面加载相关">
+                        <Card title="页面加载平均时长">
                             <div id="loadPageChart" style={{width: '100%', height: '300px'}}></div>
                         </Card>
                     </Col>

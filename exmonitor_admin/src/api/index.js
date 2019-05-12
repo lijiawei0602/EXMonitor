@@ -48,6 +48,8 @@ const apiUrl = {
     "jsErrorTrack": '/getJsErrorTrack',
     "behaviorRecord": '/searchBehaviorRecord',
     "searchCustomerInfo": '/searchCustomerInfo',
+    "customerCount": '/getCustomerCountByTime',
+    "customerCOuntPv": '/getCustomerCountByTimePv',
 }
 
 
@@ -217,6 +219,22 @@ const getSearchCustomerInfo = (data) => {
     });
 }
 
+const getCustomerCount = (data) => {
+    return axios.get(apiUrl.getCustomerCount, {
+        params: {
+            ...data,
+        }
+    });
+}
+
+const getCustomerCountPv = (data) => {
+    return axios.get(apiUrl.getCustomerCountPv, {
+        params: {
+            ...data,
+        }
+    });
+}
+
 export default {
     login,
     create,
@@ -243,4 +261,6 @@ export default {
     getJsErrorTrack,
     getBehaviorRecord,
     getSearchCustomerInfo,
+    getCustomerCount,
+    getCustomerCountPv,
 };

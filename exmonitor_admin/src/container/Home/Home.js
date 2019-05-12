@@ -47,6 +47,19 @@ class Home extends React.Component {
             dispatch(actions.getJsErrorMonthList(data)).then(res => {
                 this.handleMonthData(res);
             });
+            // 获取天统计数据
+            const rateData = {
+                monitorId: this.props.currentProject.monitorId,
+                day: 30,
+            }
+            dispatch(actions.getJsErrorRate(rateData)).then(res => {
+                this.setState({
+                    allRate: (((res.pcCount + res.iosCount + res.androidCount) / (res.pcPV + res.iosPV + res.androidPV)) || 0) * 100,
+                    pcRate: ((res.pcCount / res.pcPV) || 0) * 100,
+                    iosRate: ((res.iosCount / res.iosPV) || 0) * 100,
+                    androidRate: ((res.androidCount / res.androidPV) || 0) * 100,
+                });
+            })
             const jsErrorData = {
                 monitorId: this.props.currentProject.monitorId,
                 limit: this.state.limit,
@@ -89,14 +102,13 @@ class Home extends React.Component {
                 day: 30,
             }
             dispatch(actions.getJsErrorRate(rateData)).then(res => {
-                console.log(res);
                 this.setState({
                     allRate: (((res.pcCount + res.iosCount + res.androidCount) / (res.pcPV + res.iosPV + res.androidPV)) || 0) * 100,
                     pcRate: ((res.pcCount / res.pcPV) || 0) * 100,
                     iosRate: ((res.iosCount / res.iosPV) || 0) * 100,
                     androidRate: ((res.androidCount / res.androidPV) || 0) * 100,
                 });
-            })
+            });
             // 获取当前应用错误信息列表
             const jsErrorData = {
                 monitorId: nextProps.currentProject.monitorId,

@@ -22,6 +22,8 @@ class Behavior extends React.Component {
         super(props);
         this.state = {
             timeScope: 1,
+            defaultCustomerKey: '',
+            flag: false,
         }
     }
 
@@ -41,9 +43,14 @@ class Behavior extends React.Component {
                 timeScope: timeScope || this.state.timeScope,
                 searchValue: customerKey,
             }
+            this.setState({
+                defaultCustomerKey: customerKey,
+            });
             dispatch(actions.getBehaviorRecord(behaviorData));
-            dispatch(actions.getSearchCustomerInfo(behaviorData)).then(res => {
-                console.log(res);
+            dispatch(actions.getSearchCustomerInfo(behaviorData));
+        } else {
+            this.setState({
+                flag: true,
             });
         }
     }
@@ -59,14 +66,18 @@ class Behavior extends React.Component {
             searchValue: value,
         }
         dispatch(actions.getBehaviorRecord(behaviorData));
-        dispatch(actions.getSearchCustomerInfo(behaviorData)).then(res => {
-            console.log(res);
-        });
+        dispatch(actions.getSearchCustomerInfo(behaviorData));
     }
 
     handleSelectChange = (value) => {
         this.setState({
             timeScope: value,
+        });
+    }
+
+    handleSearchChange = (e) => {
+        this.setState({
+            defaultCustomerKey: e.target.value,
         });
     }
 
@@ -81,6 +92,8 @@ class Behavior extends React.Component {
                             {this.dayOption()}
                         </Select>
                         <Search
+                            value={this.state.defaultCustomerKey}
+                            onChange={this.handleSearchChange}
                             style={{width: '50%'}}
                             placeholder="请输入CustomerKey"
                             onSearch={this.handleInputSearch}
@@ -89,7 +102,16 @@ class Behavior extends React.Component {
                     </InputGroup>
                 </div>
                 <div className="behavior-content">
-                    <BehaviorContent behaviorRecord={this.props.behaviorRecord}/>
+                {
+                    this.state.flag
+                    ?
+                    null
+                    :
+                    <BehaviorContent
+                        behaviorRecord={this.props.behaviorRecord}
+                        customerInfo={this.props.customerInfo}
+                    />
+                }
                 </div>
             </div>
         )
@@ -100,6 +122,7 @@ const mapStateToProps = (state, ownProps) => {
     return {
         currentProject: state.project.currentProject,
         behaviorRecord: state.behavior.behaviorRecord,
+        customerInfo: state.behavior.customerInfo,
     }
 }
 

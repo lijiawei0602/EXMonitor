@@ -14,6 +14,7 @@ import Info from './container/User/Info/Info.js';
 import Home from './container/Home/Home.js';
 import Detail from './container/Detail/Detail.js';
 import Behavior from './container/Behavior/Behavior.js';
+import Customer from './container/Customer/Customer.js';
 
 const store = configStore();
 
@@ -31,6 +32,7 @@ const LayoutRouter = () => (
             <Route exact path="/Admin/info" component={Info}></Route>
             <Route exact path="/Admin/detail" component={Detail}></Route>
             <Route exact path="/Admin/behavior" component={Behavior}></Route>
+            <Route exact path="/Admin/customer" component={Customer}></Route>
         </Switch>
     </Layout>
 )

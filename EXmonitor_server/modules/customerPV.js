@@ -79,12 +79,18 @@ const getCustomerAndroidCount = async (param) => {
 }
 
 /**
- * 获取日活量
+ * 获取日活量uv
  * @param {*} param 
  */
 const getCustomerCountByTime = async (param) => {
     const endDate = util.addDays(0 - param.timeScope);
     const sql = "select date_format(createdAt, 'Y%-m%-d%') as day, count(distinct(customerKey)) as count from loadPageInfos where createdAt>'" + endDate + "' and monitorId='" + param.monitorId + "' group by day";
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+const getCustomerCountByTimePv = async (param) => {
+    const endDate = util.addDays(0 - param.timeScope);
+    const sql = "select date_format(createdAt, 'Y%-m%-d%') as day, count(*) as count from loadPageInfos where createdAt>'" + endDate + "' and monitorId='" + param.monitorId + "' group by day";
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
@@ -153,6 +159,7 @@ export default {
     getCustomerIosPvCount,
     getCustomerAndroidCount,
     getCustomerCountByTime,
+    getCustomerCountByTimePv,
     getCustomerDetailByCustomerKey,
     getCustomerPVByCustomerKey,
     getCustomerKeyByUserId,

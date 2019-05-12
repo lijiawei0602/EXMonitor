@@ -94,6 +94,8 @@ class HeaderTop extends React.Component {
         const key = e.target.getAttribute('data-key');
         if (key === 'behavior') {
             this.props.history.push('/Admin/behavior');
+        } else if (key === 'customer') {
+            this.props.history.push('/Admin/customer');
         }
     }
 
@@ -128,7 +130,8 @@ class HeaderTop extends React.Component {
                             </div>
                         }
                         </Dropdown>
-                        <span to="/" className="header-menu" onClick={this.handleMenuClick} data-key="behavior">行为检索</span>
+                        <span className="header-menu" onClick={this.handleMenuClick} data-key="customer">访问统计</span>
+                        <span className="header-menu" onClick={this.handleMenuClick} data-key="behavior">行为检索</span>
                     </div>
                 </Header>
         )

@@ -29,9 +29,9 @@ router.post('/uploadLog', commonController.uploadLog);
  * 查询用户相关信息
  */
 // 根据用户查询所有的行为记录
-router.post('/searchBehaviorRecord', commonController.searchBehaviorRecord);
+router.post('/searchBehaviorRecord', verify, commonController.searchBehaviorRecord);
 // 根据用户查询用户详细信息
-router.post('/searchCustomerInfo', commonController.searchCustomerInfo);
+router.post('/searchCustomerInfo', verify, commonController.searchCustomerInfo);
 
 
 /**
@@ -94,8 +94,10 @@ router.get('/customerPV/:id', verify, customerPVController.getCustomerPVDetail);
 router.delete('/customerPV', verify, customerPVController.deleteCustomerPV);
 // 更新pv
 router.put('/customerPV', verify, customerPVController.update);
-// 获取日活量
+// 获取日活量Uv
 router.get('/getCustomerCountByTime', verify, customerPVController.getCustomerCountByTime);
+// 获取日活量Pv
+router.get('/getCustomerCountByTimePv', verify, customerPVController.getCustomerCountByTimePv);
 
 /**
 * 用户加载页面信息

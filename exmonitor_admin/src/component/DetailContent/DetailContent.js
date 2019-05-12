@@ -136,7 +136,7 @@ class DetailContent extends React.Component {
                             ?
                             <p>
                                 innerText
-                                <span style={{marginLeft: '50px', fontSize: '12px'}}>123{item.innerText}</span>
+                                <span style={{marginLeft: '50px', fontSize: '12px'}}>{item.innerText}</span>
                             </p>
                             :
                             null
@@ -146,7 +146,7 @@ class DetailContent extends React.Component {
                             ?
                             <p>
                                 inputValue
-                                <span style={{marginLeft: '50px', fontSize: '12px'}}>123{item.inputValue}</span>
+                                <span style={{marginLeft: '50px', fontSize: '12px'}}>{item.inputValue}</span>
                             </p>
                             :
                             null
@@ -158,7 +158,7 @@ class DetailContent extends React.Component {
                             :
                             <p>
                                 placeholder
-                                <span style={{marginLeft: '50px', fontSize: '12px'}}>123{item.placeholder}</span>
+                                <span style={{marginLeft: '50px', fontSize: '12px'}}>{item.placeholder}</span>
                             </p>
                         }
                         <span className="detailContent-footmark-item-time">{time}</span>
