@@ -118,6 +118,21 @@ const behavior = (state = behaviorInitialState, action) => {
     }
 }
 
+const customerInitialState = {
+    customerCount: [],
+    customerCountPv: [],
+}
+const customer = (state = customerInitialState, action) => {
+    switch (action.type) {
+        case types.CUSTOMER_COUNT:
+            return Object.assign({}, state, {customerCount: action.customerCount});
+        case types.CUSTOMER_COUNT_PV:
+            return Object.assign({}, state, {customerCountPv: action.customerCountPv});
+        default:
+            return state
+    }
+}
+
 export default combineReducers({
     user,
     project,
@@ -125,5 +140,6 @@ export default combineReducers({
     jsError,
     ignoreError,
     behavior,
+    customer,
     routing: routerReducer,
 })

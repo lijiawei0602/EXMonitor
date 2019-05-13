@@ -31,10 +31,19 @@ class HeaderTop extends React.Component {
                 monitorId,
                 projectName: decodeURIComponent(projectName),
             }));
+            localStorage.monitorId = monitorId;
         } else if (monitorId) {
             dispatch(actions.getProjectByMonitorId({monitorId})).then(res => {
                 dispatch(actions.switchProject(res));
             });
+            localStorage.monitorId = monitorId;
+        } else {
+            const monitorId = localStorage.monitorId;
+            if (monitorId) {
+                dispatch(actions.getProjectByMonitorId({monitorId})).then(res => {
+                    dispatch(actions.switchProject(res));
+                });
+            }
         }
         this.setState({
             searchParam: param,
@@ -46,6 +55,7 @@ class HeaderTop extends React.Component {
         // 页面初始化时获取对应数据
         if (!this.state.searchParam['monitorId'] && !this.props.currentProject.projectName && nextProps.projectList && nextProps.projectList.length) {
             dispatch(actions.switchProject(nextProps.projectList[0]));
+            localStorage.monitorId = nextProps.projectList[0].monitorId;
         }
     }
 
@@ -79,6 +89,7 @@ class HeaderTop extends React.Component {
             search: `?monitorId=${projectItem.monitorId}&projectName=${encodeURIComponent(projectItem.projectName)}`
         });
         dispatch(actions.switchProject(projectItem));
+        localStorage.monitorId = projectItem.monitorId;
     }
     handleUserExit = () => {
         localStorage.token = '';

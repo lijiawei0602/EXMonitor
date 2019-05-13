@@ -1,4 +1,5 @@
 import customerPVModel from '../modules/customerPV.js';
+import moment from 'moment';
 
 /**
  * 创建用户pv信息
@@ -119,28 +120,144 @@ const update = async (ctx) => {
  */
 const getCustomerCountByTime = async (ctx) => {
     const param = ctx.request.body;
-    const data = customerPVModel.getCustomerCountByTime(param);
-    ctx.response.status = 200;
-    ctx.response.body = {
-        code: 200,
-        message: "查询成功",
-        data: {
-            data,
+    const level = param.level;
+    if (level === 'hour') {
+        let data = [];
+        let dataPre = [];
+        const date = new Date().getTime();
+        const datePre = new Date().getTime() - 1 * 24 * 60 * 60 * 1000;
+        const time = moment(date).format('YYYY-MM-DD');
+        const timePre = moment(datePre).format('YYYY-MM-DD');
+        let isFinish = false;
+        for(let i = 0; i < 24; i++) {
+            const hour = `${i < 10 ? '0' + i : i}`;
+            const startTime = `${time} ${hour}:00:00`;
+            let endTime = `${time} ${hour}:59:59`;
+            if (new Date(endTime).getTime() > date) {
+                isFinish = true;
+                endTime = moment(date).format('YYYY-MM-DD HH:mm:ss');
+            }
+        const count = await customerPVModel.getCustomerCountByTime(startTime, endTime, param);
+
+            data.push({
+                hour,
+                count: count[0].count,
+            });
+            if (isFinish) {
+                break;
+            }
         }
-    };
+
+        let isFinishPre = false;
+        for(let i = 0; i < 24; i++) {
+            const hour = `${i < 10 ? '0' + i : i}`;
+            const startTime = `${timePre} ${hour}:00:00`;
+            let endTime = `${timePre} ${hour}:59:59`;
+            if (new Date(endTime).getTime() > datePre) {
+                isFinishPre = true;
+                endTime = moment(datePre).format('YYYY-MM-DD HH:mm:ss');
+            }
+        const count = await customerPVModel.getCustomerCountByTime(startTime, endTime, param);
+
+            dataPre.push({
+                hour,
+                count: count[0].count,
+            });
+            if (isFinishPre) {
+                break;
+            }
+        }
+        ctx.response.status = 200;
+        ctx.response.body = {
+            code: 200,
+            message: '查询成功',
+            data: {
+                'today': data,
+                'previous': dataPre,
+            }
+        }
+    } else if (level === 'day') {
+        const data = await customerPVModel.getCustomerCountByTime(param);
+        ctx.response.status = 200;
+        ctx.response.body = {
+            code: 200,
+            message: "查询成功",
+            data: {
+                data,
+            }
+        };
+    }
 }
 
 const getCustomerCountByTimePv = async (ctx) => {
     const param = ctx.request.body;
-    const data = customerPVModel.getCustomerCountByTimePv(param);
-    ctx.response.status = 200;
-    ctx.response.body = {
-        code: 200,
-        message: "查询成功",
-        data: {
-            data,
+    const level = param.level;
+    if (level === 'hour') {
+        let data = [];
+        let dataPre = [];
+        const date = new Date().getTime();
+        const datePre = new Date().getTime() - 1 * 24 * 60 * 60 * 1000;
+        const time = moment(date).format('YYYY-MM-DD');
+        const timePre = moment(datePre).format('YYYY-MM-DD');
+        let isFinish = false;
+        for(let i = 0; i < 24; i++) {
+            const hour = `${i < 10 ? '0' + i : i}`;
+            const startTime = `${time} ${hour}:00:00`;
+            let endTime = `${time} ${hour}:59:59`;
+            if (new Date(endTime).getTime() > date) {
+                isFinish = true;
+                endTime = moment(date).format('YYYY-MM-DD HH:mm:ss');
+            }
+            const count = await customerPVModel.getCustomerCountByTimePv(startTime, endTime, param);
+
+            data.push({
+                hour,
+                count: count[0].count,
+            });
+            if (isFinish) {
+                break;
+            }
         }
-    };
+
+        let isFinishPre = false;
+        for(let i = 0; i < 24; i++) {
+            const hour = `${i < 10 ? '0' + i : i}`;
+            const startTime = `${timePre} ${hour}:00:00`;
+            let endTime = `${timePre} ${hour}:59:59`;
+            if (new Date(endTime).getTime() > datePre) {
+                isFinishPre = true;
+                endTime = moment(datePre).format('YYYY-MM-DD HH:mm:ss');
+            }
+            const count = await customerPVModel.getCustomerCountByTimePv(startTime, endTime, param);
+
+            dataPre.push({
+                hour,
+                count: count[0].count,
+            });
+            if (isFinishPre) {
+                break;
+            }
+        }
+        ctx.response.status = 200;
+        ctx.response.body = {
+            code: 200,
+            message: '查询成功',
+            data: {
+                'today': data,
+                'previous': dataPre,
+            }
+        }
+    } else if (level === 'day') {
+        const data = await customerPVModel.getCustomerCountByDayPv(param);
+        ctx.response.status = 200;
+        ctx.response.body = {
+            code: 200,
+            message: "查询成功",
+            data: {
+                data,
+            }
+        };
+    }
 }
 
 

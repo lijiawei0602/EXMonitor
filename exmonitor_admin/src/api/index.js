@@ -49,7 +49,7 @@ const apiUrl = {
     "behaviorRecord": '/searchBehaviorRecord',
     "searchCustomerInfo": '/searchCustomerInfo',
     "customerCount": '/getCustomerCountByTime',
-    "customerCOuntPv": '/getCustomerCountByTimePv',
+    "customerCountPv": '/getCustomerCountByTimePv',
 }
 
 
@@ -220,18 +220,14 @@ const getSearchCustomerInfo = (data) => {
 }
 
 const getCustomerCount = (data) => {
-    return axios.get(apiUrl.getCustomerCount, {
-        params: {
-            ...data,
-        }
+    return axios.post(apiUrl.customerCount, {
+        ...data,
     });
 }
 
 const getCustomerCountPv = (data) => {
-    return axios.get(apiUrl.getCustomerCountPv, {
-        params: {
-            ...data,
-        }
+    return axios.post(apiUrl.customerCountPv, {
+        ...data,
     });
 }
 

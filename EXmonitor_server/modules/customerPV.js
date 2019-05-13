@@ -82,15 +82,25 @@ const getCustomerAndroidCount = async (param) => {
  * 获取日活量uv
  * @param {*} param 
  */
-const getCustomerCountByTime = async (param) => {
+const getCustomerCountByDay = async (param) => {
     const endDate = util.addDays(0 - param.timeScope);
-    const sql = "select date_format(createdAt, 'Y%-m%-d%') as day, count(distinct(customerKey)) as count from loadPageInfos where createdAt>'" + endDate + "' and monitorId='" + param.monitorId + "' group by day";
+    const sql = "select date_format(createdAt, '%Y-%m-%d') as day, count(distinct(customerKey)) as count from loadPageInfos where createdAt>'" + endDate + "' and monitorId='" + param.monitorId + "' group by day";
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
-const getCustomerCountByTimePv = async (param) => {
+const getCustomerCountByTime = async (startTime, endTime, data) => {
+    const sql = "select count(distinct(customerKey)) as count from loadPageInfos where monitorId='" + data.monitorId + "' and createdAt > '" + startTime + "' and createdAt < '" + endTime + "'";
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+const getCustomerCountByDayPv = async (param) => {
     const endDate = util.addDays(0 - param.timeScope);
-    const sql = "select date_format(createdAt, 'Y%-m%-d%') as day, count(*) as count from loadPageInfos where createdAt>'" + endDate + "' and monitorId='" + param.monitorId + "' group by day";
+    const sql = "select date_format(createdAt, '%Y-%m-%d') as day, count(*) as count from loadPageInfos where createdAt>'" + endDate + "' and monitorId='" + param.monitorId + "' group by day";
+    return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+}
+
+const getCustomerCountByTimePv = async (startTime, endTime, data) => {
+    const sql = "select count(*) as count from loadPageInfos where monitorId='" + data.monitorId + "' and createdAt > '" + startTime + "' and createdAt < '" + endTime + "'";
     return await sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
 }
 
@@ -159,7 +169,9 @@ export default {
     getCustomerIosPvCount,
     getCustomerAndroidCount,
     getCustomerCountByTime,
+    getCustomerCountByDay,
     getCustomerCountByTimePv,
+    getCustomerCountByDayPv,
     getCustomerDetailByCustomerKey,
     getCustomerPVByCustomerKey,
     getCustomerKeyByUserId,

@@ -539,6 +539,52 @@ const getSearchCustomerInfo = (data) => {
     }
 }
 
+const receiveCustomerCount = (data) => {
+    return {
+        type: types.CUSTOMER_COUNT,
+        customerCount: data,
+    }
+}
+
+const getCustomerCount = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getCustomerCount(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveCustomerCount(res.data.data));
+                    resolve(res.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
+const receiveCustomerCountPv = (data) => {
+    return {
+        type: types.CUSTOMER_COUNT_PV,
+        customerCountPv: data,
+    }
+}
+
+const getCustomerCountPv = (data) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            api.getCustomerCountPv(data).then(res => {
+                if (res.data.code === 200) {
+                    dispatch(receiveCustomerCountPv(res.data.data));
+                    resolve(res.data.data);
+                } else {
+                    message.error(res.data.message);
+                    reject(res.data);
+                }
+            })
+        })
+    }
+}
+
 
 export default {
     login,
@@ -567,4 +613,6 @@ export default {
     getJsErrorTrack,
     getBehaviorRecord,
     getSearchCustomerInfo,
+    getCustomerCount,
+    getCustomerCountPv,
 }

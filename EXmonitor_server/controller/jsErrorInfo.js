@@ -130,7 +130,7 @@ const getJsErrorInfoCountByTime = async (ctx) => {
         let endTime = `${timePre} ${hour}:59:59`;
         if (new Date(endTime).getTime() > datePre) {
             isFinishPre = true;
-            endTime = moment(dateSeven).format('YYYY-MM-DD HH:mm:ss');
+            endTime = moment(datePre).format('YYYY-MM-DD HH:mm:ss');
         }
        const count = await jsErrorInfoModel.getJsErrorInfoCountTimesAgo(startTime, endTime, param);
 

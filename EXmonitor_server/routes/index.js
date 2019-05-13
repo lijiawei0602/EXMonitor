@@ -95,9 +95,9 @@ router.delete('/customerPV', verify, customerPVController.deleteCustomerPV);
 // 更新pv
 router.put('/customerPV', verify, customerPVController.update);
 // 获取日活量Uv
-router.get('/getCustomerCountByTime', verify, customerPVController.getCustomerCountByTime);
+router.post('/getCustomerCountByTime', verify, customerPVController.getCustomerCountByTime);
 // 获取日活量Pv
-router.get('/getCustomerCountByTimePv', verify, customerPVController.getCustomerCountByTimePv);
+router.post('/getCustomerCountByTimePv', verify, customerPVController.getCustomerCountByTimePv);
 
 /**
 * 用户加载页面信息
