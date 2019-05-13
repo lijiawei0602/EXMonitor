@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Form, Input, Row, Col, Button, } from 'antd';
 import './Login.less';
 import Logo from '../../../assets/logo.png';
+import Topic from '../../../assets/topic.png';
 import action from '../../../action/index.js';
 
 const FormItem = Form.Item;
@@ -97,11 +98,11 @@ class Login extends React.Component {
         const { labelCol, userId, userIdInfo, password, passwordInfo, } = this.state;
         return (
            <Form className="login">
-                <Row>
-                    <Col {...labelCol}>
-                        <img width="100%" src={Logo} alt="" />
+                <Row style={{display: 'flex', justifyContent: 'center'}}>
+                    <Col span={8}>
+                        <img width="100%" style={{marginTop: '80px'}} src={Topic} alt="" />
                     </Col>
-                    <Col {...labelCol} style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '400px'}}>
+                    <Col span={7} style={{marginLeft: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '400px'}}>
                         <div className="login-topic">异常监控系统</div>
                         <FormItem label="用户名" {...userIdInfo}>
                             <Input value={userId} onChange={this.handleUserIdChange}></Input>

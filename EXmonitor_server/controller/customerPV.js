@@ -1,4 +1,5 @@
 import customerPVModel from '../modules/customerPV.js';
+import util from '../util/index.js';
 import moment from 'moment';
 
 /**
@@ -177,13 +178,19 @@ const getCustomerCountByTime = async (ctx) => {
             }
         }
     } else if (level === 'day') {
-        const data = await customerPVModel.getCustomerCountByTime(param);
+        const startDate = util.addDays(0) + " 59:59:59";
+        const endDate = util.addDays(0 - param.timeScope) + " 59:59:59";
+        const startDatePre = util.addDays(0 - param.timeScope) + " 59:59:59";
+        const endDatePre = util.addDays(0 - 2 * param.timeScope) + " 59:59:59";
+        const data = await customerPVModel.getCustomerCountByDay(startDate, endDate, param);
+        const dataPrev = await customerPVModel.getCustomerCountByDay(startDatePre, endDatePre, param);
         ctx.response.status = 200;
         ctx.response.body = {
             code: 200,
             message: "查询成功",
             data: {
-                data,
+                'tomonth': data,
+                'previous': dataPrev,
             }
         };
     }
@@ -248,13 +255,19 @@ const getCustomerCountByTimePv = async (ctx) => {
             }
         }
     } else if (level === 'day') {
-        const data = await customerPVModel.getCustomerCountByDayPv(param);
+        const startDate = util.addDays(0) + " 59:59:59";
+        const endDate = util.addDays(0 - param.timeScope) + " 59:59:59";
+        const startDatePre = util.addDays(0 - param.timeScope) + " 59:59:59";
+        const endDatePre = util.addDays(0 - 2 * param.timeScope) + " 59:59:59";
+        const data = await customerPVModel.getCustomerCountByDayPv(startDate, endDate, param);
+        const dataPrev = await customerPVModel.getCustomerCountByDayPv(startDatePre, endDatePre, param);
         ctx.response.status = 200;
         ctx.response.body = {
             code: 200,
             message: "查询成功",
             data: {
-                data,
+                'tomonth': data,
+                'previous': dataPrev,
             }
         };
     }

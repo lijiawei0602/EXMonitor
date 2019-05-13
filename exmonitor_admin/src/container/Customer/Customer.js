@@ -2,8 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Select, Checkbox } from 'antd';
 import echarts from 'echarts';
+import moment from 'moment';
 import './Customer.less';
 import actions from '../../action/index.js';
+import { customerCountOpt } from '../../chartConfig/customerCountOpt.js';
 const Option = Select.Option;
 
 class Customer extends React.Component {
@@ -13,11 +15,17 @@ class Customer extends React.Component {
             type: 'pv',
             level: 'hour',
             isCompare: false,
+            customerCountChart: null,
+            res: [],
         }
     }
 
     componentDidMount () {
         this.handleRequest();
+    }
+
+    componentWillUnmount () {
+        window.onresize = null;
     }
 
     handleRequest () {
@@ -38,13 +46,76 @@ class Customer extends React.Component {
         }
         if (type === 'pv') {
             dispatch(actions.getCustomerCountPv(customerData)).then(res => {
-                console.log(res);
+                if (level === 'day') {
+                    res.tomonth = this.handleMonthData(res.tomonth);
+                    res.previous = this.handleMonthData(res.previous);
+                }
+                this.setState({
+                    res,
+                });
+                this.handleResData(res);
             });
         } else if (type === 'uv') {
             dispatch(actions.getCustomerCount(customerData)).then(res => {
-                console.log(res);
+                if (level === 'day') {
+                    res.tomonth = this.handleMonthData(res.tomonth);
+                    res.previous = this.handleMonthData(res.previous);
+                }
+                this.setState({
+                    res,
+                });
+                this.handleResData(res);
             });
         }
+    }
+
+    handleResData  (res) {
+        const { isCompare } = this.state;
+        if (isCompare) {
+            const arr = [[...(res.tomonth || res.today)], [...res.previous]];
+            const customerCountChart = echarts.init(document.getElementById('customerCountChart'));
+            const options = customerCountOpt(arr);
+            customerCountChart.setOption(options, true);
+            this.setState({
+                customerCountChart,
+            }, () => {
+                window.addEventListener('resize', () => {
+                    customerCountChart.resize();
+                });
+            });
+        } else {
+            const arr = [[...(res.tomonth || res.today)]];
+            const customerCountChart = echarts.init(document.getElementById('customerCountChart'));
+            const options = customerCountOpt(arr);
+            customerCountChart.setOption(options, true);
+            this.setState({
+                customerCountChart,
+            }, () => {
+                window.addEventListener('resize', () => {
+                    customerCountChart.resize();
+                });
+            });
+        }
+    }
+
+    handleMonthData (res) {
+        const date = new Date().getTime();
+        let arr = [];
+        for (let i = 0; i < 30; i++) {
+            const time = date - 24 * 60 * 60 * 1000 * (29 - i);
+            arr[i] = {
+                day: moment(time).format('YYYY-MM-DD'),
+                count: 0,
+            };
+        }
+        arr.forEach(item => {
+            res.forEach(t => {
+                if (t.day === item.day) {
+                    item.count = t.count;
+                }
+            })
+        });
+        return arr;
     }
 
     handleTypeChange = (value) => {
@@ -64,20 +135,10 @@ class Customer extends React.Component {
     }
 
     handleCheckboxChange = (e) => {
-        const checked = e.target.checked;
         this.setState({
             isCompare: !this.state.isCompare,
         }, () => {
-            const { level } = this.state;
-            if (checked) {
-                if (level === 'day') {
-
-                } else {
-
-                }
-            } else {
-                
-            }
+            this.handleResData(this.state.res);
         });
     }
 
