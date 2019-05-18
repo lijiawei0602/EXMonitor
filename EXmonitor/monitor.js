@@ -79,7 +79,7 @@
         this.happenTime = new Date().getTime(); // 日志发生时间
         this.monitorId = MONITOR_ID;    //用于区分应用的唯一标识（一个项目对应一个）
         this.simpleUrl = window.location.href.split('?')[0].replace('#', '');   // 页面URL
-        this.completeUrl = encodeURIComponent(window.location.href),
+        this.completeUrl = window.location.href,
         this.customerKey = utils.getCustomerKey();  // 用于区分用户，所对应唯一的标识，清理本地数据就失效
         this.pageKey = utils.getPageKey();  // 用户区分页面，所对应的唯一标识，每个新页面对应一个值
         this.deviceName = DEVICE_INFO.deviceName;
@@ -147,7 +147,7 @@
     function JSErrorInfo(uploadType, errorMsg, errorStack, url, lineNumber, columnNumber){
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
-        this.errorMessage = encodeURIComponent(errorMsg).replace(/\'/g, '"');
+        this.errorMessage = errorMsg.replace(/\'/g, '"');
         this.errorStack = errorStack;
         this.browserInfo = BROWSER_INFO;
         this.url = url;
@@ -160,7 +160,7 @@
     function HttpLogInfo(uploadType, url, status, statusText, statusResult, currentTime, loadTime) {
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
-        this.httpUrl = encodeURIComponent(url),
+        this.httpUrl = url,
         this.status = status;
         this.statusText = statusText;
         this.statusResult = statusResult;
@@ -173,7 +173,7 @@
     function ScreenShotInfo(uploadType, des, screenInfo){
         setCommonProperty.apply(this);
         this.uploadType = uploadType;
-        this.description = encodeURIComponent(des);
+        this.description = des;
         this.screenInfo = screenInfo;
         this.imgType = 'webp';
     }
@@ -311,19 +311,19 @@
      */
     function recordJSError(){
         // 重写console.error,用于捕获全面的报错信息
-        // var oldError = console.error;
-        // console.error = function(){
-        //     var errorMsg = arguments[0] && arguments[0].message;
-        //     var url = LOCACTION;
-        //     var lineNumber = 0;
-        //     var columnNumber = 0;
-        //     var errorObj = arguments[0] && arguments[0].stack;
-        //     if(!errorObj)
-        //         errorObj = arguments[0];
-        //     // 如果在onerror处捕获了，则无须在此处上报了
-        //     !jsMonitorStarted && siftAndMakeUpMsg(errorMsg, url, lineNumber, columnNumber, errorObj);
-        //     return oldError.apply(console, arguments);
-        // };
+        var oldError = console.error;
+        console.error = function(){
+            var errorMsg = arguments[0] && arguments[0].message;
+            var url = LOCACTION;
+            var lineNumber = 0;
+            var columnNumber = 0;
+            var errorObj = arguments[0] && arguments[0].stack;
+            if(!errorObj)
+                errorObj = arguments[0];
+            // 如果在onerror处捕获了，则无须在此处上报了
+            !jsMonitorStarted && siftAndMakeUpMsg(errorMsg, url, lineNumber, columnNumber, errorObj);
+            return oldError.apply(console, arguments);
+        };
         // 重写onerror进行jsError的监听
         window.onerror = function(errorMsg, url, lineNumber, columnNumber, errObj){
             jsMonitorStarted = true;
@@ -331,6 +331,8 @@
             //     console.error(errObj.stack || errorMsg);
             // }
             var errStack = errObj ? errObj.stack : null;
+            var col = Number(errStack.split('\n')[1].split(/js:\d:/)[1].replace(')', ''));
+            columnNumber = col > columnNumber ? col : columnNumber;
             siftAndMakeUpMsg(errorMsg, url, lineNumber, columnNumber, errStack);
         };
 
@@ -422,9 +424,9 @@
             document.onclick = function(e){
                 var tagName = e.target.tagName;
                 var className = e.target.className ? e.target.className.replace(/\s/g, '') : "";
-                var placeholder = encodeURIComponent(e.target.placeholder);
-                var inputValue = encodeURIComponent(e.target.value || '');
-                var innerText = encodeURIComponent(e.target.innerText.replace(/\s*/g, ''));
+                var placeholder = e.target.placeholder;
+                var inputValue = e.target.value || '';
+                var innerText = e.target.innerText.replace(/\s*/g, '');
                 // 若点击的元素内容过长，则进行截取
                 if(innerText.length > 200){
                     innerText = innerText.substring(0,100) + "... ..." + innerText.substring(innerText.length - 99, innerText.length - 1);
@@ -675,10 +677,10 @@
         wm_upload: function(url, type, index, description){
             var createTime = new Date().toString();
             var logParams = {
-                createTime: encodeURIComponent(createTime),
+                createTime: createTime,
                 happenTime: new Date().getTime(),
                 uploadType: "WM_UPLOAD",
-                simpleUrl: encodeURIComponent(url),
+                simpleUrl: url,
                 webMonitorId: MONITOR_ID,
                 recordType: type,
                 recordIndex: index,

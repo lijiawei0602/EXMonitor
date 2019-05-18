@@ -31,13 +31,17 @@ const getJsErrorInfoList = async () => {
 }
 
 const getJsErrorInfoListByMonitorId = async (data) => {
-    const jsErrorList =  await JsErrorInfo.findAll({
+    let jsErrorList =  await JsErrorInfo.findAll({
         where: {
             monitorId: data.monitorId,
         },
         order: [['createdAt', 'DESC']],
         limit: parseInt(data.limit),
         offset: parseInt(data.offset),
+    });
+    jsErrorList.forEach(item => {
+        item.completeUrl = decodeURIComponent(item.completeUrl);
+        item.errorMessage = decodeURIComponent(item.errorMessage);
     });
     const total = await JsErrorInfo.count({
         where: {
