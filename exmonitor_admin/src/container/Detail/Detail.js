@@ -55,7 +55,7 @@ class Detail extends React.Component {
         dispatch(actions.getJsErrorInfoStackCode({id: errorId})).then(res => {
             if (res.type === 'origin') {
                 // 后端暂未支持
-                const { row, col, file } = res;
+                const { row, col, file, source } = res;
                 const line = file.split('\n');
 
                 const startRow = row - 3 > 0 ? row - 3 : 0;
@@ -68,6 +68,7 @@ class Detail extends React.Component {
                     stackCodeStart: startRow,
                     stackCodeRow: row,
                     stackCodeCol: col,
+                    stackCodeSource: source,
                     stackCodeArr: resArr,
                 });
             } else if (res.type === 'sourcemap') {

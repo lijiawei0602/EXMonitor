@@ -1,4 +1,5 @@
 import JSON2 from 'JSON2';
+import fetch from 'node-fetch';
 import nodemailer from 'nodemailer';
 const SourceMapConsumer = require('source-map').SourceMapConsumer;
 const promisify = require('util').promisify;
@@ -242,11 +243,15 @@ const getJsErrorInfoStackCode = async (data) => {
         }
     });
     if (!sourceMapFileName) {
+        const file = await fetch(url);
+        const fileContent = await file.json();
         return {
             type: 'origin',
             row,
             col,
             msg: errorMessage,
+            file: fileContent,
+            source: url,
         }
     }
     // 根据对应的sourceMap文件获取源文件内容以及行列数
