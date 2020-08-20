@@ -14,7 +14,7 @@
     "JSON2": "^0.1.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-stage-2": "^6.24.1",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "fs": "0.0.1-security",
     "jsonwebtoken": "^8.5.0",
     "koa": "^2.7.0",
